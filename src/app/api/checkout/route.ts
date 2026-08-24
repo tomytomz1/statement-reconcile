@@ -141,7 +141,19 @@ export async function POST(request: Request): Promise<Response> {
 
     return jsonResponse({ url: session.url, sessionId: session.id });
   } catch (error) {
-    logFailure("checkout_failed", error, { route: "checkout" });
+    const stripeError = error as {
+      type?: unknown;
+      code?: unknown;
+      statusCode?: unknown;
+      param?: unknown;
+    };
+    logFailure("checkout_failed", error, {
+      route: "checkout",
+      stripeType: typeof stripeError.type === "string" ? stripeError.type : undefined,
+      stripeCode: typeof stripeError.code === "string" ? stripeError.code : undefined,
+      stripeStatus: typeof stripeError.statusCode === "number" ? stripeError.statusCode : undefined,
+      stripeParam: typeof stripeError.param === "string" ? stripeError.param : undefined,
+    });
     return errorResponse("internal_error", 502, "Checkout could not be started. Please try again.");
   }
 }
