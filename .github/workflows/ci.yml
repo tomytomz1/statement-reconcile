@@ -28,7 +28,7 @@ jobs:
       - name: Secret scan
         run: |
           set +e
-          hits=$(git grep -I -l -E 'sk_live_[A-Za-z0-9]|rk_live_[A-Za-z0-9]|STRIPE_SECRET_KEY=sk' -- ':!.env.example' || true)
+          hits=$(git grep -I -l -E 'sk_live_[A-Za-z0-9]|rk_live_[A-Za-z0-9]|STRIPE_SECRET_KEY=sk' -- ':!.env.example' ':!.github/workflows/ci.yml' || true)
           set -e
           if [ -n "$hits" ]; then
             echo "Secret scan failed. Matching files (names only):"
