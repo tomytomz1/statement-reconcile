@@ -103,7 +103,7 @@ export default function PricingPage() {
                     "Excel workbook with transactions, summary, verification, and source references",
                     "CSV file with a fixed column order",
                     "Per-statement verification PDF and pack-manifest.json",
-                    "Re-download for 30 days from the same browser",
+                    "30-day entitlement; re-upload the same files after the local copy expires",
                     "Full refund within 30 days if the output is wrong",
                   ]}
                 />

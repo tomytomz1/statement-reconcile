@@ -37,6 +37,7 @@ export const metadata: Metadata = pageMetadata({
   title: TITLE,
   description: DESCRIPTION,
   path: routes.home,
+  absoluteTitle: true,
 });
 
 const STEPS = [
@@ -481,7 +482,7 @@ function Pricing() {
             className="mx-auto max-w-md text-left"
             items={[
               "Excel workbook and CSV file both included",
-              "Re-download for 30 days from the same browser",
+              "30-day entitlement; re-upload the same files after the local copy expires",
               "No account, no subscription, no stored card",
               "Charged only after you have seen the statement balance",
               "Full refund within 30 days if the file is wrong",

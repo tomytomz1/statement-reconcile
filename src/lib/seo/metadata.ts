@@ -33,9 +33,10 @@ export type PageMetadataInput = {
 export function pageMetadata(input: PageMetadataInput): Metadata {
   const url = absoluteUrl(input.path);
   const image = input.ogImagePath ?? siteConfig.social.ogImagePath;
+  const titleIsComplete = input.absoluteTitle || hasBrandSuffix(input.title);
 
   const metadata: Metadata = {
-    title: input.absoluteTitle ? { absolute: input.title } : input.title,
+    title: titleIsComplete ? { absolute: input.title } : input.title,
     description: input.description,
     alternates: { canonical: url },
     openGraph: {
@@ -72,6 +73,10 @@ export function pageMetadata(input: PageMetadataInput): Metadata {
   }
 
   return metadata;
+}
+
+function hasBrandSuffix(title: string): boolean {
+  return title.endsWith(`| ${siteConfig.brandName}`) || title.endsWith(`— ${siteConfig.brandName}`);
 }
 
 /** Base metadata applied at the root layout and inherited by every page. */

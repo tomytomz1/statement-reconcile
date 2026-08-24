@@ -40,7 +40,7 @@ export function Paywall({
               "Excel workbook (.xlsx) with transactions, a summary sheet, a verification sheet, and source references",
               "CSV file with a fixed column order, ready to import",
               "Per-statement verification PDF and pack-manifest.json",
-              "Re-download for 30 days from the same browser",
+              "30-day entitlement; re-upload the same files after the local copy expires",
               "Full refund if the file is wrong or you cannot use it",
             ].map((item) => (
               <li key={item} className="flex gap-2.5">

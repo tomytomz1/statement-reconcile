@@ -7,10 +7,10 @@ Authoritative source: `CURSOR_MASTER_BUILD_PROMPT_statement_reconcile_UPDATED.md
 | Phase                 | Status      | Notes                                                                                                                                                |
 | --------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 0–11 Core V1 funnel   | done        | Domain engine, client PDF text extract, Stripe digest gate, CSV/XLSX, SEO, analytics skeleton.                                                       |
-| 12 Test matrix        | in progress | Expanded for Section 41.                                                                                                                             |
-| 13 GitHub             | pending     |                                                                                                                                                      |
-| 14 Vercel             | blocked     | CLI logged out.                                                                                                                                      |
-| 15–16 Audit / handoff | in progress | Operator docs written (README, SECURITY, MANUAL_CONNECTIONS, docs/*). Remaining owner actions in `MANUAL_CONNECTIONS.md`. Section 41 DoD still open. |
+| 12 Test matrix        | done        | Unit, integration, synthetic benchmark, claims, SEO, and Playwright coverage are wired into CI.                                                      |
+| 13 GitHub             | done        | Private repository on `main`; CI runs on pushes and pull requests.                                                                                   |
+| 14 Vercel             | done        | Production is live on the canonical domain and reports the deployed `main` commit with no health warnings.                                           |
+| 15–16 Audit / handoff | in progress | Automated and production wiring are complete. Real-statement acceptance, one live purchase/refund, mailbox delivery, and the held-out corpus remain. |
 
 ## Section 41 addendum
 

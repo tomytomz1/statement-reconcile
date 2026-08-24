@@ -1,14 +1,15 @@
 # Manual connections
 
-Actions **only the owner** must perform. GitHub is not listed here: the agent creates the private repo if `gh` is authenticated as the owner; otherwise run:
+Production connection record and owner-operated checks. As of 2026-08-24, the private GitHub
+repository, Vercel production project, custom domain, live Stripe integration, Upstash rate
+limiter, result sealing, and legal identity are connected. Keep the procedures below for rotation,
+recovery, and future environment changes.
 
-```bash
-gh repo create tomytomz1/statement-reconcile --private --source=. --remote=origin --push
-```
+## 1. Vercel — connected
 
-At inspection the Vercel CLI was **logged out**. Complete the items below before production traffic.
-
-## 1. Vercel login, link, production deploy
+The production project is linked and `https://statementreconcile.com` is serving the current
+`main` commit. `/api/health` reports `status: "ok"`, `appEnv: "production"`, and no warnings.
+Use these commands only when relinking or deploying manually:
 
 ```bash
 vercel login
@@ -18,9 +19,12 @@ vercel --prod               # first production deploy after env vars are set
 
 Set environment variables in the Vercel project (Production + Preview as appropriate). See [`docs/ENVIRONMENT.md`](docs/ENVIRONMENT.md). `APP_ENV=production` on the production environment.
 
-`GET /api/health` reports `degraded` (503) until Stripe is configured **and** a durable rate limiter is present.
+`GET /api/health` reports `degraded` (503) if Stripe or the durable rate limiter becomes unavailable.
 
-## 2. Stripe
+## 2. Stripe — connected; live acceptance purchase still required
+
+Production health confirms live mode, a Price id, and a webhook signing secret. The remaining
+owner acceptance check is one real $19 purchase, download of every artifact, and a refund.
 
 1. Create a Stripe account and complete onboarding.
 2. Create a one-time product (“Verified Conversion Pack — up to 50 total pages”) and a **$19 USD** Price. Copy the Price id into `STRIPE_PRICE_ID`.
@@ -45,7 +49,7 @@ If you want the fallback:
 
 Production cost and prompt-injection exposure both increase when this is on. Leave it off until you have measured deterministic coverage.
 
-## 4. Upstash (or compatible) rate limit — required in production
+## 4. Upstash (or compatible) rate limit — connected
 
 `RATE_LIMIT_PROVIDER=upstash`, plus `RATE_LIMIT_URL` and `RATE_LIMIT_TOKEN` (REST).
 
@@ -53,7 +57,7 @@ Without them, production **fails closed**: `/api/parse` returns 503 rather than 
 
 Any Upstash-compatible Redis REST endpoint works; the app speaks `INCR` / `EXPIRE` / `TTL` over `fetch`, not an SDK.
 
-## 5. Domain `statementreconcile.com` → Vercel
+## 5. Domain `statementreconcile.com` → Vercel — connected
 
 After the Vercel project exists, add the domain in the Vercel dashboard and apply **the records Vercel displays**. Placeholders until then:
 
@@ -89,6 +93,9 @@ No analytics script is loaded on `/app`. Do Not Track and Global Privacy Control
 
 Set `EXPORT_SEAL_SECRET` to a long random value on every environment that serves real conversions. Without it the envelope is `v1.plain.…`; checkout and export still require Stripe, but the full table is readable in the browser. `/api/health` and `pnpm run doctor` report this as weaker mode.
 
-## Not owner actions
+## Remaining owner-operated checks
 
-GitHub repo creation, CI, and the first `git push` are agent/CI work when `gh` is authenticated. You still own Vercel login, Stripe, DNS, mailboxes, legal names, and production secrets.
+- Confirm `support@`, `security@`, and `privacy@` forwarding by sending and receiving a message.
+- Complete the real $19 purchase/download/refund acceptance test.
+- Keep Stripe dispute notifications enabled.
+- Decide whether to enable privacy-preserving marketing analytics after traffic begins.

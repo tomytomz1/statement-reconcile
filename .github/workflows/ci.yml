@@ -62,6 +62,9 @@ jobs:
       - name: Unit and integration tests
         run: pnpm test
 
+      - name: Synthetic release benchmark
+        run: pnpm benchmark:synthetic
+
       - name: SEO audit
         run: pnpm audit:seo
 
