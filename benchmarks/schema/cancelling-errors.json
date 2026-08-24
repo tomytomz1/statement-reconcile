@@ -1,0 +1,6 @@
+{
+  "id": "cancelling-errors-running-balance",
+  "family": "adversarial",
+  "description": "Two amount errors that cancel in the aggregate must still fail when running balances are printed.",
+  "expect": "verification_rejected"
+}

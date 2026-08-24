@@ -1,26 +1,130 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Design tokens.
+ *
+ * The product asks people to trust a number, so the visual language is deliberately quiet:
+ * one accent colour, a narrow neutral ramp, generous line height, and no decoration that
+ * competes with the reconciliation panel. Semantic colours are reserved — green means
+ * "these numbers agree", amber means "read this before you continue", red means "we will
+ * not sell you this". They are never used ornamentally.
+ */
+
+@theme {
+  --color-ink-50: #f6f7f9;
+  --color-ink-100: #eceef2;
+  --color-ink-200: #d5dae2;
+  --color-ink-300: #b1bac8;
+  --color-ink-400: #8695a9;
+  --color-ink-500: #596b80;
+  --color-ink-600: #506076;
+  --color-ink-700: #414e60;
+  --color-ink-800: #384252;
+  --color-ink-900: #1e2634;
+  --color-ink-950: #131924;
+
+  --color-accent-50: #eff8ff;
+  --color-accent-100: #dbeefe;
+  --color-accent-200: #bfe2fe;
+  --color-accent-300: #93d0fd;
+  --color-accent-400: #60b6fa;
+  --color-accent-500: #3b98f6;
+  --color-accent-600: #2579eb;
+  --color-accent-700: #1d63d8;
+  --color-accent-800: #1e51af;
+  --color-accent-900: #1d478a;
+
+  --color-verified-50: #ecfdf3;
+  --color-verified-100: #d1fadf;
+  --color-verified-200: #a6f4c5;
+  --color-verified-600: #039855;
+  --color-verified-700: #027a48;
+  --color-verified-900: #054f31;
+
+  --color-caution-50: #fffaeb;
+  --color-caution-100: #fef0c7;
+  --color-caution-200: #fedf89;
+  --color-caution-700: #b54708;
+  --color-caution-900: #7a2e0e;
+
+  --color-refused-50: #fef3f2;
+  --color-refused-100: #fee4e2;
+  --color-refused-200: #fecdca;
+  --color-refused-700: #b42318;
+  --color-refused-900: #7a271a;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-stack), ui-monospace, "SFMono-Regular", monospace;
+
+  --radius-card: 0.875rem;
+
+  --shadow-panel: 0 1px 2px rgb(19 25 36 / 0.04), 0 8px 24px -12px rgb(19 25 36 / 0.12);
+  --shadow-raised: 0 1px 2px rgb(19 25 36 / 0.06), 0 16px 40px -20px rgb(19 25 36 / 0.24);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Respect a reduced-motion preference everywhere, including the smooth scroll above. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  body {
+    background-color: var(--color-ink-50);
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+  }
+
+  /* A visible, high-contrast focus ring on every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-600);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  /* Tabular figures wherever money is shown, so columns of digits line up. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  ::selection {
+    background-color: var(--color-accent-100);
+    color: var(--color-ink-950);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* Visually hidden but available to assistive technology. */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media print {
+  /* Printing a preview should produce the table, not the marketing chrome. */
+  .no-print {
+    display: none !important;
+  }
 }

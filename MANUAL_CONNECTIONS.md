@@ -1,0 +1,94 @@
+# Manual connections
+
+Actions **only the owner** must perform. GitHub is not listed here: the agent creates the private repo if `gh` is authenticated as the owner; otherwise run:
+
+```bash
+gh repo create tomytomz1/statement-reconcile --private --source=. --remote=origin --push
+```
+
+At inspection the Vercel CLI was **logged out**. Complete the items below before production traffic.
+
+## 1. Vercel login, link, production deploy
+
+```bash
+vercel login
+vercel link                 # create or attach the project
+vercel --prod               # first production deploy after env vars are set
+```
+
+Set environment variables in the Vercel project (Production + Preview as appropriate). See [`docs/ENVIRONMENT.md`](docs/ENVIRONMENT.md). `APP_ENV=production` on the production environment.
+
+`GET /api/health` reports `degraded` (503) until Stripe is configured **and** a durable rate limiter is present.
+
+## 2. Stripe
+
+1. Create a Stripe account and complete onboarding.
+2. Create a one-time product (“Verified Conversion Pack — up to 50 total pages”) and a **$19 USD** Price. Copy the Price id into `STRIPE_PRICE_ID`.
+3. Put the secret key in `STRIPE_SECRET_KEY` (`sk_test_…` on Preview, `sk_live_…` only on Production).
+4. If using a parser provider in production, also set `PARSER_ZERO_DATA_RETENTION=true` and `PARSER_DISABLE_TRAINING=true`. Without both, the provider is treated as unconfigured so statement text is never sent.
+5. Webhook endpoint: `https://statementreconcile.com/api/stripe/webhook`
+   - Events: `checkout.session.completed`, `checkout.session.expired`, `charge.refunded`, `charge.dispute.created`
+   - Signing secret → `STRIPE_WEBHOOK_SECRET`
+6. Confirm success/cancel URLs are not needed in the Dashboard; the app sets them from the canonical origin.
+
+The webhook is **observability only**. Entitlement is a live `checkout.sessions.retrieve` on every export. A missing webhook does not unlock or lock downloads, but disputes will be silent.
+
+## 3. Parser API key (optional)
+
+Deterministic parsing works with `PARSER_PROVIDER=none` (the default). An LLM is called only when that path cannot reconcile and the failure is not terminal (scanned, encrypted, multi-account, oversized).
+
+If you want the fallback:
+
+- `PARSER_PROVIDER`: `openai` | `anthropic` | `openai-compatible`
+- `PARSER_API_KEY`
+- Optional: `PARSER_MODEL`, `PARSER_BASE_URL`, `PARSER_TIMEOUT_MS` (default 45000)
+
+Production cost and prompt-injection exposure both increase when this is on. Leave it off until you have measured deterministic coverage.
+
+## 4. Upstash (or compatible) rate limit — required in production
+
+`RATE_LIMIT_PROVIDER=upstash`, plus `RATE_LIMIT_URL` and `RATE_LIMIT_TOKEN` (REST).
+
+Without them, production **fails closed**: `/api/parse` returns 503 rather than serving an unmetered provider endpoint. In-memory limiting is local-dev only.
+
+Any Upstash-compatible Redis REST endpoint works; the app speaks `INCR` / `EXPIRE` / `TTL` over `fetch`, not an SDK.
+
+## 5. Domain `statementreconcile.com` → Vercel
+
+After the Vercel project exists, add the domain in the Vercel dashboard and apply **the records Vercel displays**. Placeholders until then:
+
+| Host  | Type  | Value                                               |
+| ----- | ----- | --------------------------------------------------- |
+| `www` | CNAME | `cname.vercel-dns.com` (or the target Vercel shows) |
+| `@`   | A     | the IPv4 Vercel shows for the apex                  |
+
+Set `NEXT_PUBLIC_SITE_URL=https://statementreconcile.com` on Production so canonical tags, sitemap, and Stripe redirects match.
+
+Point `support@`, `security@`, and `privacy@` mailboxes on that domain (or set the `NEXT_PUBLIC_*_EMAIL` overrides).
+
+## 6. Legal business name and jurisdiction
+
+Replace the placeholders before launch:
+
+- `NEXT_PUBLIC_LEGAL_BUSINESS_NAME`
+- `NEXT_PUBLIC_LEGAL_JURISDICTION`
+
+`pnpm run doctor` treats these as outstanding until they differ from the built-in placeholders. They are interpolated into Terms, Privacy, and the public footer. Do not invent a jurisdiction.
+
+## 7. Optional analytics
+
+Off unless both are set:
+
+- `NEXT_PUBLIC_ENABLE_ANALYTICS=true`
+- `NEXT_PUBLIC_ANALYTICS_PROVIDER=plausible` or `vercel`
+- `NEXT_PUBLIC_ANALYTICS_KEY` (Plausible domain) and optional `NEXT_PUBLIC_ANALYTICS_HOST`
+
+No analytics script is loaded on `/app`. Do Not Track and Global Privacy Control disable measurement. Event contract: [`docs/METRICS.md`](docs/METRICS.md).
+
+## 8. Seal secret
+
+Set `EXPORT_SEAL_SECRET` to a long random value on every environment that serves real conversions. Without it the envelope is `v1.plain.…`; checkout and export still require Stripe, but the full table is readable in the browser. `/api/health` and `pnpm run doctor` report this as weaker mode.
+
+## Not owner actions
+
+GitHub repo creation, CI, and the first `git push` are agent/CI work when `gh` is authenticated. You still own Vercel login, Stripe, DNS, mailboxes, legal names, and production secrets.
