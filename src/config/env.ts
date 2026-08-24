@@ -43,6 +43,12 @@ const serverEnvSchema = z.object({
   RATE_LIMIT_PROVIDER: z.enum(["memory", "upstash"]).default("memory").catch("memory"),
   RATE_LIMIT_URL: optionalString,
   RATE_LIMIT_TOKEN: optionalString,
+  /** Standard names injected by Vercel's Upstash Redis integration. */
+  KV_REST_API_URL: optionalString,
+  KV_REST_API_TOKEN: optionalString,
+  /** Standard names injected by a directly connected Upstash account. */
+  UPSTASH_REDIS_REST_URL: optionalString,
+  UPSTASH_REDIS_REST_TOKEN: optionalString,
 
   /**
    * Deterministic-only mode. When true the parsing endpoint never calls an external
@@ -75,7 +81,14 @@ let cached: ServerEnv | undefined;
 
 export function serverEnv(): ServerEnv {
   if (!cached) {
-    cached = serverEnvSchema.parse(process.env);
+    const parsed = serverEnvSchema.parse(process.env);
+    cached = {
+      ...parsed,
+      RATE_LIMIT_URL:
+        parsed.RATE_LIMIT_URL ?? parsed.KV_REST_API_URL ?? parsed.UPSTASH_REDIS_REST_URL,
+      RATE_LIMIT_TOKEN:
+        parsed.RATE_LIMIT_TOKEN ?? parsed.KV_REST_API_TOKEN ?? parsed.UPSTASH_REDIS_REST_TOKEN,
+    };
   }
   return cached;
 }
