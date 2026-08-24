@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import type { ReactNode } from "react";
 
 import { siteConfig } from "@/config/site";
 import { JsonLd } from "@/components/site/json-ld";
@@ -37,7 +38,7 @@ export const viewport = {
   colorScheme: "light" as const,
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
