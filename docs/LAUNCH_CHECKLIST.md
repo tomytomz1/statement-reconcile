@@ -4,8 +4,8 @@ Canonical URL must be **https://statementreconcile.com**. Offer: $19 once, 50 pa
 
 ## Legal and identity
 
-- [ ] `NEXT_PUBLIC_LEGAL_BUSINESS_NAME` is the real entity
-- [ ] `NEXT_PUBLIC_LEGAL_JURISDICTION` is the real governing law (Terms still contain this interpolation)
+- [x] `NEXT_PUBLIC_LEGAL_BUSINESS_NAME` is `Statement Reconcile LLC`
+- [x] `NEXT_PUBLIC_LEGAL_JURISDICTION` is `Michigan`
 - [ ] `support@`, `security@`, `privacy@` mailboxes receive mail
 - [ ] Privacy, Terms, Security, Refund pages read as built (last updated 2026-08-24 in content files) — no leftover `[[JURISDICTION]]` if the env is set
 - [ ] Issuer pages keep the non-affiliation notice; `NEXT_PUBLIC_ENABLE_BANK_SPECIFIC_CLAIMS` remains false until a layout is actually tested

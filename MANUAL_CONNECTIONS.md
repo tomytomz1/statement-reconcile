@@ -68,12 +68,12 @@ Point `support@`, `security@`, and `privacy@` mailboxes on that domain (or set t
 
 ## 6. Legal business name and jurisdiction
 
-Replace the placeholders before launch:
+Configured for Production and Preview:
 
-- `NEXT_PUBLIC_LEGAL_BUSINESS_NAME`
-- `NEXT_PUBLIC_LEGAL_JURISDICTION`
+- `NEXT_PUBLIC_LEGAL_BUSINESS_NAME=Statement Reconcile LLC`
+- `NEXT_PUBLIC_LEGAL_JURISDICTION=Michigan`
 
-`pnpm run doctor` treats these as outstanding until they differ from the built-in placeholders. They are interpolated into Terms, Privacy, and the public footer. Do not invent a jurisdiction.
+These values are interpolated into Terms, Privacy, Contact, and the public footer. `pnpm run doctor` still flags a deployment where the jurisdiction variable itself is unset.
 
 ## 7. Optional analytics
 

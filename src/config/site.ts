@@ -19,17 +19,11 @@ export const siteConfig = {
   brandName: process.env.NEXT_PUBLIC_BRAND_NAME?.trim() || "Statement Reconcile",
   /** Short descriptor used next to the brand in navigation and metadata. */
   brandDescriptor: "Bank Statement Converter",
-  /** Legal entity placeholder — replace with the registered business name before launch. */
+  /** Registered operating entity shown in legal documents and the public footer. */
   legalBusinessName:
-    process.env.NEXT_PUBLIC_LEGAL_BUSINESS_NAME?.trim() || "Statement Reconcile (sole proprietor)",
-  /**
-   * Governing law and venue for the terms. Left as an explicit placeholder rather than a guess:
-   * naming a jurisdiction we have not actually registered in would make the terms misleading.
-   * `pnpm doctor` reports this as an outstanding launch task until it is set.
-   */
-  legalJurisdiction:
-    process.env.NEXT_PUBLIC_LEGAL_JURISDICTION?.trim() ||
-    "the jurisdiction of the operator's registered place of business (to be confirmed before launch)",
+    process.env.NEXT_PUBLIC_LEGAL_BUSINESS_NAME?.trim() || "Statement Reconcile LLC",
+  /** Governing law and venue shown in the terms. */
+  legalJurisdiction: process.env.NEXT_PUBLIC_LEGAL_JURISDICTION?.trim() || "Michigan",
   /** Canonical production URL. */
   url: canonicalUrl,
   domain: hostFromUrl(canonicalUrl),

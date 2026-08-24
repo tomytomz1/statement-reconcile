@@ -32,28 +32,28 @@ Local: `.env.local` (copy `.env.example`). Production/Preview: Vercel project en
 
 ## Public (inlined into the browser bundle — not secrets)
 
-| Variable                                  | Secret | Where                    | Default                                                            |
-| ----------------------------------------- | ------ | ------------------------ | ------------------------------------------------------------------ |
-| `NEXT_PUBLIC_SITE_URL`                    | no     | Production               | `https://statementreconcile.com`                                   |
-| `NEXT_PUBLIC_BRAND_NAME`                  | no     | optional                 | `Statement Reconcile`                                              |
-| `NEXT_PUBLIC_PRICE_USD`                   | no     | optional                 | `19`                                                               |
-| `NEXT_PUBLIC_MAX_PAGES`                   | no     | optional                 | `50`                                                               |
-| `NEXT_PUBLIC_MAX_FILE_SIZE_MB`            | no     | optional                 | `20`                                                               |
-| `NEXT_PUBLIC_LEGAL_BUSINESS_NAME`         | no     | Production before launch | Placeholder: `Statement Reconcile (sole proprietor)`               |
-| `NEXT_PUBLIC_LEGAL_JURISDICTION`          | no     | Production before launch | Placeholder until set; doctor flags it                             |
-| `NEXT_PUBLIC_SUPPORT_EMAIL`               | no     | optional                 | `support@statementreconcile.com`                                   |
-| `NEXT_PUBLIC_SECURITY_EMAIL`              | no     | optional                 | `security@statementreconcile.com`                                  |
-| `NEXT_PUBLIC_PRIVACY_EMAIL`               | no     | optional                 | `privacy@statementreconcile.com`                                   |
-| `NEXT_PUBLIC_TWITTER_HANDLE`              | no     | optional                 | empty (do not invent)                                              |
-| `NEXT_PUBLIC_PRODUCT_VERSION`             | no     | optional                 | `1.0.0`                                                            |
-| `NEXT_PUBLIC_ANALYTICS_PROVIDER`          | no     | optional                 | `none` \| `plausible` \| `vercel`                                  |
-| `NEXT_PUBLIC_ANALYTICS_KEY`               | no     | optional                 | Plausible domain or empty                                          |
-| `NEXT_PUBLIC_ANALYTICS_HOST`              | no     | optional                 | Plausible host; also CSP `connect-src` on **marketing** pages only |
-| `NEXT_PUBLIC_ENABLE_ANALYTICS`            | no     | optional                 | default `false`                                                    |
-| `NEXT_PUBLIC_ENABLE_OCR`                  | no     | optional                 | default `false` — scanned PDFs stay rejected                       |
-| `NEXT_PUBLIC_ENABLE_QBO`                  | no     | optional                 | default `false`                                                    |
-| `NEXT_PUBLIC_ENABLE_OFX`                  | no     | optional                 | default `false`                                                    |
-| `NEXT_PUBLIC_ENABLE_BANK_SPECIFIC_CLAIMS` | no     | optional                 | default `false` — issuer pages stay generic eligibility            |
+| Variable                                  | Secret | Where                | Default                                                            |
+| ----------------------------------------- | ------ | -------------------- | ------------------------------------------------------------------ |
+| `NEXT_PUBLIC_SITE_URL`                    | no     | Production           | `https://statementreconcile.com`                                   |
+| `NEXT_PUBLIC_BRAND_NAME`                  | no     | optional             | `Statement Reconcile`                                              |
+| `NEXT_PUBLIC_PRICE_USD`                   | no     | optional             | `19`                                                               |
+| `NEXT_PUBLIC_MAX_PAGES`                   | no     | optional             | `50`                                                               |
+| `NEXT_PUBLIC_MAX_FILE_SIZE_MB`            | no     | optional             | `20`                                                               |
+| `NEXT_PUBLIC_LEGAL_BUSINESS_NAME`         | no     | Production + Preview | Default: `Statement Reconcile LLC`                                 |
+| `NEXT_PUBLIC_LEGAL_JURISDICTION`          | no     | Production + Preview | Default: `Michigan`; doctor flags an unset deployment variable     |
+| `NEXT_PUBLIC_SUPPORT_EMAIL`               | no     | optional             | `support@statementreconcile.com`                                   |
+| `NEXT_PUBLIC_SECURITY_EMAIL`              | no     | optional             | `security@statementreconcile.com`                                  |
+| `NEXT_PUBLIC_PRIVACY_EMAIL`               | no     | optional             | `privacy@statementreconcile.com`                                   |
+| `NEXT_PUBLIC_TWITTER_HANDLE`              | no     | optional             | empty (do not invent)                                              |
+| `NEXT_PUBLIC_PRODUCT_VERSION`             | no     | optional             | `1.0.0`                                                            |
+| `NEXT_PUBLIC_ANALYTICS_PROVIDER`          | no     | optional             | `none` \| `plausible` \| `vercel`                                  |
+| `NEXT_PUBLIC_ANALYTICS_KEY`               | no     | optional             | Plausible domain or empty                                          |
+| `NEXT_PUBLIC_ANALYTICS_HOST`              | no     | optional             | Plausible host; also CSP `connect-src` on **marketing** pages only |
+| `NEXT_PUBLIC_ENABLE_ANALYTICS`            | no     | optional             | default `false`                                                    |
+| `NEXT_PUBLIC_ENABLE_OCR`                  | no     | optional             | default `false` — scanned PDFs stay rejected                       |
+| `NEXT_PUBLIC_ENABLE_QBO`                  | no     | optional             | default `false`                                                    |
+| `NEXT_PUBLIC_ENABLE_OFX`                  | no     | optional             | default `false`                                                    |
+| `NEXT_PUBLIC_ENABLE_BANK_SPECIFIC_CLAIMS` | no     | optional             | default `false` — issuer pages stay generic eligibility            |
 
 Rebuild after changing any `NEXT_PUBLIC_*` value.
 
