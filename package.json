@@ -4,7 +4,7 @@
   "private": true,
   "description": "Statement Reconcile — convert PDF bank and credit-card statements to Excel and CSV, with deterministic reconciliation before payment.",
   "engines": {
-    "node": ">=20.11.0"
+    "node": "22.x"
   },
   "packageManager": "pnpm@11.23.0",
   "scripts": {
