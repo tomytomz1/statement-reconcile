@@ -1,5 +1,9 @@
 # Section 41 implementation map
 
+> Historical implementation record. Public price and CTA examples below are superseded by the
+> authoritative Section 42 Copy and Price-Reveal Amendment. The commercial amount remains
+> unchanged internally and is revealed only at the verified-result paywall.
+
 Authoritative source: `CURSOR_MASTER_BUILD_PROMPT_statement_reconcile_UPDATED.md` §41. Changelog is navigation only.
 
 Pack behavior chosen (reversible): **verified subset**. Checkout is created only for the files the customer has explicitly kept, and every kept file must be `verification_passed`. Failed files are never silently omitted from a paid pack; they must be removed by the customer first. Documented in `docs/DECISIONS.md` ADR-012.

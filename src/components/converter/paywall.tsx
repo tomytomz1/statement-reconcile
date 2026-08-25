@@ -38,7 +38,7 @@ export function Paywall({
           <ul className="text-ink-700 mt-4 space-y-2 text-sm">
             {[
               "Excel workbook (.xlsx) with transactions, a summary sheet, a verification sheet, and source references",
-              "CSV file with a fixed column order, ready to import",
+              "CSV file with a fixed column order for your own review or mapping",
               "Per-statement verification PDF and pack-manifest.json",
               "30-day entitlement; re-upload the same files after the local copy expires",
               "Full refund if the file is wrong or you cannot use it",

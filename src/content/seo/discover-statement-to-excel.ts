@@ -54,7 +54,7 @@ export const discoverStatementToExcel: SeoPage = {
     {
       title: "Pay only after it balances",
       detail:
-        "A passing check unlocks both files for $19. A failing check ends the process with no charge, no account, and nothing kept.",
+        "A passing check makes the billing screen and both files available. A failing check ends the process with no checkout, no account, and nothing kept.",
     },
   ],
   sections: [

@@ -108,14 +108,21 @@ export const faqs: readonly FaqEntry[] = [
   },
   {
     category: "Payment",
-    question: "Is $19 a subscription?",
+    question: "Is this a subscription?",
     answer: [
       "No. It is one payment for one conversion pack: one or more statements, up to 50 total pages combined. There is nothing to cancel, and no card is stored.",
     ],
   },
   {
     category: "Payment",
-    question: "Both file formats for one price?",
+    question: "When do I see the charge?",
+    answer: [
+      "Only after every statement kept in the pack passes verification. You review actual rows, source links, document coverage, and applicable balance checks first. The exact one-time charge appears on the final billing screen before secure checkout.",
+    ],
+  },
+  {
+    category: "Payment",
+    question: "Both file formats for one payment?",
     answer: [
       "Yes. The Excel workbook, the CSV, the verification report PDF, and the pack manifest are the same conversion in the formats you take home, so one payment includes them and you can download each as often as you need.",
     ],
@@ -181,7 +188,7 @@ export const homepageFaqQuestions = [
   "Why not upload my statement to a general AI assistant?",
   "Is my bank statement uploaded to your servers?",
   "What happens if my statement cannot be verified?",
-  "Is $19 a subscription?",
+  "Is this a subscription?",
   "Can you read a scanned or photographed statement?",
   "Can I get a refund?",
 ] as const;

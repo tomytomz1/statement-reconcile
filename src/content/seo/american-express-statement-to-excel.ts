@@ -54,7 +54,7 @@ export const americanExpressStatementToExcel: SeoPage = {
     {
       title: "Review, then unlock",
       detail:
-        "The preview shows both figures side by side. If they agree, $19 releases the workbook and the CSV; if they do not, there is nothing to pay.",
+        "The preview shows both figures side by side. If they agree, the billing screen makes the workbook and CSV available; if they do not, checkout never appears.",
     },
   ],
   sections: [

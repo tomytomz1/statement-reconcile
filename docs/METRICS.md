@@ -67,7 +67,7 @@ Drop-offs to watch:
 - `recovery_used` `not_found` — expected after 60 minutes
 
 The homepage picker records `cta_clicked` with the fixed values
-`location=home_hero_upload` and `label=Check My Statements Free` before the in-memory handoff to
+`location=home_hero_upload` and `label=Choose My PDF Statements` before the in-memory handoff to
 `/app`. It never records a filename, institution, balance, description, account identifier, or
 transaction value.
 

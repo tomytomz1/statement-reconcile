@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 
+import { CopyVariantTracker } from "@/components/site/copy-variant-tracker";
 import { FaqList } from "@/components/site/faq-list";
 import { HeroUpload } from "@/components/site/hero-upload";
 import { JsonLd } from "@/components/site/json-ld";
@@ -19,14 +21,18 @@ import {
 import { routes, siteConfig } from "@/config/site";
 import { faqByQuestion, faqForSchema, homepageFaqQuestions, type FaqEntry } from "@/content/faq";
 import { seoPage } from "@/content/seo";
+import {
+  COPY_HEADLINES,
+  COPY_VARIANT_HEADER,
+  isCopyVariant,
+  type CopyVariant,
+} from "@/lib/analytics/copy-variant";
 import { HOMEPAGE_TITLE, pageMetadata } from "@/lib/seo/metadata";
 import { faqSchema, howToSchema, jsonLdGraph, webPageSchema } from "@/lib/seo/structured-data";
 
 const TITLE = HOMEPAGE_TITLE;
 const DESCRIPTION =
-  "Convert PDF bank and credit-card statements to Excel and CSV. Preview source-linked transactions and exact balance checks before paying " +
-  siteConfig.price.display +
-  ". No account, nothing stored.";
+  "Convert PDF bank and credit-card statements to Excel and CSV. Preview source-linked transactions, page coverage, and exact balance checks before deciding whether to continue.";
 
 export const metadata: Metadata = pageMetadata({
   title: TITLE,
@@ -49,15 +55,15 @@ const STEPS = [
       "Inspect the transaction preview, open any row at its source, and see every balance check that passed or failed.",
   },
   {
-    title: "Pay only if it checks out",
+    title: "Decide after it checks out",
     detail:
-      "If the statements verify, pay " +
-      siteConfig.price.display +
-      " once and download both Excel and CSV. Ambiguity blocks checkout.",
+      "If the statements verify, the complete conversion pack and secure checkout become available. Ambiguity blocks checkout.",
   },
 ] as const;
 
-export default function HomePage() {
+export default async function HomePage() {
+  const requestedVariant = (await headers()).get(COPY_VARIANT_HEADER);
+  const variant: CopyVariant = isCopyVariant(requestedVariant) ? requestedVariant : "a";
   const entries = homepageFaqQuestions
     .map((question) => faqByQuestion(question))
     .filter((entry): entry is FaqEntry => Boolean(entry));
@@ -77,20 +83,24 @@ export default function HomePage() {
         ])}
       />
 
-      <Hero />
+      <CopyVariantTracker variant={variant} />
+      <Hero variant={variant} />
       <ConfidenceStrip />
+      <ProblemAgitation />
+      <ReasonWhy />
+      <Mechanism />
       <VerificationProof />
       <AiObjection />
       <HowItWorks />
       <TrustDetails />
-      <Pricing />
+      <Deliverables />
       <Faq entries={entries} />
       <FinalCta />
     </>
   );
 }
 
-function Hero() {
+function Hero({ variant }: { variant: CopyVariant }) {
   return (
     <Section className="pt-12 pb-14 sm:pt-20 sm:pb-20">
       <Container>
@@ -98,17 +108,20 @@ function Hero() {
           <div>
             <Eyebrow>Bank Statement Converter</Eyebrow>
             <Heading level={1} className="mt-4 max-w-3xl">
-              Convert Bank Statements to Excel &amp; CSV
+              {COPY_HEADLINES[variant]}
             </Heading>
             <Lede className="mt-5 max-w-2xl">
-              A clean spreadsheet can still be wrong. See every accepted row traced to the PDF and
-              every applicable balance check pass before you pay {siteConfig.price.display}.
+              Your statement is already finished. You should not have to retype it—or spend the next
+              hour checking whether a converter missed a row, reversed a debit, or quietly skipped a
+              page.
             </Lede>
 
             <p className="text-ink-600 mt-5 max-w-2xl text-sm leading-relaxed">
-              Upload one or more statements—up to {siteConfig.limits.maxPages} total pages. Preview
-              the real conversion and verification report for free. If we cannot verify it safely,
-              checkout never appears.
+              Choose one or more PDF bank or credit-card statements. Statement Reconcile rebuilds
+              the transaction table, traces every accepted row back to its source, checks document
+              coverage and every applicable balance, and stops when the evidence does not hold. You
+              see the converted rows and verification results before deciding whether to take the
+              files home.
             </p>
 
             <div className="mt-7 lg:hidden">
@@ -121,7 +134,7 @@ function Hero() {
               items={[
                 "No retyping, prompt writing, or line-by-line checking",
                 "Excel, CSV, verification PDFs, and pack manifest included",
-                "Your original PDF never leaves your browser",
+                "Your original PDF never leaves this device",
                 "No account, email address, or subscription",
               ]}
             />
@@ -141,8 +154,8 @@ function Hero() {
               </Link>
             </div>
             <p className="text-ink-800 mt-4 text-sm font-semibold">
-              Preview the conversion free. Pay {siteConfig.price.display} only after verification
-              passes.
+              Preview the real conversion and verification results before deciding whether to
+              continue.
             </p>
           </div>
 
@@ -161,10 +174,10 @@ function ConfidenceStrip() {
       <Container>
         <dl className="divide-ink-200 grid divide-y sm:grid-cols-4 sm:divide-x sm:divide-y-0">
           {[
-            ["$0", "to extract, check, and preview"],
-            [siteConfig.price.display, "only after verification passes"],
-            ["No signup", "or subscription required"],
-            ["0 files", "stored on our servers"],
+            ["Source linked", "accepted rows trace to the PDF"],
+            ["Coverage checked", "missing evidence stops the process"],
+            ["No signup", "or email address required"],
+            ["Original PDF", "stays on this device"],
           ].map(([value, label]) => (
             <div key={label} className="px-5 py-5 text-center">
               <dt className="text-ink-950 text-lg font-bold">{value}</dt>
@@ -174,6 +187,116 @@ function ConfidenceStrip() {
         </dl>
       </Container>
     </div>
+  );
+}
+
+function ProblemAgitation() {
+  return (
+    <Section labelledBy="unchecked-spreadsheet">
+      <Container width="narrow">
+        <Eyebrow>The hidden work</Eyebrow>
+        <Heading id="unchecked-spreadsheet" className="mt-3">
+          Your PDF is not the problem. The unchecked spreadsheet is.
+        </Heading>
+        <div className="text-ink-700 mt-6 space-y-4 text-[0.975rem] leading-relaxed">
+          <p>
+            The statement already contains the dates, descriptions, amounts, and balances you need.
+            Manual retyping wastes the same attention you need for the work that follows—and one
+            dropped digit can turn a finished statement into an afternoon of hunting.
+          </p>
+          <p>
+            A converter can save the typing and still hand the risk back to you. A skipped page,
+            duplicated transaction, or reversed debit looks perfectly ordinary once it reaches a
+            clean spreadsheet. Unless the conversion shows where each row came from and whether the
+            statement math still holds, checking the converter becomes your new job.
+          </p>
+          <p className="text-ink-950 font-semibold">
+            The useful result is not merely a spreadsheet. It is a spreadsheet accompanied by the
+            evidence needed to inspect it.
+          </p>
+        </div>
+      </Container>
+    </Section>
+  );
+}
+
+function ReasonWhy() {
+  return (
+    <Section tone="raised" labelledBy="reason-why">
+      <Container width="narrow">
+        <Eyebrow>Why this exists</Eyebrow>
+        <Heading id="reason-why" className="mt-3">
+          Why we built verification into the conversion
+        </Heading>
+        <Lede className="mt-4">
+          Statement Reconcile was built around an uncomfortable fact: polished output is not proof
+          of correct output.
+        </Lede>
+        <p className="text-ink-700 mt-5 text-[0.975rem] leading-relaxed">
+          The workflow does not ask the extraction system to grade its own work. It rebuilds the
+          transaction table, preserves source references, checks document coverage, and then runs
+          deterministic decimal arithmetic against the evidence printed in the statement. If the
+          evidence is incomplete or the numbers do not close, the process stops before checkout.
+        </p>
+      </Container>
+    </Section>
+  );
+}
+
+function Mechanism() {
+  const checks = [
+    {
+      title: "Document Coverage",
+      detail:
+        "Confirms the expected pages and statement boundaries are present before rows are accepted.",
+    },
+    {
+      title: "Row-to-Source Tracing",
+      detail:
+        "Keeps every accepted transaction connected to the page and source text it came from.",
+    },
+    {
+      title: "Balance Reconstruction",
+      detail:
+        "Recomputes applicable opening, closing, subtotal, and running-balance checks with exact decimals.",
+    },
+    {
+      title: "Fail-Closed Verification",
+      detail:
+        "Blocks checkout when a material amount, sign, page, source, or balance remains unresolved.",
+    },
+  ] as const;
+
+  return (
+    <Section labelledBy="source-to-sheet">
+      <Container>
+        <div className="mx-auto max-w-3xl text-center">
+          <Eyebrow>The mechanism</Eyebrow>
+          <Heading id="source-to-sheet" className="mt-3">
+            Introducing Source-to-Sheet Verification
+          </Heading>
+          <Lede className="mt-4">
+            Four checks turn a converted table into an inspectable verification record before a
+            download is offered.
+          </Lede>
+        </div>
+        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          {checks.map((check, index) => (
+            <Card key={check.title} className="p-6">
+              <span className="text-accent-700 text-sm font-bold">0{index + 1}</span>
+              <Heading level={4} className="mt-3">
+                {check.title}
+              </Heading>
+              <p className="text-ink-600 mt-2 text-sm leading-relaxed">{check.detail}</p>
+            </Card>
+          ))}
+        </div>
+        <p className="text-ink-500 mx-auto mt-6 max-w-3xl text-center text-xs leading-relaxed">
+          Source-to-Sheet Verification is our name for this workflow. It is not a claim that other
+          products cannot perform similar checks.
+        </p>
+      </Container>
+    </Section>
   );
 }
 
@@ -189,8 +312,8 @@ function VerificationProof() {
             </Heading>
             <Lede className="mt-4">
               A spreadsheet can look tidy and still be wrong. Statement Reconcile gives you a
-              compact audit trail before payment, so you can see what was read, where it came from,
-              and whether the arithmetic holds.
+              compact verification record before payment, so you can see what was read, where it
+              came from, and whether the arithmetic holds.
             </Lede>
             <p className="text-ink-600 mt-5 text-sm leading-relaxed">
               Select any transaction in the real preview to see the original statement page and
@@ -239,7 +362,7 @@ function AiObjection() {
         <div className="max-w-3xl">
           <Eyebrow>Why not general AI?</Eyebrow>
           <Heading id="ai-objection" className="mt-3">
-            Why ask AI to convert it—then verify it yourself?
+            A chatbot can give you rows. Who checks the rows?
           </Heading>
           <Lede className="mt-4">
             A general AI assistant may extract a statement. Statement Reconcile removes the prompt
@@ -358,9 +481,9 @@ function TrustDetails() {
     <Section tone="raised" labelledBy="trust-details">
       <Container>
         <div className="text-center">
-          <Eyebrow>Built for financial documents</Eyebrow>
+          <Eyebrow>Brutally clear boundaries</Eyebrow>
           <Heading id="trust-details" className="mt-3">
-            Clear boundaries make the result trustworthy
+            Before you give any converter a financial document, ask these questions.
           </Heading>
         </div>
 
@@ -369,7 +492,7 @@ function TrustDetails() {
             {
               title: "The raw PDF stays local",
               detail:
-                "Your browser reads the document. We receive only the text required for conversion, never the original file, and store neither.",
+                "Your browser reads the document. We receive only positioned text required for conversion, never the original file. Statement content is excluded from analytics, URLs, logs, and Stripe metadata.",
             },
             {
               title: "Ambiguity stops the sale",
@@ -391,7 +514,7 @@ function TrustDetails() {
 
         <p className="text-ink-600 mt-8 text-center text-sm">
           Scanned images, password-protected PDFs, and statements with no usable balance evidence
-          are rejected rather than guessed.{" "}
+          are rejected rather than guessed. No account or email address is required.{" "}
           <Link
             href={routes.security}
             className="text-accent-700 font-semibold underline-offset-4 hover:underline"
@@ -404,28 +527,29 @@ function TrustDetails() {
   );
 }
 
-function Pricing() {
+function Deliverables() {
   return (
-    <Section labelledBy="pricing">
+    <Section labelledBy="deliverables">
       <Container width="narrow">
         <div className="text-center">
-          <Eyebrow>Simple pricing</Eyebrow>
-          <Heading id="pricing" className="mt-3">
-            The Verified Conversion Pack
+          <Eyebrow>Proof before payment</Eyebrow>
+          <Heading id="deliverables" className="mt-3">
+            When the evidence holds, take the complete conversion pack with you.
           </Heading>
           <Lede className="mx-auto mt-4 max-w-xl">
-            Check the conversion for free. Pay once only when it is verified and worth downloading.
+            Review your actual rows and verification results first. The exact one-time charge is
+            shown only when a verified pack is ready for secure checkout.
           </Lede>
         </div>
 
         <Card className="mt-9">
           <div className="flex flex-col gap-7 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <strong className="text-ink-950 text-5xl font-bold tracking-tight">
-                {siteConfig.price.display}
+              <strong className="text-ink-950 text-2xl font-bold tracking-tight">
+                {siteConfig.productName}
               </strong>
               <p className="text-ink-600 mt-2 text-sm">
-                once · up to {siteConfig.limits.maxPages} total pages
+                one or more statements · up to {siteConfig.limits.maxPages} total pages
               </p>
             </div>
             <ButtonLink href={routes.app} size="lg">
@@ -439,7 +563,7 @@ function Pricing() {
               "Multiple statements in one conversion pack",
               "Excel workbook and CSV file",
               "Verification PDF for each statement and pack manifest",
-              "Preview before payment and no charge for a failed check",
+              "Actual-row preview before the billing screen appears",
               "30-day download entitlement and 30-day refund policy",
               "No account, recurring fee, or stored card",
             ]}
@@ -449,8 +573,8 @@ function Pricing() {
             <ol className="mt-4 grid gap-4 sm:grid-cols-3">
               {[
                 [
-                  "Free proof",
-                  "See actual rows, page coverage, source mapping, applicable balance checks, and ambiguities before payment.",
+                  "Personalized proof",
+                  "See actual rows, page coverage, source mapping, applicable balance checks, and ambiguities before the commercial decision.",
                 ],
                 [
                   "Checkout lock",
@@ -458,7 +582,7 @@ function Pricing() {
                 ],
                 [
                   "30-day protection",
-                  "If the paid files are incorrect or unusable, receive a full refund of the $19 payment.",
+                  "If the paid files are incorrect or unusable, receive a full refund of the one-time payment.",
                 ],
               ].map(([title, detail], index) => (
                 <li key={title} className="text-ink-600 text-sm leading-relaxed">
@@ -527,8 +651,7 @@ function FinalCta() {
           See whether your statements check out
         </Heading>
         <Lede className="mx-auto mt-4 max-w-xl">
-          It costs nothing to extract, review, and verify them. Pay only when the evidence earns
-          your confidence.
+          Choose your PDFs and inspect the real conversion before the billing screen can appear.
         </Lede>
         <ButtonLink href={routes.app} size="lg" className="mt-8">
           {siteConfig.primaryCta}

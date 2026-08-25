@@ -54,7 +54,7 @@ export const bankStatementTransactionExtractor: SeoPage = {
     {
       title: "Preview, then unlock",
       detail:
-        "You read the summary and the first rows, and pay $19 only if the verification passed.",
+        "You read the summary and the first rows, and see the billing screen only if verification passed.",
     },
   ],
   sections: [
@@ -82,7 +82,7 @@ export const bankStatementTransactionExtractor: SeoPage = {
       heading: "Refusing is a feature",
       body: [
         "There are statements where the geometry is genuinely undecidable: two amount columns close enough that their clusters overlap, a section with no heading and no balance to anchor it, a document that turns out to hold two accounts with their balance chains interleaved. A guess in that situation produces a table that looks completely normal.",
-        "In those cases the extractor stops. You are told what it could not resolve, and no payment step is offered, because a table nobody can vouch for is not worth $19. That is the same rule the reconciliation check follows: if the arithmetic will not close, the answer is no rather than probably.",
+        "In those cases the extractor stops. You are told what it could not resolve, and no payment step is offered, because a table nobody can vouch for is not a finished result. That is the same rule the reconciliation check follows: if the arithmetic will not close, the answer is no rather than probably.",
         "It is worth being precise about what a passing check means. A statement that reconciles has been read consistently with the totals its bank printed. That is an arithmetic result about the extraction, not a verdict on the document itself.",
       ],
     },

@@ -59,7 +59,7 @@ export const extractTransactionsFromPdf: SeoPage = {
     {
       title: "Review the verdict, then pay if it holds",
       detail:
-        "The equation, the figures, and ten sample rows are shown before any payment step. $19 unlocks both files for that statement; if the reconstruction cannot be reconciled, the paywall never appears and nothing is charged.",
+        "The equation, figures, and ten sample rows are shown before any payment step. The billing screen unlocks both files for a verified pack; if reconstruction cannot be reconciled, the paywall never appears.",
     },
   ],
   sections: [

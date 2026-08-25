@@ -26,7 +26,7 @@ export function ProcessingShell({ children }: { children: ReactNode }) {
             <Wordmark />
           </Link>
           <p className="text-ink-500 hidden text-sm sm:block">
-            {siteConfig.price.display} once · no account · nothing stored
+            verify first · no account · original PDF stays local
           </p>
         </Container>
       </header>

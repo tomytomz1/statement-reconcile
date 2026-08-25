@@ -7,7 +7,7 @@ export const creditCardStatementToCsv: SeoPage = {
     "A bookkeeper or cardholder who needs card activity as a plain CSV to import into expense software, a ledger, or an existing spreadsheet template.",
   title: "Credit Card Statement to CSV | Statement Reconcile",
   metaDescription:
-    "Export PDF credit card activity to CSV for expense and ledger imports. Fixed columns, ISO dates, and a balance check you see before paying $19.",
+    "Export PDF credit card activity to CSV for your own expense or ledger mapping. Fixed columns, ISO dates, and a balance check you see before billing appears.",
   eyebrow: "Credit Card Statement to CSV",
   h1: "Credit Card Statement to CSV",
   intro: [
@@ -54,7 +54,7 @@ export const creditCardStatementToCsv: SeoPage = {
     {
       title: "Download the CSV",
       detail:
-        "One $19 payment releases the CSV and the workbook for that statement. Nothing recurring, and no account to create.",
+        "One payment releases the CSV and workbook for the verified pack. Nothing recurring, and no account to create.",
     },
   ],
   sections: [
@@ -156,7 +156,7 @@ export const creditCardStatementToCsv: SeoPage = {
     {
       href: "/pricing",
       label: "Pricing",
-      context: "What the single $19 charge covers and at what point it is taken.",
+      context: "What the single pack charge covers and when it appears.",
     },
   ],
   futureExpansion: [

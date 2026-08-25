@@ -7,7 +7,7 @@ import { usePendingFiles } from "@/components/converter/pending-files";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/ui/cn";
 import { Card, Heading } from "@/components/ui/primitives";
-import { routes, siteConfig } from "@/config/site";
+import { routes } from "@/config/site";
 import { track } from "@/lib/analytics/client";
 
 export function HeroUpload() {
@@ -28,7 +28,7 @@ export function HeroUpload() {
       queueFiles(files);
       track("cta_clicked", {
         location: "home_hero_upload",
-        label: "Check My Statements Free",
+        label: "Choose My PDF Statements",
       });
       router.push(routes.app);
     },
@@ -84,7 +84,7 @@ export function HeroUpload() {
           aria-busy={moving}
           onClick={() => inputRef.current?.click()}
         >
-          {moving ? "Opening the converter…" : "Check My Statements Free"}
+          {moving ? "Opening the converter…" : "Choose My PDF Statements"}
         </Button>
         <input
           ref={inputRef}
@@ -102,7 +102,7 @@ export function HeroUpload() {
           }}
         />
         <p className="text-ink-500 mt-3 text-xs">
-          PDF only · up to {siteConfig.limits.maxPages} pages total
+          PDF only · No signup · Original PDFs stay on this device
         </p>
       </div>
 

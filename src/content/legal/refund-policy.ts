@@ -43,7 +43,7 @@ export const refundPolicy: LegalDocument = {
       blocks: [
         {
           kind: "paragraph",
-          text: "If you paid and the outcome was not right, you get your $19 back in full. Ask within 30 days of the payment and we do not interrogate you about it.",
+          text: "If you paid and the outcome was not right, you get the full one-time payment back. Ask within 30 days of the payment and we do not interrogate you about it.",
         },
         {
           kind: "paragraph",
@@ -63,7 +63,7 @@ export const refundPolicy: LegalDocument = {
         {
           kind: "callout",
           tone: "neutral",
-          text: "You do not have to prove any of this. We would rather refund a doubtful case than argue about $19.",
+          text: "You do not have to prove any of this. We would rather refund a doubtful case than argue about the charge.",
         },
       ],
     },

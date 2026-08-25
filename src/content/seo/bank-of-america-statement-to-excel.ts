@@ -54,7 +54,7 @@ export const bankOfAmericaStatementToExcel: SeoPage = {
     {
       title: "Review the result, then decide",
       detail:
-        "Totals, the equation used, and sample rows appear on screen. Only if the check passed does a $19 payment step exist at all.",
+        "Totals, the equation used, and sample rows appear on screen. Only if the check passed does a payment step exist at all.",
     },
   ],
   sections: [

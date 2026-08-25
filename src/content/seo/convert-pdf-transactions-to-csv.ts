@@ -55,7 +55,7 @@ export const convertPdfTransactionsToCsv: SeoPage = {
     {
       title: "Take the CSV",
       detail:
-        "One $19 payment for that statement releases the CSV and the workbook. No account, no subscription, nothing to cancel.",
+        "One payment for the verified pack releases the CSV and workbook. No account, no subscription, nothing to cancel.",
     },
   ],
   sections: [

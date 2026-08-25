@@ -7,7 +7,7 @@ export const chaseStatementToExcel: SeoPage = {
     "Someone holding a PDF statement from a Chase account who wants it as a spreadsheet and is trying to establish whether a converter will cope with their particular file.",
   title: "Chase Statement to Excel — PDF Converter | Statement Reconcile",
   metaDescription:
-    "Convert an eligible Chase PDF statement to Excel and CSV. We are not affiliated with Chase. The rows must balance the printed totals before you pay $19.",
+    "Convert an eligible Chase PDF statement to Excel and CSV. We are not affiliated with Chase. The rows must balance the printed totals before billing appears.",
   eyebrow: "Chase statements",
   h1: "Chase Statement to Excel",
   intro: [
@@ -19,7 +19,7 @@ export const chaseStatementToExcel: SeoPage = {
     "An .xlsx workbook whose Transactions sheet carries an autofilter and a frozen header row, so you can sort by date or filter on a description without the table falling apart.",
     "A Statement Summary sheet in the same workbook listing the statement period, the opening and closing balances, total credits and debits, fees, interest, the transaction count, the reconciliation method that was applied, its result, and the timestamp the file was generated.",
     "A .csv file using a fixed column order — Date, Posted Date, Description, Debit, Credit, Amount, Balance — so an import mapping written once keeps working next month.",
-    "All outputs for the single $19 pack payment. There is no format upsell or separate charge for verification reports.",
+    "All outputs come with the single pack payment. There is no format upsell or separate charge for verification reports.",
   ],
   reconciliation: {
     heading: "The balance check is what stands in for a compatibility list",
@@ -54,7 +54,7 @@ export const chaseStatementToExcel: SeoPage = {
     {
       title: "Pay once if it checks out",
       detail:
-        "$19 unlocks the workbook and the CSV for that statement, up to 50 pages. No account, no email, no subscription, nothing to cancel afterwards.",
+        "The billing screen unlocks the workbook and CSV for a verified pack up to 50 pages. No account, no email, no subscription, nothing to cancel afterwards.",
     },
   ],
   sections: [
@@ -123,7 +123,7 @@ export const chaseStatementToExcel: SeoPage = {
         "Because the claim being made is not “it works on your bank” but “you will know before you pay”. The arithmetic check runs against your actual file, its result is displayed on screen, and the paywall is gated on it passing.",
     },
     {
-      question: "Does $19 cover every statement for the year?",
+      question: "Does one payment cover every statement for the year?",
       answer:
         "It covers one conversion pack containing one or more statements, up to 50 total pages combined. Each statement is extracted and verified independently, and Excel, CSV, and verification reports are included.",
     },

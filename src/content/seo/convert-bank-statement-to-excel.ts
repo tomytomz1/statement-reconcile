@@ -26,7 +26,7 @@ export const convertBankStatementToExcel: SeoPage = {
     body: [
       "Whichever method you choose, the real cost is not the time spent producing the spreadsheet. It is the time spent afterwards satisfying yourself that the spreadsheet is right, and the much larger cost of discovering months later that it was not.",
       "That check is mechanical, so it can be done for you. The rows that were extracted are added together with plain decimal arithmetic and compared against the balances your bank printed. If the statement supplies more to work with — a running balance beside each line, or stated totals for the period — those give a second angle on the same rows.",
-      "You see the result before you see a price. If the totals do not reconcile, the payment step never appears, so the decision you are actually making is whether a verified export is worth $19, not whether this particular file will work.",
+      "You see the result before you see the charge. If the totals do not reconcile, the payment step never appears, so the decision you are making is whether the verified export is useful—not whether this particular file will work.",
     ],
     equation: "Opening balance + credits − debits = closing balance",
   },
@@ -54,7 +54,7 @@ export const convertBankStatementToExcel: SeoPage = {
     {
       title: "Decide, then pay once",
       detail:
-        "If it looks right and it balanced, $19 unlocks the workbook and the CSV. If it did not balance, there is nothing to decline because nothing is offered.",
+        "If it looks right and it balanced, the billing screen unlocks the workbook and CSV. If it did not balance, there is nothing to decline because nothing is offered.",
     },
   ],
   sections: [
@@ -82,7 +82,7 @@ export const convertBankStatementToExcel: SeoPage = {
       heading: "What verification changes about the decision",
       body: [
         "Once the arithmetic has been checked against the statement's own figures, the question of whether the export is complete has been answered by something other than your own inspection. A missing row moves the total. A misread digit moves the total. A row counted twice moves the total. All of those failures collapse into one visible signal instead of being spread across two hundred lines you would have to read.",
-        "That does not make the tool infallible, and it is not a claim that the statement itself is genuine — the check is arithmetic and nothing more. What it does is remove the specific worry that made the manual methods expensive: the second pass. If you were going to spot-check fifty rows against the PDF anyway, that is the work the comparison replaces, and it is the honest basis on which to compare $19 against an afternoon.",
+        "That does not make the tool infallible, and it is not a claim that the statement itself is genuine—the check concerns extraction evidence and arithmetic. What it does is remove the specific worry that made the manual methods expensive: the second pass. If you were going to spot-check fifty rows against the PDF anyway, that is the work the source-linked comparison replaces.",
       ],
     },
   ],
@@ -108,9 +108,9 @@ export const convertBankStatementToExcel: SeoPage = {
   ],
   faqs: [
     {
-      question: "Is $19 sensible when I could retype the statement myself?",
+      question: "Is a paid conversion sensible when I could retype the statement myself?",
       answer:
-        "That depends on how long your statement is and what your time is worth. For a page or two, typing is perfectly rational. For a busy month, the comparison is really between $19 and an hour of transcription followed by a second hour checking it.",
+        "That depends on how long your statement is and what your time is worth. For a page or two, typing is perfectly rational. For a busy month, the comparison is between a one-time pack payment and transcription followed by a second pass checking it.",
     },
     {
       question: "Why does copying from a PDF reader produce a single messy column?",
@@ -125,7 +125,7 @@ export const convertBankStatementToExcel: SeoPage = {
     {
       question: "I only need a handful of transactions from one page. Should I still use this?",
       answer:
-        "Probably not for only three or four rows; typing may be quicker. The $19 price covers a conversion pack of whole statements where completeness and verification matter.",
+        "Probably not for only three or four rows; typing may be quicker. The paid pack is for whole statements where completeness and verification matter.",
     },
     {
       question: "Can I compare the result against my own records before paying?",

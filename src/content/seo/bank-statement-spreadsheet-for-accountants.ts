@@ -12,7 +12,7 @@ export const bankStatementSpreadsheetForAccountants: SeoPage = {
   h1: "Bank statement to spreadsheet for accountants",
   intro: [
     "Client statements arrive as PDFs, usually at the least convenient moment and usually without the CSV that would have made the job trivial. Getting them into a spreadsheet is unbilled preparation work, and the part of it that matters is not the typing but the certainty that nothing was lost on the way.",
-    "This converts one PDF statement into an Excel workbook and a CSV for $19, and it will not take the payment until the extracted rows have been re-added and shown to agree with the balances the bank printed. The workbook carries a second sheet recording exactly which checks ran and what they returned, which is the part that is worth keeping on the file.",
+    "This converts PDF statements into an Excel workbook and CSV, and it will not offer checkout until the extracted rows have been re-added and shown to agree with the balances the bank printed. The workbook carries a second sheet recording exactly which checks ran and what they returned, which is the part worth keeping with the workpapers.",
   ],
   outputFormats: ["xlsx", "csv"],
   outputDetails: [
@@ -20,7 +20,7 @@ export const bankStatementSpreadsheetForAccountants: SeoPage = {
     "A Statement Summary sheet stating the period, the opening and closing balances, total debits and credits, the reconciliation method applied, the equation used, every individual check performed, the transaction count, and the generation timestamp.",
     "No formulas, no macros, and no external links in the workbook, so it can be attached to a file or circulated without triggering a security warning or breaking when moved.",
     "A CSV with the fixed column order Date, Posted Date, Description, Debit, Credit, Amount, Balance, for pushing into a bookkeeping package rather than reading by hand.",
-    "Both files for the one $19 payment, with no separate charge for either format.",
+    "Both files come with the one-time pack payment, with no separate charge for either format.",
   ],
   reconciliation: {
     heading: "Evidence you can point at, rather than an assurance you have to give",
@@ -48,7 +48,7 @@ export const bankStatementSpreadsheetForAccountants: SeoPage = {
         "The period, the balances, the computed totals, the equation, and ten preview rows are shown while the files are still locked. Confirm the period is the one the engagement needs.",
     },
     {
-      title: "Pay $19 per conversion pack and take every output",
+      title: "Review the pack, then take every output",
       detail:
         "No account, no seat licence, no minimum, nothing to renew. The charge is per conversion pack, with one or more statements up to 50 total pages, and it includes Excel, CSV, and verification reports.",
     },
@@ -63,7 +63,7 @@ export const bankStatementSpreadsheetForAccountants: SeoPage = {
       heading: "Why per-statement pricing suits practice work",
       body: [
         "Practice demand for statement conversion is lumpy. Nothing for six weeks, then a new client arrives with fourteen months of PDFs, then nothing again until the next disclosure or the next tidy-up job. A monthly subscription priced for steady use is the wrong shape for that, and the wrong shape in an expensive direction: you pay through the quiet months to have capacity available in the busy ones.",
-        "A $19 charge per conversion pack maps directly onto the work. Statements can be grouped into packs of up to 50 total pages, and when the job is finished the cost stops. There is no seat licence or account to administer.",
+        "A single charge per conversion pack maps directly onto the work. Statements can be grouped into packs of up to 50 total pages, and when the job is finished the cost stops. There is no seat licence or account to administer.",
         "It is also a cost that behaves properly as a disbursement. A per-statement charge on a specific client's job is straightforward to recharge or absorb as a decision about that engagement, rather than an overhead you have to apportion across everything.",
       ],
       bullets: [
@@ -122,7 +122,7 @@ export const bankStatementSpreadsheetForAccountants: SeoPage = {
     {
       question: "Is there a firm licence, a seat count, or a minimum commitment?",
       answer:
-        "None of the three. The only charge is $19 for each statement you convert. Nobody needs to be set up as a user, there is no annual renewal, and a month in which you convert nothing costs nothing.",
+        "None of the three. The only charge is the one-time amount shown for a verified conversion pack. Nobody needs to be set up as a user, there is no annual renewal, and a month in which you convert nothing costs nothing.",
     },
     {
       question: "What can I hold on file to evidence how the spreadsheet was derived?",

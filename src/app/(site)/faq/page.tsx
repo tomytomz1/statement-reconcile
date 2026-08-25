@@ -11,7 +11,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { faqSchema, jsonLdGraph, webPageSchema } from "@/lib/seo/structured-data";
 
 const TITLE = "Frequently asked questions";
-const DESCRIPTION = `Answers about converting PDF bank statements to Excel and CSV: how the balance check works, what happens to your data, what ${siteConfig.price.display} covers, and the statements this tool refuses.`;
+const DESCRIPTION = `Answers about converting PDF bank statements to Excel and CSV: how Source-to-Sheet Verification works, what happens to your data, when billing appears, and the statements this tool refuses.`;
 
 export const metadata: Metadata = pageMetadata({
   title: TITLE,

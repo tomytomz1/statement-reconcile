@@ -48,7 +48,7 @@ export const bankStatementToQuickbooksCsv: SeoPage = {
         "The period, balances, computed totals, equation, and a ten-row preview are shown. If the arithmetic did not close there is no payment step and nothing to import.",
     },
     {
-      title: "Download the CSV for $19 and decide on a column shape",
+      title: "Download the CSV and decide on a column shape",
       detail:
         "Use Debit and Credit for a four-column import, or Amount alone for a three-column import. Both are already in the file, so this is a mapping decision rather than an editing job.",
     },
@@ -134,7 +134,7 @@ export const bankStatementToQuickbooksCsv: SeoPage = {
     {
       question: "Can this replace a bank feed?",
       answer:
-        "Not as an ongoing arrangement. A feed delivers transactions continuously; this converts one or more statement files in a $19 pack of up to 50 total pages. It is for historic periods, unsupported accounts, and gaps a feed left behind.",
+        "Not as an ongoing arrangement. A feed delivers transactions continuously; this converts one or more statement files in a paid pack of up to 50 total pages. It is for historic periods, unsupported accounts, and gaps a feed left behind.",
     },
   ],
   related: [

@@ -12,14 +12,14 @@ export const wellsFargoStatementToExcel: SeoPage = {
   h1: "Wells Fargo Statement to Excel",
   intro: [
     "A statement running to twenty or thirty pages is not simply a longer version of a two-page one. It carries continuation pages, column headings reprinted at the top of every sheet, per-page subtotals, and footers sitting in the middle of the transaction flow. All of that is text on the page, and none of it is a transaction.",
-    "This converter is built to read a long statement as one continuous ledger and then demonstrate that it did so, by re-adding the extracted rows and comparing the sum with the balances printed on the document. Up to 50 pages counts as a single $19 conversion, and the reconciliation result is shown to you before that price appears.",
+    "This converter is built to read a long statement as one continuous ledger and then demonstrate that it did so, by re-adding the extracted rows and comparing the sum with the balances printed on the document. Up to 50 pages fit in one conversion pack, and the reconciliation result is shown before billing appears.",
   ],
   outputFormats: ["xlsx", "csv"],
   outputDetails: [
     "One Transactions sheet holding the entire statement in order, however many pages the original ran to, with an autofilter and a frozen header row.",
     "A Statement Summary sheet giving the period, opening and closing balances, credit and debit totals, fees, interest, the transaction count for the whole document, the reconciliation method, its result, and the generation timestamp.",
     "A CSV with the fixed header Date, Posted Date, Description, Debit, Credit, Amount, Balance and no page-break artefacts: no repeated header lines, no page numbers, no continuation markers.",
-    "Both files included in one $19 payment covering the whole statement of up to 50 pages. Pages are not metered and there is no per-page charge.",
+    "Both files are included in one payment covering a pack of up to 50 total pages. Pages are not metered and there is no per-page charge.",
   ],
   reconciliation: {
     heading: "A page-boundary mistake shows up in the total",
@@ -54,7 +54,7 @@ export const wellsFargoStatementToExcel: SeoPage = {
     {
       title: "Check the count, then pay",
       detail:
-        "The preview reports how many transactions were found across the document. If that number and the balance check both look right, $19 unlocks both files.",
+        "The preview reports how many transactions were found across the document. If that number and the balance check both look right, the billing screen unlocks both files.",
     },
   ],
   sections: [
@@ -111,7 +111,7 @@ export const wellsFargoStatementToExcel: SeoPage = {
     {
       question: "My statement is 34 pages. Does that cost more?",
       answer:
-        "No. One conversion pack is $19 for one or more statements up to 50 total pages combined. A thirty-four-page pack and a three-page pack are the same price.",
+        "No. One conversion pack may contain one or more statements up to 50 total pages combined. A thirty-four-page pack and a three-page pack carry the same one-time charge shown after verification.",
     },
     {
       question: "Will the export contain the headings that repeat throughout the PDF?",
@@ -153,8 +153,7 @@ export const wellsFargoStatementToExcel: SeoPage = {
     {
       href: "/pricing",
       label: "Pricing",
-      context:
-        "One $19 payment per conversion pack, up to 50 total pages, with all outputs included.",
+      context: "One payment per conversion pack, up to 50 total pages, with all outputs included.",
     },
   ],
   independenceNotice:

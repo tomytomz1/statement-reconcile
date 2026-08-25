@@ -7,7 +7,7 @@ export const bankStatementConverter: SeoPage = {
     "Broad category search from someone who has a PDF statement and wants a tool that turns it into a spreadsheet.",
   title: "Bank Statement Converter to Excel & CSV | Statement Reconcile",
   metaDescription:
-    "Convert a PDF bank statement into Excel and CSV. Preview the extracted transactions and check that the statement balances before paying $19. No account needed.",
+    "Convert a PDF bank statement into Excel and CSV. Preview the extracted transactions and check that the statement balances before billing appears. No account needed.",
   eyebrow: "Bank Statement Converter",
   h1: "Bank Statement Converter",
   intro: [
@@ -53,7 +53,7 @@ export const bankStatementConverter: SeoPage = {
     {
       title: "Pay once and download",
       detail:
-        "If the check passed, unlock the files for $19. Both the Excel workbook and the CSV are included in that price.",
+        "If the check passed, the billing screen offers both the Excel workbook and CSV in one conversion pack.",
     },
   ],
   sections: [
@@ -121,9 +121,9 @@ export const bankStatementConverter: SeoPage = {
         "You are told that the statement could not be verified, and the payment step never appears. There is nothing to refund because nothing is charged.",
     },
     {
-      question: "Is $19 per statement or per month?",
+      question: "Is the charge per statement or per month?",
       answer:
-        "Neither. It is one $19 payment per conversion pack, with one or more statements and up to 50 total pages combined. There is no subscription, and Excel, CSV, and verification reports are included.",
+        "Neither. It is one payment per conversion pack, with one or more statements and up to 50 total pages combined. There is no subscription, and Excel, CSV, and verification reports are included.",
     },
     {
       question: "Can I convert several statements?",

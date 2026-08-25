@@ -40,7 +40,9 @@ export function SiteFooter() {
             <p className="text-ink-600 mt-3 max-w-xs text-sm leading-relaxed">
               {siteConfig.primaryOutcome}. {siteConfig.differentiator}
             </p>
-            <p className="text-ink-700 mt-4 text-sm font-medium">{siteConfig.offerLine}</p>
+            <p className="text-ink-700 mt-4 text-sm font-medium">
+              {siteConfig.offerLine} · Verify before checkout
+            </p>
           </div>
 
           <FooterColumn heading="Product" links={PRODUCT_LINKS} />

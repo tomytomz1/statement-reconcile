@@ -4,6 +4,7 @@ import { flags } from "@/config/flags";
 import { siteConfig } from "@/config/site";
 
 import type { AnalyticsEventMap, AnalyticsEventName } from "./events";
+import { COPY_VARIANT_STORAGE_KEY, isCopyVariant } from "./copy-variant";
 
 /**
  * Analytics transport.
@@ -45,18 +46,31 @@ export function track<E extends AnalyticsEventName>(
 ): void {
   if (!analyticsEnabled()) return;
   try {
+    const enriched = withCopyVariant(properties);
     switch (siteConfig.analytics.provider) {
       case "plausible":
-        sendPlausible(event, properties);
+        sendPlausible(event, enriched);
         break;
       case "vercel":
-        sendVercel(event, properties);
+        sendVercel(event, enriched);
         break;
       default:
         break;
     }
   } catch {
     // Measurement is never allowed to break the funnel.
+  }
+}
+
+function withCopyVariant(properties: Record<string, unknown>): Record<string, unknown> {
+  if (properties.copyVariant !== undefined || typeof sessionStorage === "undefined") {
+    return properties;
+  }
+  try {
+    const variant = sessionStorage.getItem(COPY_VARIANT_STORAGE_KEY);
+    return isCopyVariant(variant) ? { ...properties, copyVariant: variant } : properties;
+  } catch {
+    return properties;
   }
 }
 

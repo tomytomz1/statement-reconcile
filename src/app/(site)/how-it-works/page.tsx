@@ -49,7 +49,8 @@ const STEPS = [
   },
   {
     title: "You review, then decide",
-    detail: `The equation, both numbers, the difference, and a ten-row sample are shown. The ${siteConfig.price.display} payment step appears only if the check passed.`,
+    detail:
+      "The equation, both numbers, the difference, and a ten-row sample are shown. The billing step appears only if the check passed.",
   },
 ] as const;
 

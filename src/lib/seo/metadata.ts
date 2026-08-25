@@ -86,7 +86,7 @@ export const rootMetadata: Metadata = {
     default: `${siteConfig.brandName} — ${siteConfig.primaryOutcome}`,
     template: `%s | ${siteConfig.brandName}`,
   },
-  description: `Convert PDF bank and credit-card statements to Excel and CSV. ${siteConfig.differentiator} ${siteConfig.price.display} once, no account.`,
+  description: `Convert PDF bank and credit-card statements to Excel and CSV. ${siteConfig.differentiator} No account required.`,
   applicationName: siteConfig.brandName,
   referrer: "strict-origin-when-cross-origin",
   formatDetection: { telephone: false, address: false, email: false },
@@ -105,7 +105,7 @@ export const rootMetadata: Metadata = {
  * Homepage `<title>`. Kept as a named constant so the SEO audit can verify uniqueness
  * against landing pages without importing the homepage module.
  */
-export const HOMEPAGE_TITLE = `${siteConfig.primaryOutcome} — ${siteConfig.price.display} | ${siteConfig.brandName}`;
+export const HOMEPAGE_TITLE = `${siteConfig.primaryOutcome} | ${siteConfig.brandName}`;
 
 /** Titles longer than this get truncated in results; the SEO audit warns above it. */
 export const TITLE_SOFT_LIMIT = 62;

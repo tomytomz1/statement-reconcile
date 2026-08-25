@@ -23,6 +23,7 @@ const FORBIDDEN = [
   /unique in (the )?market/i,
   /only (tool|converter) that/i,
   /accounting[- ]ready/i,
+  /ready to import/i,
 ];
 
 function collectPublicCopy(): string[] {
@@ -59,11 +60,18 @@ describe("claims policy", () => {
     }
   });
 
-  it("states the $19 pack as one or more statements and a combined page cap", () => {
+  it("keeps public offer copy price-free while preserving pack scope", () => {
     expect(siteConfig.offerLine).toMatch(/one or more statements/i);
     expect(siteConfig.offerLine).toMatch(/total pages/i);
-    expect(siteConfig.verifiedCta).toMatch(/verified Excel \+ CSV \+ reports/i);
+    expect(siteConfig.offerLine).not.toMatch(/\$|19/);
+    expect(siteConfig.verifiedCta).toMatch(/verified Excel \+ CSV/i);
     expect(siteConfig.ownedCategory).toBe("Verified Bank Statement Conversion");
+  });
+
+  it("does not disclose the exact amount in pre-verification public copy", () => {
+    for (const text of collectPublicCopy()) {
+      expect(text).not.toMatch(/\$19/i);
+    }
   });
 
   it("explains that verified means extraction checks, in FAQ or terms", () => {

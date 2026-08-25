@@ -12,7 +12,7 @@ export const pdfBankTransactionExtractor: SeoPage = {
   h1: "PDF Bank Transaction Extractor",
   intro: [
     "Two files can look identical in a PDF reader and be completely different underneath. One holds selectable text with coordinates; the other holds a picture of a page. Only the first can have transactions pulled out of it.",
-    "This page explains which is which, what really determines how much work a statement is, and where the boundaries of a single $19 conversion sit — so you can tell in a minute whether your file is a candidate, rather than finding out at the end.",
+    "This page explains which is which, what determines how much work a statement is, and where the boundaries of a single conversion pack sit—so you can tell whether your file is a candidate before processing it.",
   ],
   outputFormats: ["xlsx", "csv"],
   outputDetails: [
@@ -54,7 +54,7 @@ export const pdfBankTransactionExtractor: SeoPage = {
     {
       title: "Pay once for that statement",
       detail:
-        "$19 covers one conversion pack, with one or more statements up to 50 total pages and all output formats.",
+        "One payment covers one conversion pack, with one or more statements up to 50 total pages and all output formats.",
     },
   ],
   sections: [
@@ -125,7 +125,7 @@ export const pdfBankTransactionExtractor: SeoPage = {
     {
       question: "Does a 50-page statement cost more than a two-page one?",
       answer:
-        "No. It is $19 for one conversion pack of up to 50 total pages, whether it contains one statement or several and whether it holds ten transactions or a thousand.",
+        "No. It is one payment for one conversion pack of up to 50 total pages, whether it contains one statement or several and whether it holds ten transactions or a thousand.",
     },
     {
       question: "Is the whole PDF sent to you for processing?",

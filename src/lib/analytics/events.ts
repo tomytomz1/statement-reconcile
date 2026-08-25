@@ -1,3 +1,5 @@
+import type { CopyVariant } from "./copy-variant";
+
 /**
  * The complete list of analytics events, and the complete list of properties each one may
  * carry.
@@ -23,7 +25,7 @@ export type DurationBucket = "<1s" | "1-3s" | "3-10s" | "10-30s" | ">30s";
 
 export type SizeBucket = "<1mb" | "1-5mb" | "5-10mb" | "10-20mb" | "20mb+";
 
-export type AnalyticsEventMap = {
+type BaseAnalyticsEventMap = {
   page_view: { path: string };
   campaign_landed: { source: string; medium: string; campaign: string; landingPath: string };
   file_selected: { pages: PageBucket; size: SizeBucket };
@@ -52,6 +54,14 @@ export type AnalyticsEventMap = {
   data_deleted: Record<string, never>;
   cta_clicked: { location: string; label: string };
   faq_opened: { question: string };
+};
+
+type WithCopyVariant<T> = T & { copyVariant?: CopyVariant };
+
+export type AnalyticsEventMap = {
+  [Event in keyof BaseAnalyticsEventMap]: WithCopyVariant<BaseAnalyticsEventMap[Event]>;
+} & {
+  copy_variant_viewed: { copyVariant: CopyVariant };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;

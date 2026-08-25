@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { COPY_VARIANT_HEADER, resolveCopyVariant } from "@/lib/analytics/copy-variant";
 import { NO_STORE, contentSecurityPolicy, securityHeaders } from "@/lib/security/headers";
 
 /**
@@ -44,6 +45,12 @@ export default function proxy(request: NextRequest): NextResponse {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("content-security-policy", csp);
 
+  const existingSessionId = request.cookies.get(SESSION_COOKIE)?.value;
+  const sessionId = existingSessionId ?? generateSessionId();
+  const previewOverride = request.nextUrl.searchParams.get("copy_variant");
+  const copyVariant = resolveCopyVariant(sessionId, previewOverride, process.env.VERCEL_ENV);
+  requestHeaders.set(COPY_VARIANT_HEADER, copyVariant);
+
   const response = NextResponse.next({ request: { headers: requestHeaders } });
 
   response.headers.set("content-security-policy", csp);
@@ -58,10 +65,10 @@ export default function proxy(request: NextRequest): NextResponse {
     response.headers.set("x-robots-tag", "noindex, nofollow, noarchive");
   }
 
-  if (!request.cookies.get(SESSION_COOKIE)) {
+  if (!existingSessionId) {
     response.cookies.set({
       name: SESSION_COOKIE,
-      value: generateSessionId(),
+      value: sessionId,
       httpOnly: true,
       sameSite: "lax",
       secure: production,

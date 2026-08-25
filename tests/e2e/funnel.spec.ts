@@ -16,15 +16,13 @@ function syntheticPdfPath(): string {
 }
 
 test.describe("funnel and public pages", () => {
-  test("homepage has the product H1, CTA, price, brand, and no fake testimonials", async ({
-    page,
-  }) => {
+  test("homepage has an approved H1, CTA, brand, and no premature price", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      "Convert Bank Statements to Excel & CSV",
+      /Convert Bank Statements|The Spreadsheet Looks Clean|Stop Retyping Bank Statements/,
     );
-    await expect(page.getByRole("button", { name: "Check My Statements Free" })).toBeVisible();
-    await expect(page.locator("body")).toContainText("$19");
+    await expect(page.getByRole("button", { name: "Choose My PDF Statements" })).toBeVisible();
+    await expect(page.locator("body")).not.toContainText("$19");
     await expect(page.getByText("Statement Reconcile").first()).toBeVisible();
     await expect(page).toHaveTitle(/Bank Statement.*Excel.*CSV/i);
 
@@ -38,6 +36,7 @@ test.describe("funnel and public pages", () => {
     page,
   }) => {
     await page.goto("/bank-statement-to-excel");
+    await expect(page.locator("body")).not.toContainText("$19");
     const excelH1 = (await page.getByRole("heading", { level: 1 }).innerText()).trim();
     expect(excelH1.length).toBeGreaterThan(0);
     expect(excelH1).not.toBe("Convert Bank Statements to Excel & CSV");
@@ -55,10 +54,10 @@ test.describe("funnel and public pages", () => {
 
     await page.goto("/");
     const chooserPromise = page.waitForEvent("filechooser");
-    await page.getByRole("button", { name: "Check My Statements Free" }).click();
+    await page.getByRole("button", { name: "Choose My PDF Statements" }).click();
     const chooser = await chooserPromise;
     await chooser.setFiles(pdfPath);
-    await expect(page).toHaveURL(/\/app$/);
+    await expect(page).toHaveURL(/\/app$/, { timeout: 15_000 });
 
     const robots = page.locator('meta[name="robots"][content*="noindex"]');
     await expect(robots).toHaveCount(1);
@@ -66,6 +65,7 @@ test.describe("funnel and public pages", () => {
     await expect(
       page.getByText(/This statement balances|Download verified|Unlock Excel|Unlock for/i).first(),
     ).toBeVisible({ timeout: 90_000 });
+    await expect(page.locator("body")).toContainText("$19");
 
     expect(page.url()).not.toContain(encodeURIComponent(pdfName));
     const resourceUrls = await page.evaluate(() =>

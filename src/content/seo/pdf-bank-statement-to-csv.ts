@@ -53,9 +53,9 @@ export const pdfBankStatementToCsv: SeoPage = {
         "The recovered rows are summed and compared with the balances and any stated totals the statement printed, and you are shown the comparison.",
     },
     {
-      title: "Download for $19",
+      title: "Review the result, then download",
       detail:
-        "A single $19 payment covers one conversion pack with one or more statements up to 50 total pages and includes CSV, Excel, and verification reports.",
+        "A single payment covers one conversion pack with one or more statements up to 50 total pages and includes CSV, Excel, and verification reports.",
     },
   ],
   sections: [
