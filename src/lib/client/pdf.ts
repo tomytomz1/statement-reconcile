@@ -89,7 +89,7 @@ export async function readPdf(
   // supplied by the operating system and is frequently wrong or absent.
   const header = new TextDecoder("latin1").decode(bytes.subarray(0, 1024));
   if (!header.includes(PDF_MAGIC)) {
-    bytes.fill(0);
+    releasePdfBytes(bytes);
     return { ok: false, failure: { code: "not_a_pdf" } };
   }
 
@@ -109,14 +109,14 @@ export async function readPdf(
     });
     doc = await task.promise;
   } catch (error) {
-    bytes.fill(0);
+    releasePdfBytes(bytes);
     return { ok: false, failure: { code: classifyPdfjsError(error) } };
   }
 
   try {
     const pageCount = doc.numPages;
     if (pageCount > PAYLOAD_LIMITS.maxPages) {
-      bytes.fill(0);
+      releasePdfBytes(bytes);
       return { ok: false, failure: { code: "too_many_pages", pageCount } };
     }
 
@@ -175,20 +175,20 @@ export async function readPdf(
       onProgress?.(pageNumber / pageCount);
 
       if (totalItems > PAYLOAD_LIMITS.maxTotalItems || totalChars > PAYLOAD_LIMITS.maxTotalChars) {
-        bytes.fill(0);
+        releasePdfBytes(bytes);
         return { ok: false, failure: { code: "payload_too_large", pageCount } };
       }
     }
 
     const density = totalChars / Math.max(1, pageCount);
     if (density < MIN_CHARS_PER_PAGE) {
-      bytes.fill(0);
+      releasePdfBytes(bytes);
       return { ok: false, failure: { code: "no_text_layer", pageCount } };
     }
 
     return { ok: true, document: { pageCount, pages }, textDensity: density, bytes };
   } catch (error) {
-    bytes.fill(0);
+    releasePdfBytes(bytes);
     return { ok: false, failure: { code: classifyPdfjsError(error) } };
   } finally {
     // Tear down the worker. Bytes stay with the caller so the preview can highlight
@@ -197,9 +197,22 @@ export async function readPdf(
   }
 }
 
-/** Zero in-memory PDF bytes when the conversion job is discarded. */
+/**
+ * Zero in-memory PDF bytes when the conversion job is discarded.
+ *
+ * pdf.js transfers the buffer to its worker, which detaches it in this realm, and `fill` on a
+ * detached buffer throws. That is not a failure worth propagating: a detached buffer holds
+ * nothing here to overwrite, and the worker that took ownership is torn down by `task.destroy()`
+ * above. Letting the `TypeError` escape was worse than the problem — every caller is a cleanup
+ * or removal path, and the throw aborted the removal of a file from a multi-file pack before any
+ * state was updated.
+ */
 export function releasePdfBytes(bytes: Uint8Array): void {
-  bytes.fill(0);
+  try {
+    bytes.fill(0);
+  } catch {
+    // Already detached; nothing in this realm still references the bytes.
+  }
 }
 
 function classifyPdfjsError(error: unknown): ExtractionErrorCode {
