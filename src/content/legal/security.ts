@@ -182,7 +182,7 @@ export const securityPolicy: LegalDocument = {
           items: [
             "Request rate limits protect the parsing and export endpoints from automated bulk use.",
             "Where rate limiting is backed by Upstash Redis on a deployment, the counters hold only a hashed client identifier and a request count. No statement content is involved.",
-            "Hard input limits are enforced server-side as well as in the browser: 50 pages and 20 MB per file, plus bounds on the size of the extracted text payload.",
+            "Hard input limits apply, and it is worth being exact about where each one lives. The 50-page combined cap is enforced in the browser and again at every server boundary. The 20 MB per-file cap is enforced in the browser only — the original PDF never reaches us, so there are no bytes for us to measure. What the server does bound is what it actually receives: the size of the extracted-text request body, the page count, the number of text items, and the total characters.",
             "Malformed or oversized payloads are rejected early, before parsing begins.",
             "The service is built for one human-initiated conversion pack at a time. Scripted bulk use is not permitted and is blocked where detected.",
           ],

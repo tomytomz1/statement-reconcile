@@ -128,7 +128,7 @@ export const termsOfService: LegalDocument = {
       blocks: [
         {
           kind: "paragraph",
-          text: "A paid session can be used to download the same statement again for up to 30 days, provided your browser still holds the sealed result from that conversion.",
+          text: "A paid session can be used to download the same statement again for up to 30 days, either from the browser you paid from while the encrypted result is still there, or by opening your recovery link and supplying the same original PDFs so they can be re-verified.",
         },
         {
           kind: "callout",

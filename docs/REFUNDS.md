@@ -27,7 +27,9 @@ Cannot send the refund to a different card or as store credit. There is no store
 
 ## Lost download
 
-Local job TTL is 60 minutes; entitlement window is 30 days **if the envelope is still in that browser**. If they cleared storage or switched devices, we cannot regenerate the file.
+Local job TTL is 60 minutes; the entitlement window is 30 days. After the local copy expires, recovery is still possible on any device, but it needs **both** the recovery link (which carries the Checkout Session reference, offered on the download page) and the **same original PDFs**, which are re-verified to reproduce the paid pack digest. File order does not matter.
+
+We cannot regenerate anything ourselves — no original PDF and no converted result exists on our side. If the customer has lost the link or the PDFs, refund rather than argue; there is no route back to the file.
 
 Instruct: convert again. Refund the first charge (or refund the second if they already paid twice). They must not pay twice for the same statement.
 

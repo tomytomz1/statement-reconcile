@@ -58,6 +58,16 @@ describe("per-file size limit (browser)", () => {
   it("uses the same limit the uploader advertises", () => {
     expect(MAX_BYTES).toBe(siteConfig.limits.maxFileSizeMb * 1024 * 1024);
   });
+
+  it("is exactly 20 MB, so an environment change cannot move the goalposts", () => {
+    // The boundary tests above would pass at any limit. This is what makes them mean
+    // "20 MB" rather than "whatever is configured" — the limit used to be environment
+    // adjustable, which let the uploader advertise one ceiling while a test asserted
+    // another.
+    expect(COMMERCIAL_OFFER.maxFileSizeMb).toBe(20);
+    expect(siteConfig.limits.maxFileSizeMb).toBe(20);
+    expect(MAX_BYTES).toBe(20 * 1024 * 1024);
+  });
 });
 
 function pageOf(page: number, items = 1) {
@@ -142,8 +152,10 @@ describe("combined page limit (server trust boundary)", () => {
     expect(parsed.success).toBe(false);
   });
 
-  it("enforces the same cap the commercial offer sells", () => {
-    expect(PAYLOAD_LIMITS.maxPages).toBe(COMMERCIAL_OFFER.maxTotalPages);
+  it("enforces the same cap the commercial offer sells, and it is exactly 50", () => {
+    expect(COMMERCIAL_OFFER.maxTotalPages).toBe(50);
+    expect(PAYLOAD_LIMITS.maxPages).toBe(50);
+    expect(siteConfig.limits.maxPages).toBe(50);
   });
 });
 

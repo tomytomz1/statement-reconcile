@@ -141,7 +141,7 @@ export const faqs: readonly FaqEntry[] = [
     category: "Payment",
     question: "I paid and lost the download. What now?",
     answer: [
-      "Open the success link again on the same browser you paid from. A paid session can re-download the same statement for thirty days, as long as that browser still holds the sealed result.",
+      "Open your recovery link — the download page offers it right after payment, and it carries the payment reference. For the first hour the converted result is still in that browser and the download returns immediately. After that, or on a different device, open the recovery link and choose the same original PDFs again: they are re-verified, and the download is restored when the result matches what you paid for. The order you pick the files in does not matter. Keep the recovery link and the original PDFs; without both, the only route is to ask support for a refund or re-issue.",
       "If the browser data is gone, so is the result. Convert the statement again and send us the receipt — we refund the first payment rather than charge you twice.",
     ],
   },

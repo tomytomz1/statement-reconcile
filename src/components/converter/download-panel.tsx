@@ -19,15 +19,25 @@ export function DownloadPanel({
   onDelete,
   onConvertAnother,
   transactionCount,
+  sessionId,
 }: {
   onDownload: (format: DownloadFormat) => Promise<void>;
   onDelete: () => Promise<void>;
   onConvertAnother: () => void;
   transactionCount: number;
+  /** The paid Checkout Session reference, used to build the recovery link. */
+  sessionId?: string;
 }) {
   const [busy, setBusy] = useState<DownloadFormat | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deleted, setDeleted] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // Built in the browser so the reference never has to be sent anywhere to produce it.
+  const recoveryUrl =
+    sessionId && typeof window !== "undefined"
+      ? `${window.location.origin}/app?session_id=${encodeURIComponent(sessionId)}`
+      : null;
 
   async function download(format: DownloadFormat) {
     setBusy(format);
@@ -134,11 +144,44 @@ export function DownloadPanel({
           result is held only in this browser and expires by itself within the hour.
         </p>
         <p className="text-ink-700 mt-2 text-sm leading-relaxed">
-          Your purchase lasts 30 days. After the local copy expires you can still get the files back
-          by re-uploading the same PDFs on this device — they will be matched to your payment and
-          you will not be charged again. Keep the original statements until you have the files you
-          need.
+          Your purchase lasts 30 days. After the local copy expires — or on another device — open
+          your recovery link and choose the same original PDFs again. They are re-verified and
+          matched to your payment, and you are not charged twice. The order you pick them in does
+          not matter. Keep both the link and the original statements; we hold no copy of either.
         </p>
+
+        {recoveryUrl ? (
+          <div className="border-ink-200 mt-4 rounded-lg border bg-white p-4">
+            <p className="text-ink-900 text-sm font-semibold">Save your recovery link</p>
+            <p className="text-ink-600 mt-1 text-xs leading-relaxed">
+              This carries your payment reference. Anyone with it and your original PDFs can restore
+              this download for 30 days, so keep it somewhere private.
+            </p>
+            <p
+              data-testid="recovery-link"
+              className="text-ink-700 border-ink-200 bg-ink-50 mt-3 overflow-x-auto rounded border px-3 py-2 font-mono text-xs break-all"
+            >
+              {recoveryUrl}
+            </p>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="mt-3"
+              data-testid="copy-recovery-link"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(recoveryUrl);
+                  setCopied(true);
+                } catch {
+                  // Clipboard access can be denied; the link is displayed above either way.
+                  setCopied(false);
+                }
+              }}
+            >
+              {copied ? "Copied" : "Copy recovery link"}
+            </Button>
+          </div>
+        ) : null}
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Button variant="secondary" size="sm" onClick={onConvertAnother}>
             Convert another statement

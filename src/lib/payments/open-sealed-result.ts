@@ -87,9 +87,13 @@ async function openPack(raw: PackEnvelope, digest: string): Promise<OpenSealedRe
     }
 
     const files: OpenedPackFile[] = [];
-    for (const [index, entry] of manifest.files.entries()) {
-      const packed = raw.files.find((file) => file.fileId === entry.fileId) ?? raw.files[index];
-      if (!packed || packed.fileId !== entry.fileId) {
+    for (const entry of manifest.files) {
+      // Matched by fileId only. There used to be a positional fallback here, which meant a
+      // manifest whose ids did not line up with the envelope could still be paired by
+      // index — quietly associating a manifest entry with a different statement. A missing
+      // match is now a refusal.
+      const packed = raw.files.find((file) => file.fileId === entry.fileId);
+      if (!packed) {
         return { ok: false, reason: "invalid_contents" };
       }
       const opened = await gateStatement(packed.statement, entry.resultDigest);

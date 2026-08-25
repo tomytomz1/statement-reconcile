@@ -85,6 +85,34 @@ async function main(): Promise<void> {
   console.log(`ok    Brand: ${siteConfig.brandName}`);
   console.log(`ok    Offer: ${siteConfig.price.display} (amount not a secret)`);
 
+  /**
+   * Retired offer variables.
+   *
+   * The price, page cap, and file-size cap moved into `src/config/commerce.ts` so the
+   * published figure and the Stripe charge cannot diverge. A deployment that still sets one
+   * of these is not broken — the value is ignored — but somebody believes it is doing
+   * something, and the gap between that belief and the behaviour is the whole failure this
+   * change exists to close. Report it by name; never print the value.
+   *
+   * Deliberately a warning rather than a hard failure: making a stale variable fatal would
+   * take production down to fix a documentation problem.
+   */
+  const retiredOfferVars = [
+    "NEXT_PUBLIC_PRICE_USD",
+    "NEXT_PUBLIC_MAX_PAGES",
+    "NEXT_PUBLIC_MAX_FILE_SIZE_MB",
+  ];
+  const stale = retiredOfferVars.filter((name) => (process.env[name] ?? "").trim() !== "");
+  if (stale.length > 0) {
+    console.log("");
+    console.log("retired and ignored (remove from the deployment):");
+    for (const name of stale) {
+      console.log(`  ${name} — the offer is code-owned in src/config/commerce.ts`);
+    }
+  } else {
+    console.log("ok    No retired offer variables are set");
+  }
+
   if (warnings.length > 0) {
     console.log("");
     console.log("recommended (names only):");

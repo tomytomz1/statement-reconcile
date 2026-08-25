@@ -15,14 +15,16 @@ export const canonicalUrl = stripTrailingSlash(rawSiteUrl || "https://statementr
 /**
  * Price and page cap come from the commercial contract, not the environment.
  *
- * `NEXT_PUBLIC_PRICE_USD` and `NEXT_PUBLIC_MAX_PAGES` used to override these. Both are
- * inlined at build time while the live charge comes from Stripe, so an environment change
- * could publish one amount and bill another. The offer is now a reviewed code change.
+ * `NEXT_PUBLIC_PRICE_USD`, `NEXT_PUBLIC_MAX_PAGES`, and `NEXT_PUBLIC_MAX_FILE_SIZE_MB` used
+ * to override these. All are inlined at build time while the live charge comes from Stripe,
+ * so an environment change could publish one amount or limit and enforce another. The offer
+ * and its limits are now a reviewed code change. `scripts/doctor.ts` reports any of these
+ * still being set so a stale deployment variable is visible rather than silently ignored.
  */
 const PRICE_USD = OFFER_AMOUNT_MAJOR;
 const PRICE_DISPLAY = OFFER_PRICE_DISPLAY;
 const MAX_PAGES = COMMERCIAL_OFFER.maxTotalPages;
-const MAX_FILE_SIZE_MB = numberFromEnv(process.env.NEXT_PUBLIC_MAX_FILE_SIZE_MB, 20);
+const MAX_FILE_SIZE_MB = COMMERCIAL_OFFER.maxFileSizeMb;
 
 export const siteConfig = {
   /** Public brand. */
@@ -163,9 +165,4 @@ function hostFromUrl(value: string): string {
   } catch {
     return "statementreconcile.com";
   }
-}
-
-function numberFromEnv(value: string | undefined, fallback: number): number {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }

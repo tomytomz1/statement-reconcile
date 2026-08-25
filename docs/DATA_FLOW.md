@@ -82,10 +82,10 @@ Vercel records ordinary request metadata (IP, path, status). Application logs ne
 
 ## End of life for a conversion
 
-| Artifact            | Lifetime                                                                                                |
-| ------------------- | ------------------------------------------------------------------------------------------------------- |
-| PDF                 | Never received                                                                                          |
-| Parse request body  | Function memory, one request                                                                            |
-| IndexedDB job       | 60 minutes or delete control or download                                                                |
-| Paid Stripe session | Stripe retention; usable for export ≤ 30 days, from the local envelope or by re-uploading the same PDFs |
-| Rate-limit key      | Window (600 s)                                                                                          |
+| Artifact            | Lifetime                                                                                                                                         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| PDF                 | Never received                                                                                                                                   |
+| Parse request body  | Function memory, one request                                                                                                                     |
+| IndexedDB job       | 60 minutes, or the explicit delete control. **Not** deleted on download — the pack ships four formats and a customer may take them one at a time |
+| Paid Stripe session | Stripe retention; usable for export ≤ 30 days, from the local envelope or by re-uploading the same PDFs                                          |
+| Rate-limit key      | Window (600 s)                                                                                                                                   |

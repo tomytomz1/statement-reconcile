@@ -56,7 +56,12 @@ export default defineConfig({
         "src/lib/schema/**": { statements: 85, branches: 85, functions: 88, lines: 88 },
         "src/lib/security/**": { statements: 70, branches: 60, functions: 82, lines: 74 },
         "src/lib/export/**": { statements: 74, branches: 62, functions: 70, lines: 76 },
-        "src/lib/payments/**": { statements: 55, branches: 52, functions: 68, lines: 58 },
+        // Raised from 55/52/68/58 by the A1/A2 branch tests — deterministic Price-gate
+        // cases and route-level recovery authorization, not excluded files.
+        "src/lib/payments/**": { statements: 80, branches: 75, functions: 82, lines: 83 },
+        // The sealed envelope is the paywall. Added when seal-mode tests replaced the
+        // situation where the unit suite silently exercised the plaintext fallback.
+        "src/lib/crypto/**": { statements: 86, branches: 78, functions: 95, lines: 90 },
       },
     },
   },

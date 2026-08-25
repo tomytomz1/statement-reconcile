@@ -72,6 +72,8 @@ export async function POST(request: Request): Promise<Response> {
     logEvent("export_denied", { reason: entitlement.reason, format });
     return errorResponse("forbidden", 403, entitlementMessage(entitlement.reason));
   }
+  // `authorizeSession` already refuses an expired session. Kept as a second, local check
+  // so the export gate does not depend on that ordering staying where it is.
   if (!isWithinEntitlementWindow(entitlement.entitlement)) {
     logEvent("export_denied", { reason: "expired", format });
     return errorResponse(
@@ -115,6 +117,8 @@ function entitlementMessage(reason: string): string {
       return "That payment reference could not be found.";
     case "stripe_unavailable":
       return "Payments are not available on this deployment.";
+    case "expired":
+      return "This download link has expired. Please get in touch and we will help.";
     case "terms_mismatch":
       // The session says paid, but not for this offer. Refuse rather than deliver, and
       // point at support because the customer may genuinely be out of pocket.

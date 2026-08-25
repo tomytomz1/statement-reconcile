@@ -27,9 +27,11 @@
     "benchmark:synthetic": "tsx benchmarks/runners/index.ts",
     "setup:check": "tsx scripts/setup-check.ts",
     "doctor": "tsx scripts/doctor.ts",
+    "price:preflight": "tsx scripts/price-preflight.ts",
     "funnel:variants": "tsx scripts/funnel-variant-report.ts",
     "audit:seo": "tsx scripts/audit-seo.ts",
     "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm benchmark:synthetic && pnpm build",
+    "verify:release": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm benchmark:synthetic && pnpm audit:seo && pnpm build && pnpm test:e2e",
     "postinstall": "tsx scripts/copy-pdf-worker.ts"
   },
   "dependencies": {

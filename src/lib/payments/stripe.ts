@@ -1,6 +1,11 @@
 import Stripe from "stripe";
 
-import { COMMERCIAL_OFFER, matchOfferAgainstPrice, type OfferMismatch } from "@/config/commerce";
+import {
+  COMMERCIAL_OFFER,
+  matchOfferAgainstPrice,
+  type OfferMismatch,
+  type PriceLikeForCheck,
+} from "@/config/commerce";
 import { serverEnv, stripeConfigured } from "@/config/env";
 import { siteConfig } from "@/config/site";
 
@@ -103,23 +108,44 @@ export function resetPriceCheck(): void {
  * Returns a reason rather than throwing so the route can log the category without leaking
  * configuration detail into an HTTP response.
  */
-export async function assertStripePriceMatchesOffer(): Promise<
-  { ok: true } | { ok: false; reason: OfferMismatch | "price_lookup_failed" }
-> {
+export type PriceCheckResult =
+  { ok: true } | { ok: false; reason: OfferMismatch | "price_lookup_failed" };
+
+/**
+ * How the Price is fetched, and how "now" is read.
+ *
+ * Injected rather than reached for so the cache boundary and every failure shape can be
+ * driven deterministically in a unit test. Production supplies neither and gets the real
+ * Stripe client and clock.
+ */
+export type PriceCheckDeps = {
+  retrievePrice?: (priceId: string) => Promise<PriceLikeForCheck>;
+  now?: () => number;
+};
+
+export async function assertStripePriceMatchesOffer(
+  deps: PriceCheckDeps = {},
+): Promise<PriceCheckResult> {
   const priceId = serverEnv().STRIPE_PRICE_ID;
 
   // No dashboard Price means the inline `price_data` above is authoritative, and it is
   // built from the contract, so there is nothing external to disagree with.
   if (!priceId) return { ok: true };
 
-  if (priceCheck && Date.now() - priceCheck.checkedAt < PRICE_CHECK_TTL_MS) {
+  const now = deps.now ?? Date.now;
+  const retrieve = deps.retrievePrice ?? ((id: string) => stripe().prices.retrieve(id));
+
+  if (priceCheck && now() - priceCheck.checkedAt < PRICE_CHECK_TTL_MS) {
     return { ok: true };
   }
 
-  let price: Stripe.Price;
+  let price: PriceLikeForCheck;
   try {
-    price = await stripe().prices.retrieve(priceId);
+    price = await retrieve(priceId);
   } catch {
+    // A lookup failure is not a pass. It also must not leave an older pass usable, or a
+    // Stripe outage would extend a stale success for the rest of the TTL.
+    priceCheck = null;
     return { ok: false, reason: "price_lookup_failed" };
   }
 
@@ -130,6 +156,6 @@ export async function assertStripePriceMatchesOffer(): Promise<
     return result;
   }
 
-  priceCheck = { ok: true, checkedAt: Date.now() };
+  priceCheck = { ok: true, checkedAt: now() };
   return { ok: true };
 }

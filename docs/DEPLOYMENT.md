@@ -9,7 +9,8 @@ Owner completed [`../MANUAL_CONNECTIONS.md`](../MANUAL_CONNECTIONS.md): `vercel 
 ## Build
 
 ```bash
-pnpm verify          # format, lint, typecheck, test, next build
+pnpm verify:release  # the complete gate: format, lint, typecheck, coverage, benchmark, SEO audit, build, E2E
+pnpm verify          # the short loop: format, lint, typecheck, test, benchmark, build (NOT complete — omits coverage, SEO audit, and E2E)
 ```
 
 Next config: TypeScript errors fail the build; production browser source maps off; `poweredByHeader` off; ExcelJS files traced into `/api/export`.
@@ -57,4 +58,4 @@ Vercel → Deployments → Promote previous production deployment. Stripe Price 
 
 ## CI
 
-When GitHub Actions exist, run `pnpm verify` (and Playwright with mock payments) on PRs. Do not inject production secrets into PR CI.
+CI runs `pnpm verify:release`, which is the same command used locally, so the two cannot drift. Do not inject production secrets into PR CI; the suite uses mock payments and a test seal secret.

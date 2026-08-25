@@ -1,4 +1,4 @@
-import { serverEnv } from "@/config/env";
+import { isProduction, serverEnv } from "@/config/env";
 
 import { fromHex, isSha256Hex, toHex } from "./digest";
 
@@ -21,10 +21,14 @@ import { fromHex, isSha256Hex, toHex } from "./digest";
  * opened by presenting it together with a paid session for that exact digest. There is no
  * server-side state and no lookup table.
  *
- * When `EXPORT_SEAL_SECRET` is not configured the app degrades to an unsealed envelope.
- * That is still gated by server-side Stripe verification and a digest match, but the
- * plaintext is present in the browser. `/api/health` and `pnpm doctor` report which mode
- * is active.
+ * When `EXPORT_SEAL_SECRET` is not configured, non-production degrades to an unsealed
+ * envelope so local development works with no secrets. That is still gated by server-side
+ * Stripe verification and a digest match, but the plaintext is present in the browser.
+ *
+ * **Production refuses.** Falling back silently there would put the full converted table
+ * into the page before payment — the paywall would look real while the data sat one devtools
+ * panel away. A misconfigured deployment fails closed instead, loudly, at the point of
+ * sealing. `/api/health` and `pnpm run doctor` report which mode is active.
  */
 
 const SEAL_INFO = "statement-reconcile/seal/v1";
@@ -60,10 +64,22 @@ async function deriveKey(secret: string, digest: string): Promise<CryptoKey> {
   return subtle().importKey("raw", material, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
 }
 
+export class SealError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "SealError";
+  }
+}
+
 export async function seal(plaintext: string, digest: string): Promise<string> {
   if (!isSha256Hex(digest)) throw new Error("seal requires a SHA-256 digest");
   const secret = serverEnv().EXPORT_SEAL_SECRET;
   if (!secret) {
+    if (isProduction()) {
+      // Fail closed. The alternative is shipping the whole converted statement to the
+      // browser in the clear and calling it a paywall.
+      throw new SealError("EXPORT_SEAL_SECRET is required in production");
+    }
     return `${PLAIN_PREFIX}${base64UrlEncode(new TextEncoder().encode(plaintext))}`;
   }
 
@@ -76,13 +92,6 @@ export async function seal(plaintext: string, digest: string): Promise<string> {
     new TextEncoder().encode(plaintext),
   );
   return `${SEALED_PREFIX}${toHex(nonce)}.${base64UrlEncode(new Uint8Array(ciphertext))}`;
-}
-
-export class SealError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "SealError";
-  }
 }
 
 export async function unseal(envelope: string, digest: string): Promise<string> {

@@ -87,7 +87,9 @@ export type EntitlementFailure =
   | "no_digest"
   | "digest_mismatch"
   /** Paid, but not at the advertised amount or currency. See `matchOfferAgainstSessionTerms`. */
-  | "terms_mismatch";
+  | "terms_mismatch"
+  /** Paid and correct, but outside the 30-day entitlement window. */
+  | "expired";
 
 const SESSION_ID_PATTERN = /^cs_(?:test|live)_[A-Za-z0-9]{10,200}$/;
 const MOCK_SESSION_PREFIX = "cs_mock_";
@@ -133,6 +135,31 @@ export async function verifyEntitlement(
     };
   }
 
+  const authorized = await authorizeSession(sessionId);
+  if (!authorized.ok) return authorized;
+
+  const { entitlement } = authorized;
+  if (!timingSafeEqualHex(entitlement.digest, expectedDigest)) {
+    return { ok: false, reason: "digest_mismatch" };
+  }
+
+  return { ok: true, entitlement };
+}
+
+/**
+ * Everything that must hold about a paid session before it authorizes anything.
+ *
+ * Both the export gate and the recovery lookup go through here, so the two cannot drift
+ * apart. That drift was real: recovery previously reported a session as usable after
+ * checking only `payment_status` and the presence of a digest, so a session at the wrong
+ * amount, in the wrong currency, or long past the entitlement window would be reported as
+ * recoverable — and the customer would only discover otherwise at export.
+ *
+ * The digest is returned rather than compared here, because the two callers want different
+ * things from it: export compares it against data the caller already holds, recovery hands
+ * it back so the browser can find the matching local job.
+ */
+export async function authorizeSession(sessionId: string): Promise<EntitlementResult> {
   if (!isStripeReady()) return { ok: false, reason: "stripe_unavailable" };
 
   let session: Stripe.Checkout.Session;
@@ -146,8 +173,7 @@ export async function verifyEntitlement(
 
   // "Paid" is not sufficient. A session created against a Price that was changed, or with
   // an amount arrived at some other way, can still report paid — so the money is checked
-  // against the commercial contract before anything is released. This runs on every export,
-  // not just at checkout, because the Price could change between the two.
+  // against the commercial contract before anything is released.
   const terms = matchOfferAgainstSessionTerms(session);
   if (!terms.ok) {
     logEvent("entitlement_refused", { reason: terms.reason });
@@ -156,22 +182,23 @@ export async function verifyEntitlement(
 
   const paidDigest = session.metadata?.[CHECKOUT_METADATA_KEYS.digest];
   if (!paidDigest || !isSha256Hex(paidDigest)) return { ok: false, reason: "no_digest" };
-  if (!timingSafeEqualHex(paidDigest, expectedDigest)) {
-    return { ok: false, reason: "digest_mismatch" };
+
+  const entitlement: Entitlement = {
+    sessionId: session.id,
+    digest: paidDigest,
+    jobId: session.metadata?.[CHECKOUT_METADATA_KEYS.jobId] ?? "",
+    paidAt: session.created ? session.created * 1000 : null,
+    amountTotal: session.amount_total,
+    currency: session.currency,
+    livemode: session.livemode,
+  };
+
+  if (!isWithinEntitlementWindow(entitlement)) {
+    logEvent("entitlement_refused", { reason: "expired" });
+    return { ok: false, reason: "expired" };
   }
 
-  return {
-    ok: true,
-    entitlement: {
-      sessionId: session.id,
-      digest: paidDigest,
-      jobId: session.metadata?.[CHECKOUT_METADATA_KEYS.jobId] ?? "",
-      paidAt: session.created ? session.created * 1000 : null,
-      amountTotal: session.amount_total,
-      currency: session.currency,
-      livemode: session.livemode,
-    },
-  };
+  return { ok: true, entitlement };
 }
 
 /**
@@ -188,17 +215,14 @@ export async function paidDigestForSession(
     const digest = sessionId.slice(MOCK_SESSION_PREFIX.length);
     return isSha256Hex(digest) ? { ok: true, digest } : { ok: false, reason: "no_digest" };
   }
-  if (!isStripeReady()) return { ok: false, reason: "stripe_unavailable" };
 
-  try {
-    const session = await stripe().checkout.sessions.retrieve(sessionId);
-    if (session.payment_status !== "paid") return { ok: false, reason: "not_paid" };
-    const digest = session.metadata?.[CHECKOUT_METADATA_KEYS.digest];
-    if (!digest || !isSha256Hex(digest)) return { ok: false, reason: "no_digest" };
-    return { ok: true, digest };
-  } catch {
-    return { ok: false, reason: "session_not_found" };
-  }
+  // Same authorization as export: paid, at the contracted amount and currency, with a
+  // usable digest, inside the entitlement window. Reporting a session as recoverable on
+  // weaker conditions than the ones export will apply is how a customer ends up being told
+  // their payment is fine and then refused the file.
+  const authorized = await authorizeSession(sessionId);
+  if (!authorized.ok) return authorized;
+  return { ok: true, digest: authorized.entitlement.digest };
 }
 
 /**

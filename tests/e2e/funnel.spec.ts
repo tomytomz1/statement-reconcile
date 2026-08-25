@@ -68,6 +68,43 @@ test.describe("funnel and public pages", () => {
     await expect(page.getByTestId("paywall-price")).toHaveCount(0);
   });
 
+  test("the paid download page offers a recovery link carrying the session reference", async ({
+    page,
+    context,
+  }) => {
+    test.setTimeout(120_000);
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    const pdfPath = syntheticPdfPath();
+
+    await page.goto("/");
+    const chooserPromise = page.waitForEvent("filechooser");
+    await page.getByRole("button", { name: "Choose PDF Statements" }).click();
+    (await chooserPromise).setFiles(pdfPath);
+    await expect(page).toHaveURL(/\/app$/, { timeout: 15_000 });
+
+    await expect(page.getByTestId("checkout-button")).toBeVisible({ timeout: 90_000 });
+    await page.getByTestId("checkout-button").click();
+    await expect(page.getByTestId("download-xlsx")).toBeVisible({ timeout: 30_000 });
+
+    // Recovery needs the session reference, and the customer is about to leave the only
+    // page that has it. If this is missing, "keep your payment reference" is advice nobody
+    // can act on.
+    const link = page.getByTestId("recovery-link");
+    await expect(link).toBeVisible();
+
+    const href = (await link.innerText()).trim();
+    const sessionId = new URL(href).searchParams.get("session_id");
+    expect(sessionId).toBeTruthy();
+    expect(href).toContain("/app?session_id=");
+
+    await page.getByTestId("copy-recovery-link").click();
+    await expect(page.getByTestId("copy-recovery-link")).toContainText(/copied/i);
+
+    // The link must actually reach the recovery flow rather than merely look like a URL.
+    await page.goto(`/app?session_id=${sessionId}`);
+    await expect(page.getByText(/payment recovery is active/i)).toBeVisible({ timeout: 15_000 });
+  });
+
   test("processing routes use processing chrome, not the marketing footer", async ({ page }) => {
     await page.goto("/app");
     await expect(page.getByTestId("app-footer")).toBeVisible();

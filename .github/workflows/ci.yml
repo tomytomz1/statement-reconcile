@@ -50,37 +50,15 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Format
-        run: pnpm format:check
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
 
-      - name: Lint
-        run: pnpm lint
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Unit and integration tests with coverage thresholds
-        # Runs coverage rather than plain `test` so the per-module thresholds in
-        # vitest.config.mts are enforced in CI, not only when someone remembers locally.
-        # A regression in reconciliation, verification, pack identity, the payment
-        # boundary, or the security headers fails the build here.
-        run: pnpm test:coverage
-
-      - name: Synthetic release benchmark
-        run: pnpm benchmark:synthetic
-
-      - name: SEO audit
-        run: pnpm audit:seo
+      - name: Release gate
+        # One command, the same one a developer runs locally, so CI and local cannot drift.
+        # Order matters: build and E2E are sequential because they share the .next output
+        # and a local server.
+        run: pnpm verify:release
 
       - name: Production dependency audit
         continue-on-error: true
         run: pnpm audit --prod --audit-level high
-
-      - name: Build
-        run: pnpm build
-
-      - name: Install Playwright Chromium
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: End-to-end tests
-        run: pnpm test:e2e

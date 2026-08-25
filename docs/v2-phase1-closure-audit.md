@@ -2,24 +2,29 @@
 
 Closes the repository audit punch-out. Starting commit `a6e8ed9`; the working tree was clean before any change.
 
+> **Superseded in part.** A later independent review (`docs/v2-phase1-final-acceptance.md`) found
+> several items below overstated. Where the two disagree, the acceptance contract wins. In
+> particular the platform and live-purchase items were marked PASS here and are correctly
+> **BLOCKED**; see the corrected statuses in that document.
+
 Nothing in this pass was deployed, pushed, or merged, and no live Stripe configuration was modified.
 
 ---
 
 ## Closure matrix
 
-| #    | Item                                             | Status   | Evidence                                                                                                                                       |
-| ---- | ------------------------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| P0-1 | One authoritative $19 configuration              | **PASS** | `src/config/commerce.ts`; Price validated before checkout and session terms validated before export; 20 tests in `tests/unit/commerce.test.ts` |
-| P0-2 | Remove stale delayed-price copy                  | **PASS** | 6 stale strings replaced; repo-wide guard in `tests/unit/claims.test.ts`                                                                       |
-| P0-3 | Price beside the `/app` uploader                 | **PASS** | `UploaderOffer` in `converter-app.tsx`; scoped E2E assertions replace body-level ones                                                          |
-| P0-4 | Separate processing chrome from marketing footer | **PASS** | `src/components/site/processing-footer.tsx`; three layout E2E tests                                                                            |
-| P0-5 | Correct the 30-day download claim                | **PASS** | Copy corrected; pack digest made order-stable; 10 tests in `tests/unit/pack-recovery.test.ts`                                                  |
-| P0-6 | Complete limit enforcement and boundary tests    | **PASS** | 18 tests in `tests/unit/limits.test.ts` exercising `validateFile` and the request schema directly                                              |
-| P0-7 | Adversarial checkout/export tests                | **PASS** | 18 tests in `tests/unit/payment-boundary.test.ts`; unit suite now seals for real                                                               |
-| P1   | Test quality and coverage gates                  | **PASS** | Per-module thresholds in `vitest.config.mts`, enforced in CI; `security/headers.ts` taken from 0% to covered                                   |
-| P0   | Restore a genuinely green release gate           | **PASS** | All nine commands green; see the gate results below                                                                                            |
-| —    | Documentation updates                            | **PASS** | Node version, test counts, retention semantics, and price-divergence claims corrected                                                          |
+| #    | Item                                             | Status      | Evidence                                                                                                                                       |
+| ---- | ------------------------------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| P0-1 | One authoritative $19 configuration              | **PASS**    | `src/config/commerce.ts`; Price validated before checkout and session terms validated before export; 20 tests in `tests/unit/commerce.test.ts` |
+| P0-2 | Remove stale delayed-price copy                  | **PASS**    | 6 stale strings replaced; repo-wide guard in `tests/unit/claims.test.ts`                                                                       |
+| P0-3 | Price beside the `/app` uploader                 | **PASS**    | `UploaderOffer` in `converter-app.tsx`; scoped E2E assertions replace body-level ones                                                          |
+| P0-4 | Separate processing chrome from marketing footer | **PASS**    | `src/components/site/processing-footer.tsx`; three layout E2E tests                                                                            |
+| P0-5 | Correct the 30-day download claim                | **PASS**    | Copy corrected; pack digest made order-stable; 10 tests in `tests/unit/pack-recovery.test.ts`                                                  |
+| P0-6 | Complete limit enforcement and boundary tests    | **PASS**    | 18 tests in `tests/unit/limits.test.ts` exercising `validateFile` and the request schema directly                                              |
+| P0-7 | Adversarial checkout/export tests                | **PASS**    | 18 tests in `tests/unit/payment-boundary.test.ts`; unit suite now seals for real                                                               |
+| P1   | Test quality and coverage gates                  | **PASS**    | Per-module thresholds in `vitest.config.mts`, enforced in CI; `security/headers.ts` taken from 0% to covered                                   |
+| P0   | Restore a genuinely green release gate           | **PARTIAL** | Green locally and behind one `pnpm verify:release`, but CI is not a required check and production still deploys on push — see A10              |
+| —    | Documentation updates                            | **PASS**    | Node version, test counts, retention semantics, and price-divergence claims corrected                                                          |
 
 ---
 
@@ -83,7 +88,7 @@ The ten questions from the punch-out, answered:
 
 1. **What survives for 30 days?** The Stripe entitlement only — the right to download, keyed to the paid session and its digest. `ENTITLEMENT_TTL_MS`.
 2. **What expires after 60 minutes?** The sealed converted result in this browser's IndexedDB. `siteConfig.limits.localJobTtlMinutes`.
-3. **What is deleted after download?** The local job, on request via "Delete my data now", and in any case at the TTL. The in-memory PDF bytes are zeroed when the job is discarded.
+3. **What is deleted after download?** Nothing automatically. Downloading does **not** delete the local job — the pack ships as four separate files and a customer may take them one at a time. The job is removed by the explicit "Delete my data now" control, or at the 60-minute TTL, whichever comes first. The in-memory PDF bytes are zeroed when the job is discarded.
 4. **What does the server retain?** No PDF, no extracted text, no statement archive, no account. Stripe holds the session with a digest in metadata and coarse counts — never a balance, description, date, bank name, or filename.
 5. **What must the customer retain?** The original PDFs, and the Stripe session reference (the receipt or the card-statement payment reference). Without the PDFs there is no recovery path at all.
 6. **Same device, within the hour?** The local result is still there; re-download directly.
@@ -149,7 +154,7 @@ The audit found `pnpm format:check` failing on 14 tracked files. A note in the w
 
 None of these can be completed from the repository.
 
-1. **Stripe dashboard.** `assertStripePriceMatchesOffer` now fails checkout closed unless the configured Price is active, one-time, 1900, and USD. The live Price was confirmed as $19.00 USD by the owner on 2026-08-25, so this should pass — but it has not been exercised against live Stripe, because doing so would mean creating a real session. **Confirm the first live checkout after deploy succeeds.**
+1. **Stripe dashboard.** `assertStripePriceMatchesOffer` fails checkout closed unless the configured Price is active, one-time, 1900, and USD. Still **not verified against live Stripe**. `pnpm run price:preflight` now performs that check read-only, with no session and no charge — run it with production credentials before relying on checkout.
 2. **GitHub branch protection.** The punch-out asks that CI be required before production deployment. This cannot be set from the repository. Production currently deploys on push to `main` via the Vercel Git integration, which does not wait for the GitHub check. To close it: enable a branch protection rule on `main` requiring the `verify` check, and either set the Vercel project to "only deploy when checks pass" or move production deploys behind a manual promote.
 3. **Live purchase test.** Still outstanding from the earlier checklist: one real $19 purchase of your own statement, export XLSX and CSV, then refund. The E2E funnel uses `E2E_MOCK_PAYMENTS`, so nothing in the automated suite proves a real card works end to end.
 

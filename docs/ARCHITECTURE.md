@@ -33,7 +33,7 @@ Marketing pages are statically generated and therefore cannot use a nonce; their
 4. **Optional region extractor** (`src/lib/extraction/providers/configured-provider.ts`) accepts clipped ambiguous text regions only. Full-document fallback is forbidden. Until typed ambiguity activation is wired, deterministic failures reject without calling a provider. Request/response bodies are never logged.
 5. **Normalize + canonicalize** (`src/lib/extraction/normalize.ts`, `canonicalize.ts`). Money is `decimal.js`, never IEEE-754. Provenance survives canonicalization (schema v2).
 6. **Completeness, running-balance, ambiguity, then reconcile** (`src/lib/verification/`, `src/lib/reconciliation/reconcile.ts`). A provider cannot declare `verification_passed`.
-7. **Pack digest + seal**. File digests use `statement-reconcile/result/v2\n` + canonical JSON. Payment binds to `statement-reconcile/pack/v2\n` + the pack manifest. AES-256-GCM envelope if `EXPORT_SEAL_SECRET` is set; otherwise `v1.plain.` prefix.
+7. **Pack digest + seal**. File digests use `statement-reconcile/result/v2\n` + canonical JSON. Payment binds to `statement-reconcile/pack/v2\n` + the pack manifest. AES-256-GCM envelope if `EXPORT_SEAL_SECRET` is set. Without it, non-production falls back to a `v1.plain.` envelope so local development needs no secrets; **production refuses to seal at all**, because a plaintext fallback there would put the whole converted table in the browser before payment.
 
 The parse response on success: 10-row preview, summary, verification evidence, pack digest, sealed pack envelope. A rejected file still returns HTTP 200 with `status: "rejected"` (or a mixed `status: "pack"` with `eligible: false`) so the customer can see why; failed files are never included in a paid pack.
 

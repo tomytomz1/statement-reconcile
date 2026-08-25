@@ -202,36 +202,6 @@ describe("checkout, verify, export, webhook", () => {
     expect(json.packDigest).toBe(parsed.digest);
   });
 
-  it("exports a verification PDF and pack manifest for a matching mock session", async () => {
-    const { body: parsed } = await parseFixture("checking-debit-credit-balance");
-    expect(parsed.status).toBe("reconciled");
-    const sessionId = `cs_mock_${parsed.digest as string}`;
-
-    const report = await exportFile(
-      jsonRequest(EXPORT_URL, {
-        sessionId,
-        digest: parsed.digest,
-        sealed: parsed.sealed,
-        format: "report",
-      }),
-    );
-    expect(report.status).toBe(200);
-    const pdf = new Uint8Array(await report.arrayBuffer());
-    expect(String.fromCharCode(pdf[0]!, pdf[1]!, pdf[2]!, pdf[3]!)).toBe("%PDF");
-
-    const manifest = await exportFile(
-      jsonRequest(EXPORT_URL, {
-        sessionId,
-        digest: parsed.digest,
-        sealed: parsed.sealed,
-        format: "manifest",
-      }),
-    );
-    expect(manifest.status).toBe(200);
-    const json = (await manifest.json()) as { packDigest?: string };
-    expect(json.packDigest).toBe(parsed.digest);
-  });
-
   it("exports XLSX for a matching mock session as a zip", async () => {
     const { body: parsed } = await parseFixture("checking-debit-credit-balance");
     expect(parsed.status).toBe("reconciled");

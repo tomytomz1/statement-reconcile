@@ -68,8 +68,11 @@ export async function assemblePack(files: readonly PackFileInput[]): Promise<Ass
     throw new Error("pack exceeds the combined page limit");
   }
 
-  const manifestFiles: PackManifest["files"] = [];
-  const envelopeFiles: PackEnvelope["files"] = [];
+  // One collection, so manifest entry and envelope file cannot be ordered differently.
+  const entries: Array<{
+    manifest: PackManifest["files"][number];
+    envelope: PackEnvelope["files"][number];
+  }> = [];
 
   for (const file of files) {
     if (file.statement.verificationState !== "verification_passed") {
@@ -88,15 +91,17 @@ export async function assemblePack(files: readonly PackFileInput[]): Promise<Ass
     if (ids.has(stableFileId)) throw new Error("duplicate statement in pack");
     ids.add(stableFileId);
 
-    manifestFiles.push({
-      fileId: stableFileId,
-      resultDigest: canonical.digest,
-      pageCount: verifiedPageCount,
-      transactionCount: canonical.statement.transactions.length,
-      verificationState: "verification_passed",
-      statementType: canonical.statement.statementType,
+    entries.push({
+      manifest: {
+        fileId: stableFileId,
+        resultDigest: canonical.digest,
+        pageCount: verifiedPageCount,
+        transactionCount: canonical.statement.transactions.length,
+        verificationState: "verification_passed",
+        statementType: canonical.statement.statementType,
+      },
+      envelope: { fileId: stableFileId, statement: canonical.statement },
     });
-    envelopeFiles.push({ fileId: stableFileId, statement: canonical.statement });
   }
 
   // Pack identity must not depend on the order the customer happened to pick the files in.
@@ -106,12 +111,16 @@ export async function assemblePack(files: readonly PackFileInput[]): Promise<Ass
   // in a different order produced a different digest, so a customer who paid could be
   // refused their own files for a reason no message could sensibly explain.
   //
-  // Sorting by the file-level content digest makes the identity a function of the contents
-  // alone. It is a total order because duplicate digests are rejected above, and it is
-  // stable across devices because the digest is canonical. Ordering carries no meaning here:
-  // each statement is verified independently against its own printed balances.
-  manifestFiles.sort((a, b) => (a.resultDigest < b.resultDigest ? -1 : 1));
-  envelopeFiles.sort((a, b) => (a.fileId < b.fileId ? -1 : 1));
+  // One ordering rule, applied once, to one collection: the full file-level result digest.
+  // The manifest entry and the envelope file are then emitted from that single sorted list,
+  // so there is no second sort key that could disagree with the first. The order is total
+  // because duplicate digests are rejected above, and stable across devices because the
+  // digest is canonical. Ordering carries no meaning: each statement is verified
+  // independently against its own printed balances.
+  entries.sort((a, b) => (a.manifest.resultDigest < b.manifest.resultDigest ? -1 : 1));
+
+  const manifestFiles: PackManifest["files"] = entries.map((entry) => entry.manifest);
+  const envelopeFiles: PackEnvelope["files"] = entries.map((entry) => entry.envelope);
 
   const manifest: PackManifest = {
     schemaVersion: SCHEMA_VERSION,

@@ -118,7 +118,7 @@ export const refundPolicy: LegalDocument = {
       blocks: [
         {
           kind: "paragraph",
-          text: "A paid session can re-download the same statement for up to 30 days, but only while your browser still holds the sealed result. That result is encrypted in your browser and expires there after 60 minutes.",
+          text: "A paid session can re-download the same statement for up to 30 days. For the first 60 minutes the encrypted result is still in the browser you paid from and the download is immediate. After that, recovery needs your recovery link — which carries the payment reference — together with the same original PDFs, which are re-verified to confirm they are what you paid for. We hold no copy of either, so if both are gone, ask us for a refund or re-issue instead.",
         },
         {
           kind: "paragraph",

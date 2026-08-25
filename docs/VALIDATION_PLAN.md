@@ -54,7 +54,8 @@ Do not put these numbers on landing pages, ads, or sales email.
 - `pnpm test` — unit + integration (parser, reconcile, canonicalize, money, dates, export sanitization)
 - `pnpm test:e2e` — funnel with mock payments (`APP_ENV=test`)
 - `pnpm audit:seo` — unique titles/descriptions; no orphan SEO URLs
-- `pnpm verify` — format, lint (zero warnings), typecheck, tests, build
+- `pnpm verify:release` — the authoritative gate: format, lint (zero warnings), typecheck, tests with coverage thresholds, synthetic benchmark, SEO audit, production build, then E2E. Build and E2E run sequentially because they share the `.next` output and a local server.
+- `pnpm verify` — the shorter developer loop. It is **not** the release gate: it omits coverage thresholds, the SEO audit, and E2E.
 
 Add a fixture family when a new layout class or a production reject/false-accept appears. Do not “fix” a failing invalid-* fixture by loosening the engine.
 

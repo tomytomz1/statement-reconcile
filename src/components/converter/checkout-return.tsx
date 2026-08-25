@@ -189,6 +189,7 @@ export function CheckoutReturn({ sessionId }: { sessionId: string | null }) {
     <div className="space-y-6">
       <DownloadPanel
         transactionCount={state.job.totalTransactions}
+        sessionId={state.sessionId}
         onDownload={download}
         onDelete={remove}
         onConvertAnother={() => window.location.assign(routes.app)}

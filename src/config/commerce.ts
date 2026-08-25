@@ -28,6 +28,18 @@ export const COMMERCIAL_OFFER = {
   billing: "one_time",
   /** Combined page ceiling for a single pack, at this price. */
   maxTotalPages: 50,
+  /**
+   * Per-file ceiling for an original PDF, in megabytes.
+   *
+   * Enforced in the browser and only in the browser, because the original PDF bytes never
+   * reach the server — that is the privacy design, not an oversight. The server bounds what
+   * it actually receives: extracted-text body bytes, page count, item count, and character
+   * count. Any copy claiming a server-side byte check is false.
+   *
+   * Code-owned like the price. It was environment-adjustable, which meant the uploader could
+   * advertise one ceiling while a test asserted another.
+   */
+  maxFileSizeMb: 20,
 } as const;
 
 export type CommercialOffer = typeof COMMERCIAL_OFFER;
@@ -51,6 +63,7 @@ export const publicOffer = {
   amountMajor: OFFER_AMOUNT_MAJOR,
   currencyDisplay: COMMERCIAL_OFFER.currency.toUpperCase(),
   maxTotalPages: COMMERCIAL_OFFER.maxTotalPages,
+  maxFileSizeMb: COMMERCIAL_OFFER.maxFileSizeMb,
 
   /**
    * The sentence form, for prose and meta descriptions.

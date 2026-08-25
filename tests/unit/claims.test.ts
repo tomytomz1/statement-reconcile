@@ -118,6 +118,47 @@ describe("claims policy", () => {
   });
 
   /**
+   * Recovery language that describes a promise narrower than the implemented one.
+   *
+   * Recovery works from the local sealed result for about an hour, and after that from the
+   * recovery link plus the same original PDFs — on any device. Copy saying it works "only
+   * while your browser still holds" the result understates that, which matters because a
+   * customer reading it would reasonably conclude their money was gone.
+   */
+  it("does not describe recovery as browser-only", () => {
+    const browserOnly = [
+      /only while (your|that) browser/i,
+      /as long as (your|that) browser still holds/i,
+      /provided your browser still holds/i,
+      /but only while your browser/i,
+    ];
+    for (const [path, text] of collectPublicCopyWithPaths()) {
+      for (const pattern of browserOnly) {
+        expect(text, `${path} still describes recovery as browser-only`).not.toMatch(pattern);
+      }
+    }
+  });
+
+  /**
+   * The 20 MB limit is enforced in the browser and only there, because the original PDF
+   * bytes never reach the server. Copy claiming a server-side byte check is false.
+   */
+  it("does not claim the server enforces the original PDF byte size", () => {
+    const serverSideBytes = [
+      /enforced server-side as well as in the browser[^.]*20 ?MB/i,
+      /server-side[^.]{0,60}20 ?MB per file/i,
+      /20 ?MB per file[^.]{0,60}server-side/i,
+    ];
+    for (const [path, text] of collectPublicCopyWithPaths()) {
+      for (const pattern of serverSideBytes) {
+        expect(text, `${path} claims a server-side 20 MB check that cannot exist`).not.toMatch(
+          pattern,
+        );
+      }
+    }
+  });
+
+  /**
    * The price is public now, so the rule is no longer "never say it" — it is "never say it
    * twice". A literal amount typed into a component is a number that can drift away from the
    * one Stripe actually charges, and the customer would have no way to tell which is real.
