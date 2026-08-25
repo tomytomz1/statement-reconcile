@@ -85,11 +85,11 @@ Three approved H1s are assigned from the existing anonymous `sr_sid` cookie at a
 is deterministic and stable for the session, and it is resolved server-side in `src/proxy.ts` so the
 headline never visibly swaps. No second cookie is created.
 
-| Variant | H1                                                                                             |
-| ------- | ---------------------------------------------------------------------------------------------- |
-| A       | Convert Bank Statements to Excel & CSV—Then Make the Spreadsheet Prove It Matches the PDF       |
-| B       | The Spreadsheet Looks Clean. But Did the Converter Miss a Row?                                  |
-| C       | Stop Retyping Bank Statements—and Stop Checking a Converter's Work by Hand                      |
+| Variant | H1                                                                                        |
+| ------- | ----------------------------------------------------------------------------------------- |
+| A       | Convert Bank Statements to Excel & CSV—Then Make the Spreadsheet Prove It Matches the PDF |
+| B       | The Spreadsheet Looks Clean. But Did the Converter Miss a Row?                            |
+| C       | Stop Retyping Bank Statements—and Stop Checking a Converter’s Work by Hand                |
 
 `?copy_variant=a|b|c` overrides the assignment **only** when `VERCEL_ENV === "preview"`. Production
 and development ignore the parameter entirely, and an invalid value falls back to the session's
@@ -103,7 +103,7 @@ homepage file selection (`cta_clicked`), extraction start, extraction rejection,
 and successful downloads.
 
 **Stopping rule: do not declare a winner before 200 qualified verified previews overall and at
-least 50 per variant.** Below that, report the observed split *and the uncertainty around it*. Do
+least 50 per variant.** Below that, report the observed split _and the uncertainty around it_. Do
 not manufacture statistical confidence, and do not pick a winner on taste or on a small sample.
 Preserve all three variants until the threshold is reached.
 

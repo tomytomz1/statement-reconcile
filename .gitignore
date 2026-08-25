@@ -53,3 +53,6 @@ benchmarks/results/*.json
 *.statement.pdf
 statements/
 private/
+
+# Local agent tooling (Claude Code) — not project configuration.
+.claude/
