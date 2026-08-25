@@ -69,13 +69,24 @@ export function lineItem(): Stripe.Checkout.SessionCreateParams.LineItem {
  * Cached result of the Price check.
  *
  * Retrieving the Price on every checkout would add a network round trip to the most
- * latency-sensitive step in the funnel. The Price is immutable in the ways that matter
- * here — Stripe does not allow a Price's amount or currency to be edited, only
- * deactivated and replaced — so a success is cached for the life of the process. A
- * failure is never cached, so deactivating a Price takes effect on the next request
- * rather than the next deploy.
+ * latency-sensitive step in the funnel, so a passing check is cached — but only briefly,
+ * and the bound matters.
+ *
+ * Stripe does not allow a Price's amount or currency to be edited, only deactivated and
+ * replaced, so a Price that passed cannot silently become a different amount. It can,
+ * however, be deactivated. Caching a success indefinitely would mean an instance that
+ * checked once keeps creating sessions against a Price that is no longer valid until it
+ * recycles, which on serverless is an unbounded and invisible window.
+ *
+ * A short TTL keeps the round trip off nearly every checkout while bounding that window to
+ * something a person could reason about. Failures are never cached at all.
+ *
+ * The backstop is independent of this cache: `matchOfferAgainstSessionTerms` re-checks the
+ * amount and currency of the completed session on every export, and is not memoized.
  */
-let priceCheck: { ok: true } | null = null;
+const PRICE_CHECK_TTL_MS = 5 * 60 * 1000;
+
+let priceCheck: { ok: true; checkedAt: number } | null = null;
 
 /** Test helper: forget the cached Price check after changing the environment. */
 export function resetPriceCheck(): void {
@@ -101,7 +112,9 @@ export async function assertStripePriceMatchesOffer(): Promise<
   // built from the contract, so there is nothing external to disagree with.
   if (!priceId) return { ok: true };
 
-  if (priceCheck) return priceCheck;
+  if (priceCheck && Date.now() - priceCheck.checkedAt < PRICE_CHECK_TTL_MS) {
+    return { ok: true };
+  }
 
   let price: Stripe.Price;
   try {
@@ -111,8 +124,12 @@ export async function assertStripePriceMatchesOffer(): Promise<
   }
 
   const result = matchOfferAgainstPrice(price, priceId);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    // A previously cached pass must not outlive a Price that has stopped matching.
+    priceCheck = null;
+    return result;
+  }
 
-  priceCheck = { ok: true };
-  return priceCheck;
+  priceCheck = { ok: true, checkedAt: Date.now() };
+  return { ok: true };
 }

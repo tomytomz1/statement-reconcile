@@ -42,7 +42,7 @@ The flow, end to end:
 1. `COMMERCIAL_OFFER` is the only definition. `siteConfig.price` and `siteConfig.limits.maxPages` derive from it; `NEXT_PUBLIC_PRICE_USD` and `NEXT_PUBLIC_MAX_PAGES` no longer override anything.
 2. Rendering uses `publicOffer`, a projection that exposes `$19` and never minor units.
 3. JSON-LD `Offer` reads the same projection.
-4. **Before checkout**, `assertStripePriceMatchesOffer()` retrieves the configured Price and fails closed unless it is the expected id, active, `one_time`, exactly 1900, and `usd`. Success is cached for the process; failure never is, so deactivating a Price takes effect on the next request.
+4. **Before checkout**, `assertStripePriceMatchesOffer()` retrieves the configured Price and fails closed unless it is the expected id, active, `one_time`, exactly 1900, and `usd`. A pass is cached for five minutes so the round trip stays off nearly every checkout; failures are never cached, and a failure clears any cached pass. The export-time session check is independent of this cache and is never memoized.
 5. Without `STRIPE_PRICE_ID`, the inline `price_data` is built from the same contract, so it cannot diverge by construction.
 6. **After payment**, `verifyEntitlement` checks `payment_status === "paid"`, then `matchOfferAgainstSessionTerms` (amount 1900, currency usd), then the digest in constant time. A terms mismatch returns `terms_mismatch`.
 7. **Export** re-runs all of that on every download, so a Price changed between checkout and export is caught.
