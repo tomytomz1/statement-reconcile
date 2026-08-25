@@ -148,8 +148,8 @@ export const creditCardStatementToCsv: SeoPage = {
         "For current, checking, or savings statements, which balance on cash rather than on what is owed.",
     },
     {
-      href: "/convert-pdf-transactions-to-csv",
-      label: "Convert PDF transactions to CSV",
+      href: "/extract-transactions-from-pdf",
+      label: "Extract transactions from a PDF",
       context:
         "More detail on the file itself: encoding, number formats, and the quirks of PDF-printed amounts.",
     },

@@ -28,6 +28,15 @@ export type SizeBucket = "<1mb" | "1-5mb" | "5-10mb" | "10-20mb" | "20mb+";
 type BaseAnalyticsEventMap = {
   page_view: { path: string };
   campaign_landed: { source: string; medium: string; campaign: string; landingPath: string };
+  /** The file dialog was opened. Separates intent-to-convert from an abandoned CTA click. */
+  file_picker_open: { location: string };
+  /**
+   * The pricing page was read. Distinct from `page_view` because the funnel question is how
+   * many visitors go looking for the price, not how many pages were served.
+   */
+  pricing_viewed: Record<string, never>;
+  /** The refund policy was opened from a commercial surface, before or after paying. */
+  refund_link_clicked: { location: string };
   file_selected: { pages: PageBucket; size: SizeBucket };
   file_rejected: { code: string };
   extraction_started: { pages: PageBucket };
@@ -43,6 +52,14 @@ type BaseAnalyticsEventMap = {
   reconciliation_passed: { method: string; rows: RowBucket };
   reconciliation_failed: { method: string; rows: RowBucket };
   preview_viewed: { rows: RowBucket; statementType: StatementTypeProperty };
+  /**
+   * A row was opened against its source region in the PDF. This is the trust behaviour §59
+   * asks about — how many people actually check the evidence they are being offered.
+   *
+   * It carries no identifier for the row: which transaction someone inspected is a fact
+   * about their statement.
+   */
+  source_reference_opened: Record<string, never>;
   checkout_clicked: { rows: RowBucket; statementType: StatementTypeProperty };
   checkout_redirected: Record<string, never>;
   checkout_failed: { code: string };

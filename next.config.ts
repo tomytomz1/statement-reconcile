@@ -34,6 +34,45 @@ const nextConfig: NextConfig = {
     // cold-start failure on a serverless function that only shows up after a paid export.
     "/api/export": ["./node_modules/exceljs/**"],
   },
+
+  async redirects() {
+    return RETIRED_SLUG_REDIRECTS.map(([source, destination]) => ({
+      source: `/${source}`,
+      destination: `/${destination}`,
+      permanent: true,
+    }));
+  },
 };
+
+/**
+ * Landing pages retired when duplicate search intents were consolidated.
+ *
+ * Each of these was a separate page competing for the same query family as its destination —
+ * "convert bank statement to excel" and "pdf bank statement to excel" are the same intent
+ * expressed differently, and running both meant the two pages split their own signals rather
+ * than competing with anyone else.
+ *
+ * Every destination is a live page and never itself a source, which is what keeps each of
+ * these to a single hop. `tests/unit/redirects.test.ts` enforces both properties, because
+ * `dynamicParams = false` on the landing route means a slug 404s the moment its data file is
+ * deleted — a missing entry here is a dead URL rather than a warning.
+ */
+const RETIRED_SLUG_REDIRECTS: ReadonlyArray<readonly [string, string]> = [
+  // "bank statement to Excel" — five URLs collapsed to one.
+  ["convert-bank-statement-to-excel", "bank-statement-to-excel"],
+  ["pdf-bank-statement-to-excel", "bank-statement-to-excel"],
+  ["convert-pdf-transactions-to-excel", "bank-statement-to-excel"],
+  // "bank statement to CSV" — the mirror of the above.
+  ["convert-bank-statement-to-csv", "bank-statement-to-csv"],
+  ["pdf-bank-statement-to-csv", "bank-statement-to-csv"],
+  ["convert-pdf-transactions-to-csv", "bank-statement-to-csv"],
+  // "transaction extractor" — the same phrase with the qualifiers reordered.
+  ["bank-statement-transaction-extractor", "extract-transactions-from-pdf"],
+  ["pdf-bank-transaction-extractor", "extract-transactions-from-pdf"],
+  // Renamed to match how the audience describes itself.
+  ["bank-statement-spreadsheet-for-accountants", "bank-statement-converter-for-bookkeepers"],
+];
+
+export { RETIRED_SLUG_REDIRECTS };
 
 export default nextConfig;

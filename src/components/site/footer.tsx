@@ -40,9 +40,8 @@ export function SiteFooter() {
             <p className="text-ink-600 mt-3 max-w-xs text-sm leading-relaxed">
               {siteConfig.primaryOutcome}. {siteConfig.differentiator}
             </p>
-            <p className="text-ink-700 mt-4 text-sm font-medium">
-              {siteConfig.offerLine} · Verify before checkout
-            </p>
+            <p className="text-ink-700 mt-4 text-sm font-medium">{siteConfig.priceLine}</p>
+            <p className="text-ink-500 mt-1.5 text-sm">{siteConfig.offerLine}</p>
           </div>
 
           <FooterColumn heading="Product" links={PRODUCT_LINKS} />
@@ -51,11 +50,10 @@ export function SiteFooter() {
 
         {/*
          * The conversion directory gets its own full-width row rather than a quarter of the
-         * row above. Twenty-six links squeezed into a narrow column wrapped almost every label
-         * onto a second line, which made this block taller than the rest of the footer put
-         * together while the brand column sat half empty. One column per group gives each
-         * label the width to sit on one line and reads as a directory rather than the main
-         * event.
+         * row above. Squeezed into a narrow column, almost every label wrapped onto a second
+         * line, which made this block taller than the rest of the footer put together while
+         * the brand column sat half empty. One column per group gives each label the width to
+         * sit on one line and reads as a directory rather than the main event.
          */}
         <div className="border-ink-200 mt-12 border-t pt-10">
           <p className="text-ink-500 text-xs font-semibold tracking-[0.1em] uppercase">

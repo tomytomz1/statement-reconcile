@@ -164,8 +164,8 @@ export const bankStatementToXeroCsv: SeoPage = {
       context: "If you want to inspect or adjust the CSV before it goes anywhere near a ledger.",
     },
     {
-      href: "/pdf-bank-statement-to-csv",
-      label: "PDF bank statement to CSV",
+      href: "/bank-statement-to-csv",
+      label: "Bank statement to CSV",
       context: "How dates are normalised and amounts are signed on the way out of the PDF.",
     },
     {

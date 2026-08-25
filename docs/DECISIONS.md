@@ -55,3 +55,33 @@ The original PDF still never leaves the browser and is never written to IndexedD
 ## ADR-011 — 26 SEO pages, not 20
 
 The 20 URLs required by the PRD are present. Six additional distinct pages cover adjacent intents (Google Sheets, accountants, QuickBooks/Xero CSV _import_, business statements, extract-from-PDF) without claiming QBO/OFX export.
+
+## ADR-014 — Public price, superseding the price-reveal boundary (PRD v2 §17)
+
+**Supersedes the V1 decision to withhold the amount until a pack had passed.**
+
+V1 revealed the price only at the verified-result paywall, on the theory that the customer's own verification result was what sold it. Two unit tests and two e2e assertions enforced the absence of the amount from every public surface.
+
+That is now reversed. The visitor sees `$19` in the hero, the upload card, the offer block, the final CTA, the pricing page, and the landing-page template.
+
+The reasoning is that the old boundary asked someone to hand a bank statement to an unknown tool in order to find out what it charges. For the target customer — a bookkeeper putting a client's financial documents through a service they have not used before — that is the wrong order. The commercial terms are the cheapest thing to disclose and the most reassuring to see early.
+
+The economics were checked before publishing rather than assumed. Production `/api/health` reported `"parserProvider": "none"` on 2026-08-25, so a successful pack costs the Stripe fee (roughly $0.85 on $19) plus serverless compute, not a model call. Enabling a provider is an env-var change that needs no deploy, so re-check `/api/health` rather than assuming the code still describes production.
+
+Note that production also has `STRIPE_PRICE_ID` set, so the billed amount comes from a Stripe dashboard Price. The published price and the charged price are therefore two values in two systems, and only the first is guarded by tests.
+
+The guardrails were inverted rather than deleted. `tests/unit/claims.test.ts` now asserts that any price in public copy derives from `siteConfig.price`, so a literal amount typed into a component fails the build. What a customer reads and what Stripe charges cannot drift apart.
+
+`SoftwareApplication` gains an `Offer` node, which §50 requires now that the price is visible content. There is still no `AggregateRating` and no `Review`.
+
+## ADR-015 — One landing page per distinct intent (PRD v2 §43, §45)
+
+Twenty-six landing pages became twenty-one. Three clusters were collapsing their own signals: five URLs for "bank statement to Excel", four for the CSV mirror, three for "transaction extractor" with the qualifiers reordered.
+
+The pages were not thin — `pnpm audit:seo` fails the build on duplicate titles, descriptions, or prose, so each was a genuinely distinct document. The problem was that several distinct documents answered the same search.
+
+Consolidating on day one was deliberate. §45 asks for Search Console data before deciding redirects, and none exists: the site launched 2026-08-25. That absence is the argument for acting rather than waiting — there is no equity to lose now, and the same merge gets more expensive as pages age and acquire links.
+
+Retired slugs 301 in a single hop via `RETIRED_SLUG_REDIRECTS` in `next.config.ts`. `tests/unit/redirects.test.ts` enforces that every destination is live and never itself a source, because `dynamicParams = false` means a missing entry is a dead URL rather than a warning.
+
+Full inventory and classification in `docs/seo-url-migration-v2.md`.

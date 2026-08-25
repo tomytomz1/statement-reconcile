@@ -135,8 +135,8 @@ export const bankOfAmericaStatementToExcel: SeoPage = {
   ],
   related: [
     {
-      href: "/convert-bank-statement-to-excel",
-      label: "Convert a bank statement to Excel",
+      href: "/bank-statement-to-excel",
+      label: "Bank statement to Excel",
       context: "The same conversion described without reference to any institution.",
     },
     {

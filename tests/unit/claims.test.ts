@@ -26,15 +26,15 @@ const FORBIDDEN = [
   /ready to import/i,
 ];
 
-function collectPublicCopy(): string[] {
+function collectPublicCopyWithPaths(): Array<[string, string]> {
   const roots = [
     join(process.cwd(), "src", "content"),
     join(process.cwd(), "src", "app", "(site)"),
     join(process.cwd(), "src", "config", "site.ts"),
     // The public chrome — header, footer, hero, processing shell — renders on every
-    // pre-verification surface, so it is bound by the same claims and price rules as the
-    // copy it wraps. `src/components/converter` is deliberately excluded: the paywall is
-    // the one place downstream of a pass that is allowed to state the amount.
+    // pre-verification surface, so it is bound by the same claims rules as the copy it
+    // wraps. `src/components/converter` is excluded because it is downstream of a pass and
+    // is covered by the funnel e2e test instead.
     join(process.cwd(), "src", "components", "site"),
   ];
   const files: string[] = [];
@@ -52,7 +52,11 @@ function collectPublicCopy(): string[] {
     }
   }
   for (const root of roots) walk(root);
-  return files.map((file) => readFileSync(file, "utf8"));
+  return files.map((file) => [file, readFileSync(file, "utf8")] as [string, string]);
+}
+
+function collectPublicCopy(): string[] {
+  return collectPublicCopyWithPaths().map(([, text]) => text);
 }
 
 describe("claims policy", () => {
@@ -65,17 +69,33 @@ describe("claims policy", () => {
     }
   });
 
-  it("keeps public offer copy price-free while preserving pack scope", () => {
+  it("preserves pack scope in the offer line and states the bargain in the price line", () => {
     expect(siteConfig.offerLine).toMatch(/one or more statements/i);
     expect(siteConfig.offerLine).toMatch(/total pages/i);
-    expect(siteConfig.offerLine).not.toMatch(/\$|19/);
     expect(siteConfig.verifiedCta).toMatch(/verified Excel \+ CSV/i);
     expect(siteConfig.ownedCategory).toBe("Verified Bank Statement Conversion");
+
+    // The visitor should know the terms before handing over a bank statement: what it costs,
+    // that verifying costs nothing, and that nothing recurs.
+    expect(siteConfig.priceLine).toContain(siteConfig.price.display);
+    expect(siteConfig.priceLine).toMatch(/free/i);
+    expect(siteConfig.priceLine).toMatch(/no subscription/i);
   });
 
-  it("does not disclose the exact amount in pre-verification public copy", () => {
-    for (const text of collectPublicCopy()) {
-      expect(text).not.toMatch(/\$19/i);
+  /**
+   * The price is public now, so the rule is no longer "never say it" — it is "never say it
+   * twice". A literal amount typed into a component is a number that can drift away from the
+   * one Stripe actually charges, and the customer would have no way to tell which is real.
+   * Every rendered price has to come from `siteConfig.price`, which is also what
+   * `createCheckoutSession` bills.
+   */
+  it("never hardcodes the amount outside the single source of truth", () => {
+    const amount = new RegExp(`\\$\\s*${siteConfig.price.amountUsd}\\b`);
+    for (const [path, text] of collectPublicCopyWithPaths()) {
+      if (path.endsWith(join("src", "config", "site.ts"))) continue;
+      expect(text, `${path} hardcodes the price instead of reading siteConfig.price`).not.toMatch(
+        amount,
+      );
     }
   });
 

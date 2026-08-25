@@ -122,11 +122,22 @@ export function DownloadPanel({
       ) : null}
 
       <div className="border-verified-200 mt-7 border-t pt-5">
+        {/*
+         * Two different lifetimes, and conflating them is how someone loses a file they paid
+         * for. The converted result lives in this browser for `localJobTtlMinutes` and then
+         * deletes itself. The 30-day entitlement is a separate thing held against the Stripe
+         * session, and redeeming it means re-uploading the same PDFs so the digest can be
+         * matched — which is only possible if the customer still has them.
+         */}
         <p className="text-ink-700 text-sm leading-relaxed">
-          <span className="text-ink-900 font-semibold">Keep the files.</span> The converted result
-          is held only in this browser and expires by itself within the hour. You can re-download
-          from this device for 30 days while it lasts; after that the statement would need
-          converting again.
+          <span className="text-ink-900 font-semibold">Download them now.</span> The converted
+          result is held only in this browser and expires by itself within the hour.
+        </p>
+        <p className="text-ink-700 mt-2 text-sm leading-relaxed">
+          Your purchase lasts 30 days. After the local copy expires you can still get the files
+          back by re-uploading the same PDFs on this device — they will be matched to your payment
+          and you will not be charged again. Keep the original statements until you have the files
+          you need.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Button variant="secondary" size="sm" onClick={onConvertAnother}>

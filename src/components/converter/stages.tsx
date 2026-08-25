@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 import { routes, siteConfig } from "@/config/site";
 import type { ExtractionErrorCode } from "@/lib/extraction/types";
@@ -148,6 +149,35 @@ const REMEDIES: Partial<Record<ExtractionErrorCode | "network" | "aborted", stri
   internal_error: ["This one is on us. Try again, and get in touch if it happens twice."],
 };
 
+/**
+ * Codes that mean our infrastructure failed rather than the statement being unusable.
+ *
+ * These get a support code, because there is nothing the customer can inspect for
+ * themselves and "try again" is only useful advice the first time.
+ */
+const INFRASTRUCTURE_FAILURES = new Set<string>([
+  "internal_error",
+  "provider_unavailable",
+  "provider_invalid_output",
+]);
+
+/**
+ * A reference a customer can quote to support.
+ *
+ * Derived from the error code plus four random characters, so it identifies one incident
+ * without encoding anything about the statement — the code half is a fixed enum member and
+ * the suffix half is noise. §94 requires the reference to carry no sensitive information,
+ * which rules out anything derived from the document, the filename, or the job.
+ */
+function supportCode(code: string): string {
+  const stem = code.replace(/[^a-z]/g, "").slice(0, 3).toUpperCase().padEnd(3, "X");
+  const suffix = Math.floor(Math.random() * 36 ** 4)
+    .toString(36)
+    .toUpperCase()
+    .padStart(4, "0");
+  return `SR-${stem}${suffix}`;
+}
+
 export function FailurePanel({
   code,
   message,
@@ -160,14 +190,35 @@ export function FailurePanel({
   children?: React.ReactNode;
 }) {
   const remedies = REMEDIES[code as ExtractionErrorCode] ?? REMEDIES.internal_error ?? [];
-  const charged = code === "reconciliation_failed" || code === "layout_not_recognized";
+  // Whether we got far enough to compute figures the customer can look at. When we did, the
+  // reassurance can be stronger: there is nothing to refund because nothing was ever billed.
+  const reachedArithmetic = code === "reconciliation_failed" || code === "layout_not_recognized";
+  const isInfrastructure = INFRASTRUCTURE_FAILURES.has(code);
+  // Generated once per mounted failure, so the reference a customer writes down does not
+  // change under them on a re-render.
+  const [reference] = useState(() => (isInfrastructure ? supportCode(code) : null));
 
   return (
     <Card className="border-l-refused-700 border-l-4">
       <div role="alert">
-        <Heading level={3}>We stopped rather than guess</Heading>
+        <Heading level={3}>
+          {isInfrastructure
+            ? "We couldn't complete this conversion"
+            : "We couldn't verify this statement safely"}
+        </Heading>
         <p className="text-ink-800 mt-2 text-sm leading-relaxed">{message}</p>
       </div>
+
+      <p className="bg-verified-50 text-verified-900 mt-4 rounded-lg px-4 py-3 text-sm font-semibold">
+        You have not been charged.{" "}
+        <span className="font-normal">
+          {reachedArithmetic
+            ? "There is nothing to refund, because the payment step only appears once the numbers agree."
+            : "The payment step only appears once a statement has passed verification."}
+        </span>
+      </p>
+
+      {children}
 
       {remedies.length > 0 ? (
         <div className="mt-5">
@@ -188,25 +239,30 @@ export function FailurePanel({
         </div>
       ) : null}
 
-      {children}
+      {reference ? (
+        <p className="border-ink-200 text-ink-600 mt-5 rounded-lg border bg-white px-4 py-3 text-sm">
+          If it happens again, quote this when you get in touch:{" "}
+          <span className="text-ink-950 tabular font-semibold">{reference}</span>
+        </p>
+      ) : null}
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <Button onClick={onRetry} variant="secondary">
           Try another statement
         </Button>
         <Link
-          href={routes.contact}
+          href={`${routes.howItWorks}#failure`}
           className="text-accent-700 text-sm font-medium underline-offset-2 hover:underline"
+        >
+          Why verification fails
+        </Link>
+        <Link
+          href={routes.contact}
+          className="text-ink-600 text-sm font-medium underline-offset-2 hover:underline"
         >
           Tell us about this layout
         </Link>
       </div>
-
-      <p className="bg-verified-50 text-verified-900 mt-4 rounded-lg px-4 py-3 text-sm font-medium">
-        {charged
-          ? "You have not been charged, and there is nothing to refund. The payment step only appears once the numbers agree."
-          : "Nothing was charged. The payment step only appears once we have verified the statement."}
-      </p>
     </Card>
   );
 }
