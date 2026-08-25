@@ -629,7 +629,13 @@ export function ConverterApp({ initialSession }: { initialSession?: string }) {
                 totalCount={selectedFile.totalTransactions ?? selectedFile.preview.length}
                 locked
                 selectedId={state.view.selected?.id}
-                onSelect={(row) => setState({ ...state, view: { ...state.view, selected: row } })}
+                onSelect={(row) => {
+                  // Fires once per opened row, with no identifier for which row: how many
+                  // people actually check the evidence is a funnel question, which row they
+                  // checked is a fact about their statement.
+                  if (state.view.selected?.id !== row.id) track("source_reference_opened", {});
+                  setState({ ...state, view: { ...state.view, selected: row } });
+                }}
               />
             ) : null}
 
