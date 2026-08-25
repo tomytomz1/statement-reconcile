@@ -89,7 +89,17 @@ export const siteConfig = {
   verifiedCta: "Get My Verified Excel + CSV",
   ownedCategory: "Verified Bank Statement Conversion",
 
-  /** Hard product limits, mirrored by server-side validation. */
+  /**
+   * Hard product limits, and where each is actually enforced.
+   *
+   * `maxPages` is checked in the browser and again at every server trust boundary, because
+   * the extracted text does cross the network.
+   *
+   * `maxFileSizeMb` is checked in the browser and only there. The original PDF bytes never
+   * reach the server, so there is nothing server-side to measure — that is the privacy
+   * design, not a gap. What the server bounds instead is what it receives: request body
+   * bytes, page count, item count, and character count.
+   */
   limits: {
     maxPages: MAX_PAGES,
     maxFileSizeMb: MAX_FILE_SIZE_MB,

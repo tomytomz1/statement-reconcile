@@ -59,6 +59,90 @@ function collectPublicCopy(): string[] {
   return collectPublicCopyWithPaths().map(([, text]) => text);
 }
 
+/**
+ * Surfaces that make retention, recovery, and enforcement claims without being marketing
+ * copy: the converter UI downstream of payment, the job store's own documentation, and the
+ * acceptance documents. These are where the false delete-on-download and browser-only
+ * recovery statements actually lived, so a guard that only scanned `src/content` would have
+ * passed while the claims were still wrong.
+ */
+function collectAcceptanceSurfaces(): Array<[string, string]> {
+  const targets = [
+    join(process.cwd(), "src", "lib", "client", "job-store.ts"),
+    join(process.cwd(), "src", "components", "converter"),
+    join(process.cwd(), "docs", "ARCHITECTURE.md"),
+    join(process.cwd(), "docs", "DATA_FLOW.md"),
+    join(process.cwd(), "docs", "PRIVACY_ARCHITECTURE.md"),
+    join(process.cwd(), "docs", "REFUNDS.md"),
+    join(process.cwd(), "docs", "ENVIRONMENT.md"),
+    join(process.cwd(), "docs", "v2-phase1-closure-audit.md"),
+  ];
+  const files: string[] = [];
+  function walk(target: string): void {
+    const stats = statSync(target);
+    if (stats.isFile()) {
+      files.push(target);
+      return;
+    }
+    for (const entry of readdirSync(target, { withFileTypes: true })) {
+      const path = join(target, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (/\.(ts|tsx|md)$/.test(entry.name)) files.push(path);
+    }
+  }
+  for (const target of targets) walk(target);
+  return files.map((file) => [file, readFileSync(file, "utf8")] as [string, string]);
+}
+
+/** Everything a claim guard should see: public copy plus the surfaces above. */
+function collectAllClaimSurfaces(): Array<[string, string]> {
+  return [...collectPublicCopyWithPaths(), ...collectAcceptanceSurfaces()];
+}
+
+/**
+ * Recovery after the local result expires needs the saved recovery link and the same
+ * original PDFs. Copy saying the result is simply gone once the browser is, or that recovery
+ * works only from the original browser, understates the implemented promise.
+ */
+const BROWSER_ONLY_RECOVERY = [
+  /only while (your|that) browser/i,
+  /as long as (your|that) browser still holds/i,
+  /provided your browser still holds/i,
+  /but only while your browser/i,
+  /if the browser data is gone, so is the result/i,
+];
+
+/**
+ * Downloading does not delete the local job. The pack is four separate files, and a customer
+ * who took the CSV should still be able to take the workbook.
+ */
+const DELETE_ON_DOWNLOAD = [
+  /delete-on-download/i,
+  /deleted as soon as the download/i,
+  /deleted (immediately )?after (the )?download/i,
+  /removed once the download completes/i,
+];
+
+/**
+ * A Stripe receipt number or card-statement descriptor cannot be entered into the
+ * application — we hold no record to match either against. Support may legitimately ask for
+ * them to find a payment in Stripe and refund, so these patterns target the false framing
+ * (using one to recover or restore a download) rather than the reference itself.
+ */
+const RECEIPT_AS_RECOVERY = [
+  /(receipt|descriptor)[^.]{0,60}\bto (recover|restore|re-?download|unlock)\b/i,
+  /enter (your |the )?(stripe )?(receipt|payment reference|descriptor)/i,
+  /(receipt|payment reference)[^.]{0,40}\brestores?\b[^.]{0,40}\bdownload\b/i,
+];
+
+/** The 20 MB original-PDF limit is browser-only; the bytes never reach the server. */
+const SERVER_SIDE_BYTES = [
+  /enforced server-side as well as in the browser[^.]*20 ?MB/i,
+  /server-side[^.]{0,60}20 ?MB per file/i,
+  /20 ?MB per file[^.]{0,60}server-side/i,
+  /server (enforces|checks|validates)[^.]{0,40}20 ?MB/i,
+];
+
 describe("claims policy", () => {
   it("does not use prohibited accuracy or authenticity claims in public copy", () => {
     const blobs = collectPublicCopy();
@@ -125,16 +209,81 @@ describe("claims policy", () => {
    * while your browser still holds" the result understates that, which matters because a
    * customer reading it would reasonably conclude their money was gone.
    */
-  it("does not describe recovery as browser-only", () => {
-    const browserOnly = [
-      /only while (your|that) browser/i,
-      /as long as (your|that) browser still holds/i,
-      /provided your browser still holds/i,
-      /but only while your browser/i,
+  it("does not describe recovery as browser-only or as lost with the browser", () => {
+    for (const [path, text] of collectAllClaimSurfaces()) {
+      for (const pattern of BROWSER_ONLY_RECOVERY) {
+        expect(text, `${path} understates recovery as browser-only`).not.toMatch(pattern);
+      }
+    }
+  });
+
+  it("does not claim the local job is deleted on download", () => {
+    for (const [path, text] of collectAllClaimSurfaces()) {
+      for (const pattern of DELETE_ON_DOWNLOAD) {
+        expect(text, `${path} claims a delete-on-download that does not happen`).not.toMatch(
+          pattern,
+        );
+      }
+    }
+  });
+
+  it("does not claim a receipt or card reference can be used to recover in the app", () => {
+    for (const [path, text] of collectAllClaimSurfaces()) {
+      for (const pattern of RECEIPT_AS_RECOVERY) {
+        expect(text, `${path} implies a receipt reference is usable for recovery`).not.toMatch(
+          pattern,
+        );
+      }
+    }
+  });
+
+  /**
+   * The guards above assert an absence, which is the failure mode where a broken regex looks
+   * exactly like a clean repository. These are statements that were actually in the tree
+   * before this pass; if a pattern stops matching one, the guard has quietly stopped working.
+   */
+  it("the claim guards actually match the statements they are meant to catch", () => {
+    const historical: Array<[RegExp[], string]> = [
+      [BROWSER_ONLY_RECOVERY, "If the browser data is gone, so is the result."],
+      [BROWSER_ONLY_RECOVERY, "for thirty days, as long as that browser still holds the result."],
+      [BROWSER_ONLY_RECOVERY, "but only while your browser still holds the sealed result."],
+      [DELETE_ON_DOWNLOAD, "TTL 60 minutes; delete-on-download and an explicit delete control."],
+      [DELETE_ON_DOWNLOAD, "and are deleted as soon as the download completes."],
+      [
+        RECEIPT_AS_RECOVERY,
+        "Enter your Stripe receipt number and we will find the conversion for you.",
+      ],
+      [
+        RECEIPT_AS_RECOVERY,
+        "Use the payment reference from your card statement to restore the download.",
+      ],
+      [
+        SERVER_SIDE_BYTES,
+        "Hard input limits are enforced server-side as well as in the browser: 50 pages and 20 MB per file.",
+      ],
     ];
-    for (const [path, text] of collectPublicCopyWithPaths()) {
-      for (const pattern of browserOnly) {
-        expect(text, `${path} still describes recovery as browser-only`).not.toMatch(pattern);
+
+    for (const [patterns, sample] of historical) {
+      expect(
+        patterns.some((pattern) => pattern.test(sample)),
+        `no guard matches a known-bad statement: ${sample}`,
+      ).toBe(true);
+    }
+  });
+
+  /**
+   * The opposite risk: a guard so broad it forbids support from asking for the reference it
+   * legitimately needs to find a payment in Stripe and issue a refund.
+   */
+  it("still permits receipt references in support and refund instructions", () => {
+    const legitimate = [
+      "Send the Stripe receipt number or the payment reference from your card statement.",
+      "For a payment or refund question: your Stripe receipt number, together with the date and amount.",
+      "We cannot look a purchase up by name or email. Send the receipt number and we will refund it.",
+    ];
+    for (const sample of legitimate) {
+      for (const pattern of RECEIPT_AS_RECOVERY) {
+        expect(pattern.test(sample), `guard is too broad, it blocks: ${sample}`).toBe(false);
       }
     }
   });
@@ -144,13 +293,8 @@ describe("claims policy", () => {
    * bytes never reach the server. Copy claiming a server-side byte check is false.
    */
   it("does not claim the server enforces the original PDF byte size", () => {
-    const serverSideBytes = [
-      /enforced server-side as well as in the browser[^.]*20 ?MB/i,
-      /server-side[^.]{0,60}20 ?MB per file/i,
-      /20 ?MB per file[^.]{0,60}server-side/i,
-    ];
-    for (const [path, text] of collectPublicCopyWithPaths()) {
-      for (const pattern of serverSideBytes) {
+    for (const [path, text] of collectAllClaimSurfaces()) {
+      for (const pattern of SERVER_SIDE_BYTES) {
         expect(text, `${path} claims a server-side 20 MB check that cannot exist`).not.toMatch(
           pattern,
         );

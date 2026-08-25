@@ -142,7 +142,7 @@ export const faqs: readonly FaqEntry[] = [
     question: "I paid and lost the download. What now?",
     answer: [
       "Open your recovery link — the download page offers it right after payment, and it carries the payment reference. For the first hour the converted result is still in that browser and the download returns immediately. After that, or on a different device, open the recovery link and choose the same original PDFs again: they are re-verified, and the download is restored when the result matches what you paid for. The order you pick the files in does not matter. Keep the recovery link and the original PDFs; without both, the only route is to ask support for a refund or re-issue.",
-      "If the browser data is gone, so is the result. Convert the statement again and send us the receipt — we refund the first payment rather than charge you twice.",
+      "If you no longer have the recovery link, the application cannot find your payment for you — a Stripe receipt number or a card-statement descriptor is not something it can accept, because we hold no record to look either one up against. That is a support question rather than a recovery one: write to us with the receipt number or the payment reference and we will refund or re-issue rather than charge you twice.",
     ],
   },
   {

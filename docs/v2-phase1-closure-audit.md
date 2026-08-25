@@ -7,6 +7,21 @@ Closes the repository audit punch-out. Starting commit `a6e8ed9`; the working tr
 > particular the platform and live-purchase items were marked PASS here and are correctly
 > **BLOCKED**; see the corrected statuses in that document.
 
+## Which commit is where
+
+These are different things and the distinction matters when reading anything below.
+
+|                                     | Commit                                     | State                                                                                            |
+| ----------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| **Production**                      | `dd06bb55ace421b642dcf51bd8437936bb40eab4` | Live at `https://statementreconcile.com`. This is the commit the punch-out work was deployed at. |
+| **Local acceptance implementation** | after `dd06bb5`, unpushed                  | The A1–A9 acceptance work and this correction pass. **Not deployed and not pushed.**             |
+
+So every A1–A9 change — the Price gate, unified session authorization, the recovery link, the
+exact 20 MB contract, the single pack-ordering rule, production seal fail-closed, and
+`pnpm verify:release` — exists **only locally**. Production is still running `dd06bb5` and does
+not have them. Anything below describing current behaviour describes the local tree unless it
+explicitly says production.
+
 Nothing in this pass was deployed, pushed, or merged, and no live Stripe configuration was modified.
 
 ---
@@ -88,13 +103,13 @@ The ten questions from the punch-out, answered:
 
 1. **What survives for 30 days?** The Stripe entitlement only — the right to download, keyed to the paid session and its digest. `ENTITLEMENT_TTL_MS`.
 2. **What expires after 60 minutes?** The sealed converted result in this browser's IndexedDB. `siteConfig.limits.localJobTtlMinutes`.
-3. **What is deleted after download?** Nothing automatically. Downloading does **not** delete the local job — the pack ships as four separate files and a customer may take them one at a time. The job is removed by the explicit "Delete my data now" control, or at the 60-minute TTL, whichever comes first. The in-memory PDF bytes are zeroed when the job is discarded.
+3. **What happens to the local job once a file is downloaded?** Nothing automatically. Downloading does **not** delete the local job — the pack ships as four separate files and a customer may take them one at a time. The job is removed by the explicit "Delete my data now" control, or at the 60-minute TTL, whichever comes first. The in-memory PDF bytes are zeroed when the job is discarded.
 4. **What does the server retain?** No PDF, no extracted text, no statement archive, no account. Stripe holds the session with a digest in metadata and coarse counts — never a balance, description, date, bank name, or filename.
-5. **What must the customer retain?** The original PDFs, and the Stripe session reference (the receipt or the card-statement payment reference). Without the PDFs there is no recovery path at all.
+5. **What must the customer retain?** Two things, and both are required: the **recovery link** offered on the download page, which carries the Checkout Session reference, and the **same original PDFs**. A Stripe receipt number or a card-statement descriptor is not a substitute — neither can be entered into the application, because we hold no record to look either one up against. Missing either one, the route is support (refund or re-issue), not recovery.
 6. **Same device, within the hour?** The local result is still there; re-download directly.
 7. **Same device, after the hour?** Re-upload the same PDFs. The pack is re-verified, the digest recomputed, matched to the paid session, and the download returns without a second charge.
-8. **Another device?** Same as (7) — nothing is device-bound except the local copy. The session reference must be carried across.
-9. **Recovering the session reference?** From the Stripe receipt email or the payment reference on the card statement. We cannot look it up from a name or email because we store neither.
+8. **Another device?** Same as (7) — nothing is device-bound except the local copy. The recovery link and the original PDFs both have to be carried across.
+9. **Recovering the session reference?** Only from the recovery link the customer saved. There is no in-application lookup: the Stripe receipt email does not carry the Checkout Session id, and a card-statement descriptor certainly does not. Those references are still worth sending to **support**, who can find the payment in Stripe and refund or re-issue — but that is a human path, not the recovery flow.
 10. **Does re-upload require the same file order?** **No, as of this change.** The manifest is sorted by file-level content digest before the pack digest is computed, so identity is a function of contents alone. Previously it was input-ordered, which meant the same statements picked in a different order produced a different digest and a paying customer could be refused their own files.
 
 **Provider nondeterminism.** `PARSER_PROVIDER` is `none` in production (`/api/health` reports `parserDeterministicOnly: true`), so the deterministic parser produces identical canonical output for identical input and re-upload recovery is sound. **If a probabilistic provider is ever enabled, this claim must be re-examined before it is advertised** — a provider that produces even slightly different canonical output would break digest reproduction, and the recovery copy would become false. Recorded here as a standing condition rather than a resolved item.

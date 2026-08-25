@@ -73,7 +73,7 @@ The webhook (`POST /api/stripe/webhook`) logs `payment_completed` / refunds / di
 
 ## Browser job store
 
-IndexedDB database `statement-reconcile`. The sealed envelope, digest, 10-row preview, and summary are encrypted at rest with a non-extractable per-device AES-GCM `CryptoKey`. TTL 60 minutes; delete-on-download and an explicit delete control. This defends disk inspection, not XSS — hence the strict CSP on `/app`.
+IndexedDB database `statement-reconcile`. The sealed envelope, digest, 10-row preview, and summary are encrypted at rest with a non-extractable per-device AES-GCM `CryptoKey`. TTL 60 minutes, plus an explicit delete control. Downloading does **not** delete the record: the pack ships as four separate files and a customer may take them one at a time. This defends disk inspection, not XSS — hence the strict CSP on `/app`.
 
 ## Exports
 

@@ -37,8 +37,9 @@ async function main(): Promise<void> {
   const { sealMode } = await import("@/lib/crypto/seal");
   const { rateLimitBackend } = await import("@/lib/security/rate-limit");
 
+  // Must agree with `engines.node`, `.nvmrc`, and CI. All four say 22.
   const nodeMajor = Number.parseInt(process.versions.node.split(".")[0] ?? "0", 10);
-  if (nodeMajor < 20) missing.push("Node.js >= 20");
+  if (nodeMajor !== 22) missing.push(`Node.js 22 (found major ${nodeMajor})`);
   else console.log(`ok    Node.js (major ${nodeMajor})`);
 
   if (run("pnpm", ["--version"])) console.log("ok    pnpm");

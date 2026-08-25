@@ -30,11 +30,14 @@ function run(command: string, args: string[], timeoutMs = 20_000): boolean {
   return result.status === 0;
 }
 
+// `engines.node` is 22.x and `.nvmrc` pins 22. Accepting 20 here told developers a
+// version the project does not support was fine, which is how a local pass turns into a
+// CI failure.
 const nodeMajor = Number.parseInt(process.versions.node.split(".")[0] ?? "0", 10);
-if (nodeMajor >= 20) {
-  ok.push("Node.js >= 20");
+if (nodeMajor === 22) {
+  ok.push("Node.js 22");
 } else {
-  missing.push("Node.js >= 20");
+  missing.push(`Node.js 22 (found major ${nodeMajor})`);
 }
 
 if (run("pnpm", ["--version"])) {

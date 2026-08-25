@@ -56,6 +56,25 @@ Claude may change `OPEN` to `IMPLEMENTED` and populate its evidence column. Only
 | A10 | Production deployment is gated on successful verification         | BLOCKED        | Platform decision required — unchanged                                                                                                                                     | —            |
 | A11 | Post-deploy live purchase, export, recovery, and refund           | BLOCKED        | Owner authorization required — unchanged                                                                                                                                   | —            |
 
+## Correction pass (post-A1–A9)
+
+A narrowly scoped correction pass addressed defects found in independent review of the A1–A9
+implementation. No architecture changed; price, payment, pack, export, and seal were left alone.
+
+| Finding                                                                              | Correction                                                                                                                                                                                           |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `faq.ts` second recovery paragraph contradicted the first                            | Rewritten: recovery needs the saved link plus the same PDFs; receipt references are a support path, not an application input                                                                         |
+| False delete-on-download in `docs/ARCHITECTURE.md` and `src/lib/client/job-store.ts` | Corrected — the encrypted job survives until explicit deletion or the ~60-minute TTL; code already behaved correctly, only the comments were false                                                   |
+| Closure audit conflated the recovery link with a Stripe receipt reference            | Answers 5, 8, and 9 rewritten; production `dd06bb5` now explicitly distinguished from the unpushed local acceptance work                                                                             |
+| `src/config/site.ts` claimed all limits are mirrored server-side                     | Corrected — 50 pages is browser + server, 20 MB is browser-only because the bytes never arrive                                                                                                       |
+| Retired variable names still present in `.env.example`                               | Names removed entirely; the doctor keeps its name-only, non-fatal warning                                                                                                                            |
+| Node 20 accepted by `README.md`, `setup-check.ts`, `doctor.ts`                       | All now require Node major 22, matching `engines`, `.nvmrc`, and CI                                                                                                                                  |
+| Claims guards too narrow to catch the above                                          | Extended to the converter UI, job store, and acceptance docs, plus a meta-test proving each guard matches a known-bad statement and a test proving it does not block legitimate support instructions |
+| Release gate unstable at four workers                                                | `playwright.config.ts` pinned to `workers: 2` locally and in CI; `retries` dropped to 0 so a real failure is visible                                                                                 |
+
+The E2E instability was development-server resource contention, not a product defect: the failing
+cases were timeouts on unrelated static pages, and the recovery test passed in isolation.
+
 ## A1 — Live Stripe Price contract and real-branch tests
 
 ### Required implementation

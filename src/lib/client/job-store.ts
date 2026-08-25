@@ -21,7 +21,9 @@ import type { ReconciliationResult, StatementSummary, Transaction } from "@/lib/
  * use the handle, so this is defence against someone with the disk, not against XSS —
  * which is why the CSP is strict and no third-party script runs on the app route.
  *
- * Records self-destruct after an hour, and are deleted as soon as the download completes.
+ * Records self-destruct after an hour, or when the customer uses the explicit delete
+ * control. Downloading does not delete them — the pack is four separate files, and a
+ * customer who took the CSV should still be able to take the workbook.
  */
 
 const DB_NAME = "statement-reconcile";

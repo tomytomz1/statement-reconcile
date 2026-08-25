@@ -8,7 +8,7 @@ Offer: **$19 once · one or more statements · up to 50 total pages · no accoun
 
 ## Prerequisites
 
-- Node.js 20.11+ (22 is fine)
+- Node.js 22.x — required, not merely recommended. `package.json` declares `engines.node: 22.x`, `.nvmrc` pins 22, and CI runs Node 22.
 - [pnpm](https://pnpm.io) 11.x (`corepack enable` then `corepack prepare pnpm@11.23.0 --activate`)
 
 ## Run locally (< 10 minutes)
