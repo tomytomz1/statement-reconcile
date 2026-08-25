@@ -49,7 +49,7 @@ Attach `statementreconcile.com` and `www` in Vercel; use the DNS records the das
 3. `/app` loads, CSP present, pdf worker `200` at `/pdf.worker.min.mjs`.
 4. Test-mode Checkout on Preview; **one live $19 test** on Production using your own statement, then refund.
 5. Webhook in Stripe → recent `checkout.session.completed` delivered.
-6. `robots.txt` disallows `/app`, `/checkout`, `/api/`. Sitemap lists marketing + 26 SEO slugs only.
+6. `robots.txt` disallows `/app`, `/checkout`, `/api/`. Sitemap lists marketing + 21 SEO slugs only.
 
 ## Rollback
 

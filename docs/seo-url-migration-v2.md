@@ -122,6 +122,16 @@ Every page appears in exactly one footer group, so none is orphaned. The `By ban
 | 404 behaviour correct | Unchanged — `dynamicParams = false` 404s unknown slugs |
 | Redirects covered by automated tests | Met — `tests/unit/redirects.test.ts` plus an e2e hop check |
 
+## Post-deploy actions
+
+Deployed 2026-08-25 (`88432c0`). Verified live: all nine retired URLs return 308 and resolve to a 200 in one hop; the sitemap carries 30 URLs with every retired slug absent and all three new pages present.
+
+Search Console and Bing Webmaster Tools were already verified at launch on 2026-08-24, so the remaining step is a person's, not the build's:
+
+- **Resubmit the sitemap in Search Console.** Google will find the 301s eventually by recrawl, but resubmitting prompts it to reprocess the retired URLs sooner. The same applies to Bing.
+- **Expect "Page with redirect" entries** in the Coverage report for the eight merged slugs plus the renamed accountants page. That is the migration working, not an error.
+- Do not request removal of the retired URLs. A 301 needs to stay crawlable for the signal to pass; a removal request would sever it.
+
 ## Follow-up once data exists
 
 Revisit after roughly eight weeks of Search Console history:

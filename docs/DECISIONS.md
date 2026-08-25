@@ -52,7 +52,9 @@ Schema version is 2. Provenance, completeness, ambiguity, and the verification s
 
 The original PDF still never leaves the browser and is never written to IndexedDB. Bytes are held in RAM for the job TTL so the preview can highlight source regions. They are zeroed when the job is discarded.
 
-## ADR-011 — 26 SEO pages, not 20
+## ADR-011 — 26 SEO pages, not 20 (superseded by ADR-015)
+
+**Superseded 2026-08-25.** The set is now 21 pages; see ADR-015. Retained because it records why the six pages beyond the required twenty were added in the first place, and three of those six survived consolidation.
 
 The 20 URLs required by the PRD are present. Six additional distinct pages cover adjacent intents (Google Sheets, accountants, QuickBooks/Xero CSV _import_, business statements, extract-from-PDF) without claiming QBO/OFX export.
 
