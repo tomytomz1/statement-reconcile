@@ -1,28 +1,23 @@
 import { americanExpressStatementToExcel } from "./american-express-statement-to-excel";
+import { bankFeedHistoryMissing } from "./bank-feed-history-missing";
 import { bankOfAmericaStatementToExcel } from "./bank-of-america-statement-to-excel";
 import { bankStatementConverter } from "./bank-statement-converter";
-import { bankStatementSpreadsheetForAccountants } from "./bank-statement-spreadsheet-for-accountants";
+import { bankStatementConverterForBookkeepers } from "./bank-statement-converter-for-bookkeepers";
 import { bankStatementToCsv } from "./bank-statement-to-csv";
 import { bankStatementToExcel } from "./bank-statement-to-excel";
 import { bankStatementToGoogleSheets } from "./bank-statement-to-google-sheets";
 import { bankStatementToQuickbooksCsv } from "./bank-statement-to-quickbooks-csv";
 import { bankStatementToXeroCsv } from "./bank-statement-to-xero-csv";
-import { bankStatementTransactionExtractor } from "./bank-statement-transaction-extractor";
 import { businessBankStatementToExcel } from "./business-bank-statement-to-excel";
 import { capitalOneStatementToExcel } from "./capital-one-statement-to-excel";
+import { catchUpBookkeepingBankStatements } from "./catch-up-bookkeeping-bank-statements";
 import { chaseStatementToExcel } from "./chase-statement-to-excel";
 import { citiStatementToExcel } from "./citi-statement-to-excel";
-import { convertBankStatementToCsv } from "./convert-bank-statement-to-csv";
-import { convertBankStatementToExcel } from "./convert-bank-statement-to-excel";
-import { convertPdfTransactionsToCsv } from "./convert-pdf-transactions-to-csv";
-import { convertPdfTransactionsToExcel } from "./convert-pdf-transactions-to-excel";
+import { closedBankAccountStatementsToCsv } from "./closed-bank-account-statements-to-csv";
 import { creditCardStatementToCsv } from "./credit-card-statement-to-csv";
 import { creditCardStatementToExcel } from "./credit-card-statement-to-excel";
 import { discoverStatementToExcel } from "./discover-statement-to-excel";
 import { extractTransactionsFromPdf } from "./extract-transactions-from-pdf";
-import { pdfBankStatementToCsv } from "./pdf-bank-statement-to-csv";
-import { pdfBankStatementToExcel } from "./pdf-bank-statement-to-excel";
-import { pdfBankTransactionExtractor } from "./pdf-bank-transaction-extractor";
 import type { SeoPage } from "./types";
 import { wellsFargoStatementToExcel } from "./wells-fargo-statement-to-excel";
 
@@ -31,27 +26,27 @@ import { wellsFargoStatementToExcel } from "./wells-fargo-statement-to-excel";
  *
  * The order here is the order used by the sitemap, the footer, and the related-pages index, so
  * it runs from broad to narrow: category pages, then format-specific, then statement type, then
- * destination software, then issuer-named. Pages we most want crawled are therefore linked
- * earliest from every page on the site.
+ * use case, then destination software, then issuer-named. Pages we most want crawled are
+ * therefore linked earliest from every page on the site.
+ *
+ * One page per distinct intent. An earlier version carried five URLs competing for "bank
+ * statement to Excel" and four for the CSV equivalent, differentiated only by word order.
+ * Search engines resolve that phrasing to the same intent, so the pages competed with each
+ * other rather than with anyone else. The retired slugs are 301'd in `next.config.ts`.
  */
 
 export const seoPages: readonly SeoPage[] = [
   bankStatementConverter,
   bankStatementToExcel,
   bankStatementToCsv,
-  convertBankStatementToExcel,
-  convertBankStatementToCsv,
-  pdfBankStatementToExcel,
-  pdfBankStatementToCsv,
-  convertPdfTransactionsToExcel,
-  convertPdfTransactionsToCsv,
   creditCardStatementToExcel,
   creditCardStatementToCsv,
   businessBankStatementToExcel,
-  bankStatementTransactionExtractor,
-  pdfBankTransactionExtractor,
   extractTransactionsFromPdf,
-  bankStatementSpreadsheetForAccountants,
+  bankStatementConverterForBookkeepers,
+  catchUpBookkeepingBankStatements,
+  closedBankAccountStatementsToCsv,
+  bankFeedHistoryMissing,
   bankStatementToQuickbooksCsv,
   bankStatementToXeroCsv,
   bankStatementToGoogleSheets,
@@ -80,37 +75,35 @@ export function seoSlugs(): string[] {
  * Every landing page appears here, which is what guarantees none of them is orphaned and that
  * any one is at most two clicks from any other. Grouping is by the kind of search that lands
  * on them rather than by an internal taxonomy.
+ *
+ * The "By bank or issuer" heading is load-bearing: `scripts/audit-seo.ts` reads it to decide
+ * which pages must carry an independence notice.
  */
 export const footerGroups = [
   {
-    heading: "Convert to Excel",
+    heading: "Convert a statement",
     slugs: [
-      "bank-statement-to-excel",
-      "convert-bank-statement-to-excel",
-      "pdf-bank-statement-to-excel",
-      "convert-pdf-transactions-to-excel",
-      "credit-card-statement-to-excel",
-      "business-bank-statement-to-excel",
       "bank-statement-converter",
-    ],
-  },
-  {
-    heading: "Convert to CSV",
-    slugs: [
+      "bank-statement-to-excel",
       "bank-statement-to-csv",
-      "convert-bank-statement-to-csv",
-      "pdf-bank-statement-to-csv",
-      "convert-pdf-transactions-to-csv",
+      "credit-card-statement-to-excel",
       "credit-card-statement-to-csv",
-      "bank-statement-spreadsheet-for-accountants",
+      "business-bank-statement-to-excel",
+      "extract-transactions-from-pdf",
     ],
   },
   {
-    heading: "Extract and import",
+    heading: "Catch-up and cleanup",
     slugs: [
-      "extract-transactions-from-pdf",
-      "bank-statement-transaction-extractor",
-      "pdf-bank-transaction-extractor",
+      "bank-statement-converter-for-bookkeepers",
+      "catch-up-bookkeeping-bank-statements",
+      "closed-bank-account-statements-to-csv",
+      "bank-feed-history-missing",
+    ],
+  },
+  {
+    heading: "Import into software",
+    slugs: [
       "bank-statement-to-quickbooks-csv",
       "bank-statement-to-xero-csv",
       "bank-statement-to-google-sheets",

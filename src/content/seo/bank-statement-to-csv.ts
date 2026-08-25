@@ -144,15 +144,15 @@ export const bankStatementToCsv: SeoPage = {
         "The workbook side of the same conversion, with a filterable sheet and a statement summary.",
     },
     {
-      href: "/pdf-bank-statement-to-csv",
-      label: "PDF bank statement to CSV",
-      context: "How dates are normalised and amounts are signed on the way out of the PDF.",
+      href: "/bank-statement-to-quickbooks-csv",
+      label: "Bank statement to QuickBooks CSV",
+      context: "If the CSV is going straight into a bank transaction import.",
     },
     {
-      href: "/convert-bank-statement-to-csv",
-      label: "Convert a bank statement to CSV",
+      href: "/catch-up-bookkeeping-bank-statements",
+      label: "Catch-up bookkeeping from old bank statements",
       context:
-        "Written for bookkeeping workflows, where the export is one step in a longer reconciliation.",
+        "Written for bookkeeping workflows, where the export is one step in a longer reconstruction.",
     },
     {
       href: "/bank-statement-converter",

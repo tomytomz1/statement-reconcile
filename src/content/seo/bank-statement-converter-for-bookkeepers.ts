@@ -1,18 +1,18 @@
 import type { SeoPage } from "./types";
 
-export const bankStatementSpreadsheetForAccountants: SeoPage = {
-  slug: "bank-statement-spreadsheet-for-accountants",
-  targetQuery: "bank statement to spreadsheet for accountants",
+export const bankStatementConverterForBookkeepers: SeoPage = {
+  slug: "bank-statement-converter-for-bookkeepers",
+  targetQuery: "bank statement converter for bookkeepers",
   searchIntent:
-    "A practising accountant or bookkeeper who receives client statements as PDFs, needs them as spreadsheets, and is weighing up cost per job, evidence quality, and what happens to client data.",
-  title: "Bank Statement Spreadsheets for Accountants",
+    "A bookkeeper, accountant, or tax preparer holding a catch-up or cleanup engagement where the client supplied months of PDF statements instead of usable exports, weighing cost per job, evidence quality, and what happens to client data.",
+  title: "Bank Statement Converter for Bookkeepers & Accountants",
   metaDescription:
-    "Per-statement pricing with no subscription or seat licence, plus a Statement Summary sheet that records every reconciliation check for the client file.",
-  eyebrow: "Professional preparers",
-  h1: "Bank statement to spreadsheet for accountants",
+    "Convert months of PDF bank statements into verified Excel and CSV files for catch-up bookkeeping. Preview the evidence before paying. No subscription.",
+  eyebrow: "Catch-up and cleanup work",
+  h1: "Catch Up Months of Bookkeeping Without Retyping Bank Statements",
   intro: [
-    "Client statements arrive as PDFs, usually at the least convenient moment and usually without the CSV that would have made the job trivial. Getting them into a spreadsheet is unbilled preparation work, and the part of it that matters is not the typing but the certainty that nothing was lost on the way.",
-    "This converts PDF statements into an Excel workbook and CSV, and it will not offer checkout until the extracted rows have been re-added and shown to agree with the balances the bank printed. The workbook carries a second sheet recording exactly which checks ran and what they returned, which is the part worth keeping with the workpapers.",
+    "Your client sent PDFs instead of usable transaction exports. Convert the historical statements into structured Excel and CSV files, inspect the verification, and move on to the books.",
+    "The conversion will not offer checkout until the extracted rows have been re-added and shown to agree with the balances the bank printed. The workbook carries a second sheet recording exactly which checks ran and what they returned, which is the part worth keeping with the workpapers.",
   ],
   outputFormats: ["xlsx", "csv"],
   outputDetails: [
@@ -38,19 +38,19 @@ export const bankStatementSpreadsheetForAccountants: SeoPage = {
         "The single biggest determinant of success is whether the PDF has a text layer. A file saved from online banking does; a photograph of a paper statement does not, and there is no character recognition in this version to rescue it.",
     },
     {
-      title: "Convert one statement, one account at a time",
+      title: "Group the months into a pack",
       detail:
-        "Each document is a separate conversion, because each one is verified against its own printed balances. Combined packs covering several accounts have no single ledger to reconcile and are not supported.",
+        "Several statements can go into one conversion pack, up to 50 pages in total. Each is verified separately against its own printed balances, so a bad month is rejected on its own rather than contaminating the rest.",
     },
     {
       title: "Read the verdict before committing anything",
       detail:
-        "The period, the balances, the computed totals, the equation, and ten preview rows are shown while the files are still locked. Confirm the period is the one the engagement needs.",
+        "The period, the balances, the computed totals, the equation, and a row preview are shown while the files are still locked. Confirm the periods are the ones the engagement needs and that there is no gap between them.",
     },
     {
       title: "Review the pack, then take every output",
       detail:
-        "No account, no seat licence, no minimum, nothing to renew. The charge is per conversion pack, with one or more statements up to 50 total pages, and it includes Excel, CSV, and verification reports.",
+        "No account, no seat licence, no minimum, nothing to renew. The charge is per conversion pack and includes Excel, CSV, verification reports, and the pack manifest.",
     },
     {
       title: "Keep the Statement Summary sheet with the working papers",
@@ -60,21 +60,21 @@ export const bankStatementSpreadsheetForAccountants: SeoPage = {
   ],
   sections: [
     {
-      heading: "Why per-statement pricing suits practice work",
+      heading: "The client gave you the records. The data just happens to be trapped in PDFs",
       body: [
-        "Practice demand for statement conversion is lumpy. Nothing for six weeks, then a new client arrives with fourteen months of PDFs, then nothing again until the next disclosure or the next tidy-up job. A monthly subscription priced for steady use is the wrong shape for that, and the wrong shape in an expensive direction: you pay through the quiet months to have capacity available in the busy ones.",
-        "A single charge per conversion pack maps directly onto the work. Statements can be grouped into packs of up to 50 total pages, and when the job is finished the cost stops. There is no seat licence or account to administer.",
-        "It is also a cost that behaves properly as a disbursement. A per-statement charge on a specific client's job is straightforward to recharge or absorb as a decision about that engagement, rather than an overhead you have to apportion across everything.",
+        "Catch-up work rarely arrives tidy. The bank feed does not reach back to the period you need, or the account was closed when the client changed banks, or a previous bookkeeper stopped posting in March and nobody noticed until the tax deadline made it everyone's problem. What survives is a folder of monthly PDFs.",
+        "The transactions in those PDFs are complete and already correct. That is the frustrating part: the work is not analysis, it is transcription, and transcription is where a year of books quietly acquires a wrong digit that nobody finds until the reconciliation refuses to close.",
+        "Converting them removes the typing. Verifying them removes the second job — the one where you scroll a few hundred clean-looking rows trying to satisfy yourself that a page was not skipped. That second job is the expensive one, because it costs senior attention and produces nothing billable.",
       ],
       bullets: [
-        "No subscription, no minimum term, and nothing to cancel",
-        "No seat licence and no user administration, because there are no accounts",
-        "One charge covers one or more statements up to 50 total pages in all output formats",
-        "Cost attaches to a specific job rather than sitting as a fixed monthly overhead",
+        "Bank feed history that does not reach the start of the engagement",
+        "Closed or migrated accounts where no export can be produced any more",
+        "Cleanup engagements picked up mid-year from incomplete records",
+        "Prior-year records reconstructed for a late tax filing",
       ],
     },
     {
-      heading: "The Statement Summary sheet as a working paper",
+      heading: "Keep the proof with the data",
       body: [
         "Most of the value of a converted statement, six months later, is not the transaction list. The client's ledger has the transactions. What is missing by then is the answer to a simple question: how do we know this spreadsheet represented the statement completely?",
         "That is what the summary sheet is for. It records the statement period as read from the document, the opening and closing balances, the totals computed from the extracted rows, which reconciliation method applied and why, the equation in full, each check that was performed with its outcome, the number of transactions, and when the file was produced. It travels inside the workbook, so it cannot be separated from the data it describes by someone forwarding a single file.",
@@ -85,6 +85,20 @@ export const bankStatementSpreadsheetForAccountants: SeoPage = {
         "Printed balances alongside the totals computed from the extracted rows",
         "The method, the equation, and the pass or fail of each individual check",
         "Transaction count and generation timestamp, for tying the file to a point in time",
+      ],
+    },
+    {
+      heading: "Pay for the engagement, not another seat",
+      body: [
+        "Practice demand for statement conversion is lumpy. Nothing for six weeks, then a new client arrives with fourteen months of PDFs, then nothing again until the next disclosure or the next tidy-up job. A monthly subscription priced for steady use is the wrong shape for that, and the wrong shape in an expensive direction: you pay through the quiet months to have capacity available in the busy ones.",
+        "A single charge per conversion pack maps directly onto the work. Statements can be grouped into packs of up to 50 total pages, and when the job is finished the cost stops. There is no seat licence or account to administer.",
+        "It is also a cost that behaves properly as a disbursement. A per-pack charge on a specific client's job is straightforward to recharge or absorb as a decision about that engagement, rather than an overhead you have to apportion across everything.",
+      ],
+      bullets: [
+        "No subscription, no minimum term, and nothing to cancel",
+        "No seat licence and no user administration, because there are no accounts",
+        "One charge covers one or more statements up to 50 total pages in all output formats",
+        "Cost attaches to a specific job rather than sitting as a fixed monthly overhead",
       ],
     },
     {
@@ -107,16 +121,16 @@ export const bankStatementSpreadsheetForAccountants: SeoPage = {
   supported: [
     "Personal and business current, checking, and savings statements with a dated transaction table",
     "Credit card statements, verified with the previous-balance equation and, where printed, category subtotals",
-    "Statements up to 50 pages and 20 MB per conversion",
+    "Several statements in one pack, up to 50 pages and 20 MB per file",
     "Separate debit and credit columns, a single signed amount column, or amounts grouped under section headings",
     "Statements in currencies using a comma decimal separator, and descriptions containing accented or non-Latin characters",
   ],
   unsupported: [
-    "Batch or bulk conversion; statements are handled one at a time, each verified on its own",
     "Any account, portal, saved history, or API — there is nothing to log in to and nothing stored to return to",
     "Scanned and image-only PDFs, as this version performs no character recognition",
-    "Password-protected PDFs, non-PDF files, and documents covering more than one account",
+    "Password-protected PDFs, non-PDF files, and single documents covering more than one account",
     "Statements whose printed balances and subtotals are not sufficient to verify the extraction",
+    "Packs larger than 50 total pages, which have to be split across more than one conversion",
   ],
   faqs: [
     {
@@ -125,14 +139,19 @@ export const bankStatementSpreadsheetForAccountants: SeoPage = {
         "None of the three. The only charge is the one-time amount shown for a verified conversion pack. Nobody needs to be set up as a user, there is no annual renewal, and a month in which you convert nothing costs nothing.",
     },
     {
+      question: "Can I convert a whole year of statements at once?",
+      answer:
+        "Up to the 50-page limit for a single pack, yes, and each statement is verified separately inside it. Twelve monthly statements of three or four pages each fit comfortably. A year of dense business statements may need splitting across two packs, and the page count is checked before anything is charged.",
+    },
+    {
       question: "What can I hold on file to evidence how the spreadsheet was derived?",
       answer:
         "The Statement Summary sheet inside the workbook. It names the period, the printed balances, the computed totals, the method, the equation, and the result of each check, so the derivation is documented in the same file as the data.",
     },
     {
-      question: "Can I recharge the cost to the client?",
+      question: "What happens if one month in the pack fails verification?",
       answer:
-        "That is between you and your engagement terms, but the pricing is shaped to make it simple: a discrete charge attached to one identifiable statement for one client, rather than a share of a subscription that would have to be apportioned.",
+        "That statement is marked as rejected and cannot be bought. You can remove it and take the months that passed, which produces a new pack, or abandon the conversion entirely. A failed statement is never quietly dropped from a pack you have paid for.",
     },
     {
       question: "Do you keep a copy of my client's statement?",
@@ -147,9 +166,9 @@ export const bankStatementSpreadsheetForAccountants: SeoPage = {
   ],
   related: [
     {
-      href: "/business-bank-statement-to-excel",
-      label: "Business bank statement to Excel",
-      context: "The same conversion described from the client's side, before the file reaches you.",
+      href: "/catch-up-bookkeeping-bank-statements",
+      label: "Catch-up bookkeeping from old bank statements",
+      context: "Sequencing a multi-month conversion so the periods join up without gaps.",
     },
     {
       href: "/bank-statement-to-quickbooks-csv",
@@ -157,9 +176,9 @@ export const bankStatementSpreadsheetForAccountants: SeoPage = {
       context: "If the next step is a manual bank transaction import rather than a review.",
     },
     {
-      href: "/bank-statement-to-excel",
-      label: "Bank statement to Excel",
-      context: "Full detail on the workbook, both sheets, and how the formatting is applied.",
+      href: "/business-bank-statement-to-excel",
+      label: "Business bank statement to Excel",
+      context: "The same conversion described from the client's side, before the file reaches you.",
     },
     {
       href: "/security",

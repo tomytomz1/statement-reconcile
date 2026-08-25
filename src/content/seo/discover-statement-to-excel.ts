@@ -141,8 +141,8 @@ export const discoverStatementToExcel: SeoPage = {
       context: "The general card conversion page, with the roll-forward explained end to end.",
     },
     {
-      href: "/convert-pdf-transactions-to-excel",
-      label: "Convert PDF transactions to Excel",
+      href: "/bank-statement-to-excel",
+      label: "Bank statement to Excel",
       context: "If the transaction rows themselves are what you need out of the document.",
     },
     {
