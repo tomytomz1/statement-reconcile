@@ -1,6 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const port = process.env.PLAYWRIGHT_PORT ?? "3000";
+/*
+ * Deliberately not 3000: a developer's own `next dev` lives there, and reusing it would run
+ * the suite against a server started without the env below — no mock payments, and a rate
+ * limiter whose ten-minute windows carry over from whatever else that server has served.
+ */
+const port = process.env.PLAYWRIGHT_PORT ?? "3100";
 const baseURL = `http://localhost:${port}`;
 
 export default defineConfig({
@@ -12,12 +17,17 @@ export default defineConfig({
   webServer: {
     command: `pnpm exec next dev --port ${port}`,
     url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    // Never adopt a server this config did not configure. If the port is busy, failing loudly
+    // beats silently testing something else.
+    reuseExistingServer: false,
     timeout: 120_000,
     env: {
       ...(process.env as Record<string, string>),
       APP_ENV: "test",
       E2E_MOCK_PAYMENTS: "1",
+      // Rate-limit per browser context rather than per (shared) loopback address, so parallel
+      // workers do not spend each other's budget. See `rateLimitIdentityPerSession`.
+      E2E_ISOLATE_RATE_LIMIT: "1",
       RATE_LIMIT_PROVIDER: "memory",
       PARSER_DETERMINISTIC_ONLY: "1",
       PARSER_PROVIDER: "none",

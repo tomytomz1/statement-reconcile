@@ -1,4 +1,9 @@
-import { isProduction, rateLimitDurable, serverEnv } from "@/config/env";
+import {
+  isProduction,
+  rateLimitDurable,
+  rateLimitIdentityPerSession,
+  serverEnv,
+} from "@/config/env";
 
 import { logEvent } from "./logging";
 
@@ -151,7 +156,16 @@ export async function clientIdentity(request: Request): Promise<string> {
     "";
 
   const session = readSessionCookie(request);
-  const raw = forwarded !== "" ? `ip:${forwarded}` : session ? `sid:${session}` : "anonymous";
+  // Under end-to-end tests the order is inverted so each browser context is its own client;
+  // see `rateLimitIdentityPerSession` for why that is never done outside a test run.
+  const preferSession = session !== null && rateLimitIdentityPerSession();
+  const raw = preferSession
+    ? `sid:${session}`
+    : forwarded !== ""
+      ? `ip:${forwarded}`
+      : session
+        ? `sid:${session}`
+        : "anonymous";
 
   const digest = await globalThis.crypto.subtle.digest(
     "SHA-256",

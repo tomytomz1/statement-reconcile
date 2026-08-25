@@ -27,6 +27,7 @@ Local: `.env.local` (copy `.env.example`). Production/Preview: Vercel project en
 | `RATE_LIMIT_URL`             | no*              | Vercel                                 | Upstash REST base. *Not a customer secret but grants limiter admin; treat as secret.                                                      |
 | `RATE_LIMIT_TOKEN`           | **yes**          | Vercel                                 | Upstash REST token. Production parse is 503 without both URL and token.                                                                   |
 | `E2E_MOCK_PAYMENTS`          | no               | CI / `.env.test` only                  | Truthy **and** `APP_ENV=test` **and** `NODE_ENV≠production`. Never on Vercel Production.                                                  |
+| `E2E_ISOLATE_RATE_LIMIT`     | no               | CI / `.env.test` only                  | Same three guards. Keys the limiter on the session cookie so parallel E2E workers get separate budgets. Never on Vercel Production.       |
 | `VERCEL_GIT_COMMIT_SHA`      | no               | Vercel (injected)                      | Health `commit` (12 hex).                                                                                                                 |
 | `VERCEL_ENV`                 | no               | Vercel (injected)                      | Health only.                                                                                                                              |
 
