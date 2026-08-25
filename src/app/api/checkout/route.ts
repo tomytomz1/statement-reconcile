@@ -1,5 +1,6 @@
 import { mockPaymentsEnabled } from "@/config/env";
 import { siteConfig } from "@/config/site";
+import { copyVariantFromHeaders } from "@/lib/analytics/copy-variant";
 import { MAX_GATED_BODY_BYTES, createCheckoutSchema } from "@/lib/payments/checkout-payload";
 import { buildCheckoutMetadata } from "@/lib/payments/entitlement";
 import { openSealedResult } from "@/lib/payments/open-sealed-result";
@@ -93,7 +94,11 @@ export async function POST(request: Request): Promise<Response> {
     // NODE_ENV is not production, and the mock reference still encodes the digest, so the
     // gate is genuinely exercised rather than bypassed.
     const sessionId = `cs_mock_${digest}`;
-    logEvent("checkout_started", { mock: true, pageCount });
+    logEvent("checkout_started", {
+      mock: true,
+      pageCount,
+      copyVariant: copyVariantFromHeaders(request.headers),
+    });
     return jsonResponse({
       url: `${origin}/checkout/success?session_id=${sessionId}`,
       sessionId,
@@ -137,6 +142,7 @@ export async function POST(request: Request): Promise<Response> {
       fileCount: packFiles,
       statementType: opened.statement.statementType,
       method: opened.reconciliation.method,
+      copyVariant: copyVariantFromHeaders(request.headers),
     });
 
     return jsonResponse({ url: session.url, sessionId: session.id });

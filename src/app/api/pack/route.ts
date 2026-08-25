@@ -1,3 +1,4 @@
+import { copyVariantFromHeaders } from "@/lib/analytics/copy-variant";
 import { MAX_GATED_BODY_BYTES, assemblePackRequestSchema } from "@/lib/payments/checkout-payload";
 import { openSealedResult } from "@/lib/payments/open-sealed-result";
 import { assemblePack } from "@/lib/schema/assemble-pack";
@@ -93,6 +94,7 @@ export async function POST(request: Request): Promise<Response> {
     logEvent("pack_assembled", {
       fileCount: assembled.manifest.fileCount,
       totalPages: assembled.manifest.totalPages,
+      copyVariant: copyVariantFromHeaders(request.headers),
     });
     return jsonResponse({
       jobId: parsed.data.jobId,

@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   COPY_HEADLINES,
+  COPY_VARIANT_HEADER,
   copyVariantForSession,
+  copyVariantFromHeaders,
   isCopyVariant,
   resolveCopyVariant,
 } from "@/lib/analytics/copy-variant";
@@ -37,5 +39,24 @@ describe("copy variant assignment", () => {
     expect(resolveCopyVariant(session, "c", "preview")).toBe("c");
     expect(resolveCopyVariant(session, "c", "production")).toBe(copyVariantForSession(session));
     expect(resolveCopyVariant(session, "invalid", "preview")).toBe(copyVariantForSession(session));
+  });
+});
+
+describe("server-side variant attribution", () => {
+  it("reads an approved variant from the proxy header", () => {
+    for (const variant of ["a", "b", "c"] as const) {
+      expect(copyVariantFromHeaders(new Headers({ [COPY_VARIANT_HEADER]: variant }))).toBe(variant);
+    }
+  });
+
+  it("returns undefined rather than guessing when the header is absent or unrecognised", () => {
+    // logEvent drops undefined fields, so an unattributed request logs no variant at all
+    // instead of being silently miscounted against one.
+    expect(copyVariantFromHeaders(new Headers())).toBeUndefined();
+    expect(
+      copyVariantFromHeaders(new Headers({ [COPY_VARIANT_HEADER]: "control" })),
+    ).toBeUndefined();
+    expect(copyVariantFromHeaders(new Headers({ [COPY_VARIANT_HEADER]: "" }))).toBeUndefined();
+    expect(copyVariantFromHeaders(new Headers({ [COPY_VARIANT_HEADER]: "A" }))).toBeUndefined();
   });
 });
