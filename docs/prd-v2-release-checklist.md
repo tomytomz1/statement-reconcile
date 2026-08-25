@@ -5,7 +5,7 @@ The §113 launch gate, plus the manual checks that cannot be automated. Nothing 
 ## Baseline
 
 - [x] Existing product behaviour documented — `docs/product-baseline-before-prd-v2.md`
-- [x] Existing test baseline recorded — 274 unit/integration tests, 14 e2e
+- [x] Existing test baseline recorded — 274 unit/integration tests, 14 e2e at the start of PRD v2. After the Phase 1 closure audit: **365 unit/integration, 24 e2e** (see `docs/v2-phase1-closure-audit.md`)
 - [x] $19 economics verified — deterministic parser, no per-pack model cost, ~$0.85 Stripe fee
 
 ## Positioning and offer
@@ -32,14 +32,14 @@ The §113 launch gate, plus the manual checks that cannot be automated. Nothing 
 - [x] Accessibility audit passes — axe scan in `funnel.spec.ts`
 - [x] Performance checked — measured against `next start` (production build) at 1280x900, homepage:
 
-  | Metric | Value | Threshold |
-  | --- | --- | --- |
-  | LCP | 156 ms (the `h1`) | < 2500 ms |
-  | CLS | **0** | < 0.1 |
-  | Long tasks | **0** | — |
-  | Interactions > 16 ms | 0 of 6 FAQ toggles | INP < 200 ms |
-  | TTFB | 30 ms | — |
-  | Transfer | 30 KB HTML + 46 KB resources over 25 requests | — |
+  | Metric               | Value                                         | Threshold    |
+  | -------------------- | --------------------------------------------- | ------------ |
+  | LCP                  | 156 ms (the `h1`)                             | < 2500 ms    |
+  | CLS                  | **0**                                         | < 0.1        |
+  | Long tasks           | **0**                                         | —            |
+  | Interactions > 16 ms | 0 of 6 FAQ toggles                            | INP < 200 ms |
+  | TTFB                 | 30 ms                                         | —            |
+  | Transfer             | 30 KB HTML + 46 KB resources over 25 requests | —            |
 
   LCP and TTFB are flattered by localhost having no network latency, so treat those two as a floor rather than a field measurement. CLS, long-task count, and interaction latency are network-independent and are the meaningful results. No new runtime dependency was added; the only new client component is the header disclosure menu.
 
@@ -57,6 +57,7 @@ The §113 launch gate, plus the manual checks that cannot be automated. Nothing 
 - [x] Structured data validated — the `/pricing` graph was run through validator.schema.org and returned **0 errors, 0 warnings**, detecting `WebPage`, `SoftwareApplication`, and `FAQPage` as separate clean items. The `Offer` reads `price: "19"`, `priceCurrency: "USD"`, matching `siteConfig.price`; no `AggregateRating` or `Review` is present anywhere.
 
   Google's own Rich Results Test was not used because it needs a publicly reachable URL and this markup is not deployed yet. Re-run it against the live URL after deploy if a rich result is actually wanted — schema validity and Google eligibility are different questions.
+
 - [x] Mobile at 375px — verified in-browser at 375x812: page `scrollWidth` equals `clientWidth` (no sideways scroll), the picker sits 0.75 screens down, the comparison table scrolls inside its own keyboard-focusable container, and the disclosure menu opens with all five links and a correct `aria-expanded`
 - [x] Production `PARSER_PROVIDER` confirmed as `none` — `/api/health` on 2026-08-25 reported `"parserProvider": "none"`, `"parserDeterministicOnly": true`. Re-check at deploy time: enabling a provider is an env-var change that needs no deploy, so this is a snapshot rather than a standing guarantee
 - [x] **Stripe dashboard Price confirmed as $19.00 USD** — confirmed by the product owner on 2026-08-25. Production has `STRIPE_PRICE_ID` set, so the charge comes from a Stripe dashboard Price rather than from `siteConfig.price`; `claims.test.ts` keeps the codebase internally consistent but cannot see Stripe. Re-confirm by hand whenever the published figure changes
@@ -69,7 +70,7 @@ The §113 launch gate, plus the manual checks that cannot be automated. Nothing 
 
 ## Release documentation
 
-- [x] `docs/PRD-v2.md` — recorded in the repository; sections marked *(condensed)* defer to the owner's original
+- [x] `docs/PRD-v2.md` — recorded in the repository; sections marked _(condensed)_ defer to the owner's original
 - [x] `docs/product-baseline-before-prd-v2.md`
 - [x] `docs/prd-v2-implementation-plan.md`
 - [x] `docs/seo-url-migration-v2.md`

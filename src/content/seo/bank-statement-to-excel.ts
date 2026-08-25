@@ -144,13 +144,13 @@ export const bankStatementToExcel: SeoPage = {
     {
       href: "/bank-statement-converter",
       label: "Bank statement converter",
-      context:
-        "The overview: text layers, scans, and how the columns are recovered from the page.",
+      context: "The overview: text layers, scans, and how the columns are recovered from the page.",
     },
     {
       href: "/bank-statement-converter-for-bookkeepers",
       label: "Bank statement converter for bookkeepers",
-      context: "The professional case, if you are converting a client's statements rather than your own.",
+      context:
+        "The professional case, if you are converting a client's statements rather than your own.",
     },
     {
       href: "/pricing",

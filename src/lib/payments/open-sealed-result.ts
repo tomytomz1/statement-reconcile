@@ -97,17 +97,40 @@ async function openPack(raw: PackEnvelope, digest: string): Promise<OpenSealedRe
       if (entry.verificationState !== "verification_passed") {
         return { ok: false, reason: "not_reconciled" };
       }
+
+      // Defence in depth: every claim the manifest makes about a file is re-derived from
+      // the opened canonical statement rather than believed.
+      //
+      // The manifest is already digest-bound, and the envelope is AES-GCM sealed under that
+      // digest, so a mismatch here should be unreachable. That is exactly why it is worth
+      // checking — if it ever fires, an assumption underneath the sealing has broken, and
+      // the safe response is to refuse rather than to serve a pack whose description of
+      // itself no longer matches its contents.
+      const derivedPages = opened.statement.completeness.pagesDeclared;
+      const derivedRows = opened.statement.transactions.length;
+      if (
+        entry.pageCount !== derivedPages ||
+        entry.transactionCount !== derivedRows ||
+        entry.statementType !== opened.statement.statementType ||
+        entry.fileId !== opened.digest.slice(0, 16)
+      ) {
+        return { ok: false, reason: "invalid_contents" };
+      }
+
       files.push({
         fileId: entry.fileId,
         statement: opened.statement,
         reconciliation: opened.reconciliation,
         resultDigest: opened.digest,
-        pageCount: entry.pageCount,
+        pageCount: derivedPages,
       });
     }
 
     const totalPages = files.reduce((sum, file) => sum + file.pageCount, 0);
     if (totalPages !== manifest.totalPages || totalPages > PAYLOAD_LIMITS.maxPages) {
+      return { ok: false, reason: "invalid_contents" };
+    }
+    if (manifest.fileCount !== files.length) {
       return { ok: false, reason: "invalid_contents" };
     }
 

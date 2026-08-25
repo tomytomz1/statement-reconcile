@@ -115,6 +115,10 @@ function entitlementMessage(reason: string): string {
       return "That payment reference could not be found.";
     case "stripe_unavailable":
       return "Payments are not available on this deployment.";
+    case "terms_mismatch":
+      // The session says paid, but not for this offer. Refuse rather than deliver, and
+      // point at support because the customer may genuinely be out of pocket.
+      return "This payment does not match the published price for a conversion pack. Nothing has been delivered — please get in touch and we will sort it out.";
     default:
       return "This download is not authorized for the data provided.";
   }

@@ -27,9 +27,15 @@ test.describe("funnel and public pages", () => {
       /Convert PDF Bank Statements|Bank Statement Converter That/,
     );
     await expect(page.getByRole("button", { name: "Choose PDF Statements" })).toBeVisible();
-    // The price is stated before a file is chosen: nobody should have to hand a bank
-    // statement to an unknown tool to find out what it costs.
-    await expect(page.locator("body")).toContainText("$19");
+    // Scoped to the hero upload card rather than the body. A body-level match is satisfied
+    // by the footer, which is how /app passed this assertion while showing the customer no
+    // price at all next to the uploader.
+    // The hero upload card is rendered twice — once for the mobile column, once for the
+    // desktop one — so the assertion targets whichever is actually on screen. Exactly one
+    // should be, at any viewport.
+    const heroOffer = page.getByTestId("hero-offer").locator("visible=true");
+    await expect(heroOffer).toHaveCount(1);
+    await expect(heroOffer).toContainText("$19");
     await expect(page.getByText("Statement Reconcile").first()).toBeVisible();
     await expect(page).toHaveTitle(/Bank Statement.*Excel.*CSV/i);
 
@@ -37,6 +43,49 @@ test.describe("funnel and public pages", () => {
     expect(copy).not.toContain("testimonial");
     expect(copy).not.toContain("what our customers say");
     expect(copy).not.toMatch(/\b5 stars\b/);
+  });
+
+  test("/app states the price beside the uploader, before any file is chosen", async ({ page }) => {
+    await page.goto("/app");
+
+    // The offer has to be readable where the customer is looking — next to the dropzone,
+    // not in a footer they would have to scroll past the fold to reach.
+    const offer = page.getByTestId("uploader-offer");
+    await expect(offer).toBeVisible();
+    await expect(offer).toContainText("$19");
+    await expect(offer).toContainText(/no signup/i);
+    await expect(offer).toContainText(/no subscription/i);
+
+    // Above the dropzone, and both above the fold at a standard viewport.
+    const offerBox = await offer.boundingBox();
+    const zoneBox = await page.getByTestId("pdf-input").locator("..").boundingBox();
+    expect(offerBox).not.toBeNull();
+    expect(zoneBox).not.toBeNull();
+    expect(offerBox!.y).toBeLessThan(zoneBox!.y);
+    expect(offerBox!.y + offerBox!.height).toBeLessThan(page.viewportSize()!.height);
+
+    // Nothing has been selected yet: the price is pre-commitment, not post-verification.
+    await expect(page.getByTestId("paywall-price")).toHaveCount(0);
+  });
+
+  test("processing routes use processing chrome, not the marketing footer", async ({ page }) => {
+    await page.goto("/app");
+    await expect(page.getByTestId("app-footer")).toBeVisible();
+    // The SEO conversion directory must not appear while a statement can be on screen.
+    await expect(page.getByTestId("marketing-footer")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Chase Statement to Excel" })).toHaveCount(0);
+    await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(1);
+
+    await page.goto("/checkout/cancel");
+    await expect(page.getByTestId("app-footer")).toBeVisible();
+    await expect(page.getByTestId("marketing-footer")).toHaveCount(0);
+  });
+
+  test("marketing routes keep the full marketing footer", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByTestId("marketing-footer")).toBeVisible();
+    await expect(page.getByTestId("app-footer")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Chase Statement to Excel" })).toBeVisible();
   });
 
   test("retired landing pages redirect to their survivor in one hop", async ({ page }) => {
@@ -63,7 +112,7 @@ test.describe("funnel and public pages", () => {
     page,
   }) => {
     await page.goto("/bank-statement-to-excel");
-    await expect(page.locator("body")).toContainText("$19");
+    await expect(page.getByTestId("lander-offer")).toContainText("$19");
     const excelH1 = (await page.getByRole("heading", { level: 1 }).innerText()).trim();
     expect(excelH1.length).toBeGreaterThan(0);
     expect(excelH1).not.toBe("Convert Bank Statements to Excel & CSV");
@@ -92,7 +141,7 @@ test.describe("funnel and public pages", () => {
     await expect(
       page.getByText(/This statement balances|Download verified|Unlock Excel|Unlock for/i).first(),
     ).toBeVisible({ timeout: 90_000 });
-    await expect(page.locator("body")).toContainText("$19");
+    await expect(page.getByTestId("paywall-price")).toContainText("$19");
 
     expect(page.url()).not.toContain(encodeURIComponent(pdfName));
     const resourceUrls = await page.evaluate(() =>

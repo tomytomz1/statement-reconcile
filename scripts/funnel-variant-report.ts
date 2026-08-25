@@ -49,7 +49,9 @@ const TIME_ARGUMENT = /^(now|\d+[smhd]|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+
 
 function assertTimeArgument(name: string, value: string): void {
   if (!TIME_ARGUMENT.test(value)) {
-    throw new Error(`--${name} must be an ISO timestamp or a relative value like 24h, got ${value}`);
+    throw new Error(
+      `--${name} must be an ISO timestamp or a relative value like 24h, got ${value}`,
+    );
   }
 }
 
@@ -171,7 +173,9 @@ function main(): void {
   }
 
   console.log("");
-  const perVariantOk = ordered.every((v) => (counts[DENOMINATOR]?.[v] ?? 0) >= THRESHOLD_PER_VARIANT);
+  const perVariantOk = ordered.every(
+    (v) => (counts[DENOMINATOR]?.[v] ?? 0) >= THRESHOLD_PER_VARIANT,
+  );
   const totalOk = totalDenominator >= THRESHOLD_TOTAL;
 
   if (totalOk && perVariantOk) {

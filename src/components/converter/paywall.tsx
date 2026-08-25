@@ -58,7 +58,7 @@ export function Paywall({
         </div>
 
         <div className="shrink-0 sm:text-right">
-          <p className="text-ink-950 text-4xl font-bold tracking-tight">
+          <p data-testid="paywall-price" className="text-ink-950 text-4xl font-bold tracking-tight">
             {siteConfig.price.display}
           </p>
           <p className="text-ink-600 mt-1 text-sm">one-time · no account</p>

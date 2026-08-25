@@ -123,7 +123,8 @@ export const closedBankAccountStatementsToCsv: SeoPage = {
         "No. Nothing in this tool logs into a bank. It reads the PDF statements you already have, in your own browser, which is precisely why a closed account is not an obstacle.",
     },
     {
-      question: "The bank was acquired and the old statements have vanished from the new portal. Can you get them?",
+      question:
+        "The bank was acquired and the old statements have vanished from the new portal. Can you get them?",
       answer:
         "No — there is no connection to any institution here. But the acquiring bank is usually obliged to retain the records, and asking them to reissue statements for the period is often successful even when the portal shows nothing.",
     },

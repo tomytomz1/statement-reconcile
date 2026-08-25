@@ -139,10 +139,12 @@ export default async function ConversionLandingPage({
             <Card>
               <Heading level={4}>What you get</Heading>
               <CheckList className="mt-4" items={page.outputDetails} />
-              <p className="border-ink-200 text-ink-500 mt-5 border-t pt-4 text-xs leading-relaxed">
+              <p
+                data-testid="lander-offer"
+                className="border-ink-200 text-ink-500 mt-5 border-t pt-4 text-xs leading-relaxed"
+              >
                 One or more statements up to {siteConfig.limits.maxPages} total pages. Both formats
-                and verification reports are included. The exact charge appears only after the pack
-                passes verification.
+                and verification reports are included. {siteConfig.priceSentence}
               </p>
             </Card>
           </div>

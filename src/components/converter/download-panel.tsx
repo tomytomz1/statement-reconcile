@@ -134,10 +134,10 @@ export function DownloadPanel({
           result is held only in this browser and expires by itself within the hour.
         </p>
         <p className="text-ink-700 mt-2 text-sm leading-relaxed">
-          Your purchase lasts 30 days. After the local copy expires you can still get the files
-          back by re-uploading the same PDFs on this device — they will be matched to your payment
-          and you will not be charged again. Keep the original statements until you have the files
-          you need.
+          Your purchase lasts 30 days. After the local copy expires you can still get the files back
+          by re-uploading the same PDFs on this device — they will be matched to your payment and
+          you will not be charged again. Keep the original statements until you have the files you
+          need.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Button variant="secondary" size="sm" onClick={onConvertAnother}>

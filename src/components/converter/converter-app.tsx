@@ -538,6 +538,7 @@ export function ConverterApp({ initialSession }: { initialSession?: string }) {
 
       {state.kind === "idle" ? (
         <>
+          <UploaderOffer />
           <Dropzone onFiles={(files) => void convert(files)} />
           <IdlePromise />
         </>
@@ -721,6 +722,33 @@ function FileList({
         })}
       </ul>
     </Card>
+  );
+}
+
+/**
+ * The commercial bargain, stated beside the uploader and before any file is chosen.
+ *
+ * `/app` previously carried the price only in the shared marketing footer, far below the
+ * fold. A body-level test for "$19" passed on that, which is precisely the kind of false
+ * positive that lets a real gap survive: someone looking at the dropzone could not see what
+ * the conversion costs.
+ *
+ * The wording comes from the commercial contract, so it cannot drift from the Stripe charge,
+ * and the container is given a stable test id so the end-to-end assertion can be scoped to
+ * what a customer actually sees rather than to the whole document.
+ */
+function UploaderOffer() {
+  return (
+    <div
+      data-testid="uploader-offer"
+      className="border-accent-200 bg-accent-50/60 rounded-card mb-4 border px-4 py-3 text-center"
+    >
+      <p className="text-ink-900 text-sm font-semibold">{siteConfig.uploaderPriceLine}</p>
+      <p className="text-ink-600 mt-1 text-xs leading-relaxed">
+        Checkout opens only if every statement you keep passes verification. If it does not, there
+        is nothing to buy.
+      </p>
+    </div>
   );
 }
 

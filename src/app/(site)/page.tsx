@@ -270,7 +270,9 @@ function VerificationPanel() {
             <p className="text-ink-950 tabular text-sm font-bold">− $128.47</p>
           </div>
           <div className="border-accent-200 bg-accent-50 mt-4 rounded-md border px-3 py-2.5">
-            <p className="text-accent-800 text-xs font-semibold">Page 6 · original statement line</p>
+            <p className="text-accent-800 text-xs font-semibold">
+              Page 6 · original statement line
+            </p>
             <p className="text-ink-700 tabular mt-1 text-xs">
               05/18 ACH PMT LAKESHORE UTILITIES 128.47 3,150.73
             </p>
@@ -636,7 +638,7 @@ function Pricing() {
               "Excel workbook and CSV file",
               "Verification report for each accepted statement",
               "Source references and pack manifest",
-              "30-day download access",
+              "30-day paid entitlement (download now — the local copy expires within the hour)",
               "30-day refund protection",
             ]}
           />

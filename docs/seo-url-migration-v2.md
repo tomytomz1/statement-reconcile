@@ -14,28 +14,28 @@ The classifications below are therefore judgment-based, made on query-intent ove
 
 All 26 were unique documents — the audit script fails the build on duplicate titles, descriptions, or body prose, so none of these were spun templates. The problem was not thin content. It was that several genuinely distinct documents were written to answer the same search.
 
-| # | Slug | Target query | Classification |
-| --- | --- | --- | --- |
-| 1 | `bank-statement-converter` | bank statement converter | **KEEP** — category hub (§52) |
-| 2 | `bank-statement-to-excel` | bank statement to excel | **KEEP** — Excel cluster survivor |
-| 3 | `bank-statement-to-csv` | bank statement to csv | **KEEP** — CSV cluster survivor |
-| 4 | `convert-bank-statement-to-excel` | convert bank statement to excel | **MERGE + 301** → 2 |
-| 5 | `convert-bank-statement-to-csv` | convert bank statement to csv | **MERGE + 301** → 3 |
-| 6 | `pdf-bank-statement-to-excel` | pdf bank statement to excel | **MERGE + 301** → 2 |
-| 7 | `pdf-bank-statement-to-csv` | pdf bank statement to csv | **MERGE + 301** → 3 |
-| 8 | `convert-pdf-transactions-to-excel` | convert pdf transactions to excel | **MERGE + 301** → 2 |
-| 9 | `convert-pdf-transactions-to-csv` | convert pdf transactions to csv | **MERGE + 301** → 3 |
-| 10 | `credit-card-statement-to-excel` | credit card statement to excel | **KEEP** — distinct equation (§44) |
-| 11 | `credit-card-statement-to-csv` | credit card statement to csv | **KEEP** |
-| 12 | `business-bank-statement-to-excel` | business bank statement to excel | **KEEP** — distinct audience |
-| 13 | `bank-statement-transaction-extractor` | bank statement transaction extractor | **MERGE + 301** → 15 |
-| 14 | `pdf-bank-transaction-extractor` | pdf bank transaction extractor | **MERGE + 301** → 15 |
-| 15 | `extract-transactions-from-pdf` | extract transactions from pdf | **KEEP** — extractor survivor |
-| 16 | `bank-statement-spreadsheet-for-accountants` | bank statement to spreadsheet for accountants | **REWRITE + 301** → new bookkeeper URL |
-| 17 | `bank-statement-to-quickbooks-csv` | bank statement to quickbooks csv | **KEEP** — destination intent |
-| 18 | `bank-statement-to-xero-csv` | bank statement to xero csv | **KEEP** — destination intent |
-| 19 | `bank-statement-to-google-sheets` | bank statement to google sheets | **KEEP** — destination intent |
-| 20–26 | issuer pages (Chase, BofA, Wells Fargo, Capital One, Citi, Amex, Discover) | `{issuer} statement to excel` | **KEEP** — genuine layout differences, all carry an independence notice |
+| #     | Slug                                                                       | Target query                                  | Classification                                                          |
+| ----- | -------------------------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------- |
+| 1     | `bank-statement-converter`                                                 | bank statement converter                      | **KEEP** — category hub (§52)                                           |
+| 2     | `bank-statement-to-excel`                                                  | bank statement to excel                       | **KEEP** — Excel cluster survivor                                       |
+| 3     | `bank-statement-to-csv`                                                    | bank statement to csv                         | **KEEP** — CSV cluster survivor                                         |
+| 4     | `convert-bank-statement-to-excel`                                          | convert bank statement to excel               | **MERGE + 301** → 2                                                     |
+| 5     | `convert-bank-statement-to-csv`                                            | convert bank statement to csv                 | **MERGE + 301** → 3                                                     |
+| 6     | `pdf-bank-statement-to-excel`                                              | pdf bank statement to excel                   | **MERGE + 301** → 2                                                     |
+| 7     | `pdf-bank-statement-to-csv`                                                | pdf bank statement to csv                     | **MERGE + 301** → 3                                                     |
+| 8     | `convert-pdf-transactions-to-excel`                                        | convert pdf transactions to excel             | **MERGE + 301** → 2                                                     |
+| 9     | `convert-pdf-transactions-to-csv`                                          | convert pdf transactions to csv               | **MERGE + 301** → 3                                                     |
+| 10    | `credit-card-statement-to-excel`                                           | credit card statement to excel                | **KEEP** — distinct equation (§44)                                      |
+| 11    | `credit-card-statement-to-csv`                                             | credit card statement to csv                  | **KEEP**                                                                |
+| 12    | `business-bank-statement-to-excel`                                         | business bank statement to excel              | **KEEP** — distinct audience                                            |
+| 13    | `bank-statement-transaction-extractor`                                     | bank statement transaction extractor          | **MERGE + 301** → 15                                                    |
+| 14    | `pdf-bank-transaction-extractor`                                           | pdf bank transaction extractor                | **MERGE + 301** → 15                                                    |
+| 15    | `extract-transactions-from-pdf`                                            | extract transactions from pdf                 | **KEEP** — extractor survivor                                           |
+| 16    | `bank-statement-spreadsheet-for-accountants`                               | bank statement to spreadsheet for accountants | **REWRITE + 301** → new bookkeeper URL                                  |
+| 17    | `bank-statement-to-quickbooks-csv`                                         | bank statement to quickbooks csv              | **KEEP** — destination intent                                           |
+| 18    | `bank-statement-to-xero-csv`                                               | bank statement to xero csv                    | **KEEP** — destination intent                                           |
+| 19    | `bank-statement-to-google-sheets`                                          | bank statement to google sheets               | **KEEP** — destination intent                                           |
+| 20–26 | issuer pages (Chase, BofA, Wells Fargo, Capital One, Citi, Amex, Discover) | `{issuer} statement to excel`                 | **KEEP** — genuine layout differences, all carry an independence notice |
 
 ### The three cannibalising clusters
 
@@ -59,27 +59,27 @@ Implemented in `next.config.ts` as `RETIRED_SLUG_REDIRECTS`. Enforced by `tests/
 
 Verified live after deploy: all nine return 308 and resolve to a 200 in exactly one hop.
 
-| From | To | Hops |
-| --- | --- | --- |
-| `/convert-bank-statement-to-excel` | `/bank-statement-to-excel` | 1 |
-| `/pdf-bank-statement-to-excel` | `/bank-statement-to-excel` | 1 |
-| `/convert-pdf-transactions-to-excel` | `/bank-statement-to-excel` | 1 |
-| `/convert-bank-statement-to-csv` | `/bank-statement-to-csv` | 1 |
-| `/pdf-bank-statement-to-csv` | `/bank-statement-to-csv` | 1 |
-| `/convert-pdf-transactions-to-csv` | `/bank-statement-to-csv` | 1 |
-| `/bank-statement-transaction-extractor` | `/extract-transactions-from-pdf` | 1 |
-| `/pdf-bank-transaction-extractor` | `/extract-transactions-from-pdf` | 1 |
-| `/bank-statement-spreadsheet-for-accountants` | `/bank-statement-converter-for-bookkeepers` | 1 |
+| From                                          | To                                          | Hops |
+| --------------------------------------------- | ------------------------------------------- | ---- |
+| `/convert-bank-statement-to-excel`            | `/bank-statement-to-excel`                  | 1    |
+| `/pdf-bank-statement-to-excel`                | `/bank-statement-to-excel`                  | 1    |
+| `/convert-pdf-transactions-to-excel`          | `/bank-statement-to-excel`                  | 1    |
+| `/convert-bank-statement-to-csv`              | `/bank-statement-to-csv`                    | 1    |
+| `/pdf-bank-statement-to-csv`                  | `/bank-statement-to-csv`                    | 1    |
+| `/convert-pdf-transactions-to-csv`            | `/bank-statement-to-csv`                    | 1    |
+| `/bank-statement-transaction-extractor`       | `/extract-transactions-from-pdf`            | 1    |
+| `/pdf-bank-transaction-extractor`             | `/extract-transactions-from-pdf`            | 1    |
+| `/bank-statement-spreadsheet-for-accountants` | `/bank-statement-converter-for-bookkeepers` | 1    |
 
 No destination is itself a source, so there are no chains. The test asserts this rather than trusting the table.
 
 ## Pages added (§47)
 
-| Slug | Intent | Why it is not a doorway page |
-| --- | --- | --- |
-| `catch-up-bookkeeping-bank-statements` | Reconstructing books from a run of old statements | Covers period continuity, sequencing, and what conversion does *not* do — questions the format pages never address |
-| `closed-bank-account-statements-to-csv` | Account closed or migrated, no export possible | Covers where to find statements that seem lost and how to request reissues; a genuinely different situation from a live account |
-| `bank-feed-history-missing` | The feed only pulled 90 days | A troubleshooting resource, not a sales page: explains why reconnecting fails and recommends the software's own import route first |
+| Slug                                    | Intent                                            | Why it is not a doorway page                                                                                                       |
+| --------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `catch-up-bookkeeping-bank-statements`  | Reconstructing books from a run of old statements | Covers period continuity, sequencing, and what conversion does _not_ do — questions the format pages never address                 |
+| `closed-bank-account-statements-to-csv` | Account closed or migrated, no export possible    | Covers where to find statements that seem lost and how to request reissues; a genuinely different situation from a live account    |
+| `bank-feed-history-missing`             | The feed only pulled 90 days                      | A troubleshooting resource, not a sales page: explains why reconnecting fails and recommends the software's own import route first |
 
 `old-bank-statements-to-quickbooks` from §47 was **not** created. §47 gates it on a documented, tested QuickBooks workflow, which is Phase 3 work. `bank-statement-to-quickbooks-csv` already covers the manual CSV import route honestly and claims no `.QBO` support.
 
@@ -95,32 +95,32 @@ The rewrite also fixed a **factual error** in the old page: its `unsupported` li
 
 26 − 8 merged − 1 renamed + 1 renamed-in + 3 new = **21**.
 
-| Group | Count |
-| --- | --- |
-| Convert a statement | 7 |
-| Catch-up and cleanup | 4 |
-| Import into software | 3 |
-| By bank or issuer | 7 |
+| Group                | Count |
+| -------------------- | ----- |
+| Convert a statement  | 7     |
+| Catch-up and cleanup | 4     |
+| Import into software | 3     |
+| By bank or issuer    | 7     |
 
 Every page appears in exactly one footer group, so none is orphaned. The `By bank or issuer` heading is load-bearing — `scripts/audit-seo.ts` reads it to decide which pages must carry an independence notice.
 
 ## §100 acceptance criteria
 
-| Criterion | Status |
-| --- | --- |
-| No accidental indexation loss | Met — every retired URL 301s to a live page |
-| Sitemap contains only intended canonicals | Met — `sitemap.ts` derives from `seoPages`; retired slugs absent |
-| No redirect loops | Met — asserted by `redirects.test.ts` |
-| No multi-hop chains | Met — asserted by `redirects.test.ts` |
-| Canonical tags correct | Met — `pageMetadata()` emits a self-referencing canonical per page |
-| Robots directives correct | Unchanged — `/app`, `/checkout`, `/api` disallowed |
-| Titles unique | Met — `pnpm audit:seo` fails the build otherwise |
-| H1s unique and intent-aligned | Met — same audit |
-| Major duplicate pages resolved | Met — three clusters collapsed |
-| Internal broken links zero | Met — audit validates every `related` href; 18 stale links were rewritten |
-| Structured data validates | Pending manual Rich Results check (release checklist) |
-| 404 behaviour correct | Unchanged — `dynamicParams = false` 404s unknown slugs |
-| Redirects covered by automated tests | Met — `tests/unit/redirects.test.ts` plus an e2e hop check |
+| Criterion                                 | Status                                                                    |
+| ----------------------------------------- | ------------------------------------------------------------------------- |
+| No accidental indexation loss             | Met — every retired URL 301s to a live page                               |
+| Sitemap contains only intended canonicals | Met — `sitemap.ts` derives from `seoPages`; retired slugs absent          |
+| No redirect loops                         | Met — asserted by `redirects.test.ts`                                     |
+| No multi-hop chains                       | Met — asserted by `redirects.test.ts`                                     |
+| Canonical tags correct                    | Met — `pageMetadata()` emits a self-referencing canonical per page        |
+| Robots directives correct                 | Unchanged — `/app`, `/checkout`, `/api` disallowed                        |
+| Titles unique                             | Met — `pnpm audit:seo` fails the build otherwise                          |
+| H1s unique and intent-aligned             | Met — same audit                                                          |
+| Major duplicate pages resolved            | Met — three clusters collapsed                                            |
+| Internal broken links zero                | Met — audit validates every `related` href; 18 stale links were rewritten |
+| Structured data validates                 | Pending manual Rich Results check (release checklist)                     |
+| 404 behaviour correct                     | Unchanged — `dynamicParams = false` 404s unknown slugs                    |
+| Redirects covered by automated tests      | Met — `tests/unit/redirects.test.ts` plus an e2e hop check                |
 
 ## Post-deploy actions
 

@@ -32,7 +32,10 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="no-print border-ink-200 mt-auto border-t bg-white">
+    <footer
+      className="no-print border-ink-200 mt-auto border-t bg-white"
+      data-testid="marketing-footer"
+    >
       <Container className="py-14">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">

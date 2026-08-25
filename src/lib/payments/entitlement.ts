@@ -1,8 +1,10 @@
 import type Stripe from "stripe";
 
+import { COMMERCIAL_OFFER, matchOfferAgainstSessionTerms } from "@/config/commerce";
 import { mockPaymentsEnabled, serverEnv } from "@/config/env";
 import { siteConfig } from "@/config/site";
 import { isSha256Hex, timingSafeEqualHex } from "@/lib/crypto/digest";
+import { logEvent } from "@/lib/security/logging";
 
 import { isStripeReady, stripe } from "./stripe";
 
@@ -79,7 +81,13 @@ export type EntitlementResult =
   { ok: true; entitlement: Entitlement } | { ok: false; reason: EntitlementFailure };
 
 export type EntitlementFailure =
-  "stripe_unavailable" | "session_not_found" | "not_paid" | "no_digest" | "digest_mismatch";
+  | "stripe_unavailable"
+  | "session_not_found"
+  | "not_paid"
+  | "no_digest"
+  | "digest_mismatch"
+  /** Paid, but not at the advertised amount or currency. See `matchOfferAgainstSessionTerms`. */
+  | "terms_mismatch";
 
 const SESSION_ID_PATTERN = /^cs_(?:test|live)_[A-Za-z0-9]{10,200}$/;
 const MOCK_SESSION_PREFIX = "cs_mock_";
@@ -118,8 +126,8 @@ export async function verifyEntitlement(
         digest: paidDigest,
         jobId: "mock",
         paidAt: Date.now(),
-        amountTotal: siteConfig.price.amountCents,
-        currency: siteConfig.price.currency.toLowerCase(),
+        amountTotal: COMMERCIAL_OFFER.amountCents,
+        currency: COMMERCIAL_OFFER.currency,
         livemode: false,
       },
     };
@@ -135,6 +143,16 @@ export async function verifyEntitlement(
   }
 
   if (session.payment_status !== "paid") return { ok: false, reason: "not_paid" };
+
+  // "Paid" is not sufficient. A session created against a Price that was changed, or with
+  // an amount arrived at some other way, can still report paid — so the money is checked
+  // against the commercial contract before anything is released. This runs on every export,
+  // not just at checkout, because the Price could change between the two.
+  const terms = matchOfferAgainstSessionTerms(session);
+  if (!terms.ok) {
+    logEvent("entitlement_refused", { reason: terms.reason });
+    return { ok: false, reason: "terms_mismatch" };
+  }
 
   const paidDigest = session.metadata?.[CHECKOUT_METADATA_KEYS.digest];
   if (!paidDigest || !isSha256Hex(paidDigest)) return { ok: false, reason: "no_digest" };

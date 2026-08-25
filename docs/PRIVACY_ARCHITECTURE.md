@@ -37,4 +37,4 @@ If a sentence cannot be proven from this object, it is not shown.
 
 ## Retention
 
-There is no application database of statements. Sealed results live in the customer’s browser for about 60 minutes. A paid Stripe session can re-download the same pack for 30 days only if that browser still holds the matching envelope.
+There is no application database of statements. Sealed results live in the customer’s browser for about 60 minutes. A paid Stripe session can re-download the same pack for 30 days, either from that local envelope or by re-uploading the same original PDFs so the paid pack digest is reproduced. Either way the customer supplies the data; we hold none of it, so a customer with neither the local job nor the original PDFs cannot be helped.

@@ -1,3 +1,4 @@
+import { publicOffer } from "@/config/commerce";
 import { absoluteUrl, siteConfig } from "@/config/site";
 
 /**
@@ -9,8 +10,13 @@ import { absoluteUrl, siteConfig } from "@/config/site";
  * file, because the product has neither.
  *
  * The `Offer` on the software node is the one piece of commercial markup, and it exists
- * because the price is stated on the public pages now. It reads from `siteConfig.price`, so
- * the markup and the Stripe charge cannot diverge.
+ * because the price is stated on the public pages now. It reads from `COMMERCIAL_OFFER`,
+ * the same contract the checkout route validates the Stripe Price against, so the markup,
+ * the visible price, and the charge all resolve to one definition.
+ *
+ * That agreement is enforced at runtime rather than asserted here: a dashboard Price that
+ * does not match the contract fails checkout closed, and a paid session at the wrong amount
+ * fails export closed.
  */
 
 const ORGANIZATION_ID = `${siteConfig.url}/#organization`;
@@ -73,20 +79,18 @@ export function softwareApplicationSchema(): Record<string, unknown> {
       "No account required",
     ],
     /**
-     * The offer is marked up because the price is now stated on the public pages, and
-     * structured data has to match what a visitor can see. It reads from `siteConfig.price`,
-     * the same value `createCheckoutSession` bills, so the markup cannot advertise one
-     * amount while Stripe charges another.
+     * The offer is marked up because the price is stated on the public pages, and
+     * structured data has to match what a visitor can see.
      *
      * Still no `aggregateRating` and no `review`: the product has neither, and inventing
      * them is the kind of fake proof this site refuses to ship.
      */
     offers: {
       "@type": "Offer",
-      price: String(siteConfig.price.amountUsd),
-      priceCurrency: siteConfig.price.currency,
-      name: siteConfig.productName,
-      description: `One-time payment for a verified conversion pack of up to ${siteConfig.limits.maxPages} total pages. Charged only after the conversion passes verification.`,
+      price: String(publicOffer.amountMajor),
+      priceCurrency: publicOffer.currencyDisplay,
+      name: publicOffer.productName,
+      description: `One-time payment for a verified conversion pack of up to ${publicOffer.maxTotalPages} total pages. Charged only after the conversion passes verification.`,
       availability: "https://schema.org/InStock",
       url: absoluteUrl("/pricing"),
     },

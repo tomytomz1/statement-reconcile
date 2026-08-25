@@ -102,7 +102,7 @@ export default function PricingPage() {
                 "CSV file with a fixed column order for review or mapping",
                 "A verification PDF for every accepted statement",
                 "pack-manifest.json binding the delivered files to the verified result",
-                "30-day download entitlement",
+                "30-day paid entitlement — download straight away, because the converted result is held only in your browser and expires within the hour",
                 "30-day refund protection",
               ]}
             />
@@ -130,8 +130,8 @@ export default function PricingPage() {
           <Heading id="why-after">Why pay after verification?</Heading>
           <p className="text-ink-700 mt-4 text-[0.975rem] leading-relaxed">
             Because you should not have to buy a conversion to find out whether the conversion
-            worked. {siteConfig.brandName} runs the required checks first. You decide whether to
-            buy the output after seeing the result.
+            worked. {siteConfig.brandName} runs the required checks first. You decide whether to buy
+            the output after seeing the result.
           </p>
 
           <Heading id="what-if-fails" level={3} className="mt-10">

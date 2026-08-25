@@ -50,7 +50,12 @@ Browser
   → server retains nothing
 ```
 
-Re-download: same session + same envelope, up to 30 days after `paidAt`, **and** the browser still holds the job (typically 60 minutes unless the customer has not cleared storage). Lost local data cannot be recovered from the server. Refund path: [`REFUNDS.md`](REFUNDS.md).
+Re-download, up to 30 days after `paidAt`, by either route:
+
+- the browser still holds the sealed job (about 60 minutes), so the envelope is presented directly; or
+- the customer re-uploads the **same original PDFs** with the paid session reference. The pack is re-verified and re-digested, and the digest is matched to the paid session. Since the manifest is ordered by file-level digest rather than upload order, the same statements reproduce the same pack digest regardless of the order they are chosen in.
+
+Nothing is recoverable from the server — there is no stored statement — so a customer who has neither the local job nor the original PDFs cannot be helped by us. Refund path: [`REFUNDS.md`](REFUNDS.md).
 
 ## Webhook
 
@@ -77,10 +82,10 @@ Vercel records ordinary request metadata (IP, path, status). Application logs ne
 
 ## End of life for a conversion
 
-| Artifact            | Lifetime                                                                         |
-| ------------------- | -------------------------------------------------------------------------------- |
-| PDF                 | Never received                                                                   |
-| Parse request body  | Function memory, one request                                                     |
-| IndexedDB job       | 60 minutes or delete control or download                                         |
-| Paid Stripe session | Stripe retention; usable for export ≤ 30 days **if** the envelope is still local |
-| Rate-limit key      | Window (600 s)                                                                   |
+| Artifact            | Lifetime                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------------- |
+| PDF                 | Never received                                                                                          |
+| Parse request body  | Function memory, one request                                                                            |
+| IndexedDB job       | 60 minutes or delete control or download                                                                |
+| Paid Stripe session | Stripe retention; usable for export ≤ 30 days, from the local envelope or by re-uploading the same PDFs |
+| Rate-limit key      | Window (600 s)                                                                                          |
