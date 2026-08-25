@@ -53,7 +53,11 @@ The seven issuer pages are structurally similar but carry real layout-specific c
 
 ## Redirect map
 
-Implemented in `next.config.ts` as `RETIRED_SLUG_REDIRECTS`, emitted as permanent (301) redirects. Enforced by `tests/unit/redirects.test.ts`.
+Implemented in `next.config.ts` as `RETIRED_SLUG_REDIRECTS`. Enforced by `tests/unit/redirects.test.ts`.
+
+`permanent: true` in Next.js emits **HTTP 308**, not 301 — verified against production on 2026-08-25. Google treats 308 as equivalent to 301 for canonicalisation and signal consolidation; the practical difference is that 308 preserves the request method, which is irrelevant for these GET-only landing pages. No action needed, but the distinction is recorded so nobody later reports a "wrong" status code as a defect.
+
+Verified live after deploy: all nine return 308 and resolve to a 200 in exactly one hop.
 
 | From | To | Hops |
 | --- | --- | --- |

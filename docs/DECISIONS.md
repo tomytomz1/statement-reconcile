@@ -82,6 +82,6 @@ The pages were not thin — `pnpm audit:seo` fails the build on duplicate titles
 
 Consolidating on day one was deliberate. §45 asks for Search Console data before deciding redirects, and none exists: the site launched 2026-08-25. That absence is the argument for acting rather than waiting — there is no equity to lose now, and the same merge gets more expensive as pages age and acquire links.
 
-Retired slugs 301 in a single hop via `RETIRED_SLUG_REDIRECTS` in `next.config.ts`. `tests/unit/redirects.test.ts` enforces that every destination is live and never itself a source, because `dynamicParams = false` means a missing entry is a dead URL rather than a warning.
+Retired slugs redirect in a single hop via `RETIRED_SLUG_REDIRECTS` in `next.config.ts`. Next emits 308 for `permanent: true`, which Google treats as equivalent to 301. `tests/unit/redirects.test.ts` enforces that every destination is live and never itself a source, because `dynamicParams = false` means a missing entry is a dead URL rather than a warning.
 
 Full inventory and classification in `docs/seo-url-migration-v2.md`.
