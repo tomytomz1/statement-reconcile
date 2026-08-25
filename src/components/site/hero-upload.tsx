@@ -108,8 +108,8 @@ export function HeroUpload() {
           PDF · Up to {siteConfig.limits.maxPages} total pages · Text-based statements · Max{" "}
           {siteConfig.limits.maxFileSizeMb} MB per file
         </p>
-        <p className="text-ink-800 mt-3 text-sm font-semibold">
-          Verify free. Pay {siteConfig.price.display} only after the pack passes.
+        <p data-testid="hero-offer" className="text-ink-800 mt-3 text-sm font-semibold">
+          {siteConfig.uploaderPriceLine}
         </p>
       </div>
 

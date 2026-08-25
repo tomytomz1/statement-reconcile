@@ -5,14 +5,23 @@
  * limits. Changing the offer or brand should be a change to this file only.
  */
 
+import { COMMERCIAL_OFFER, OFFER_AMOUNT_MAJOR, OFFER_PRICE_DISPLAY, publicOffer } from "./commerce";
+
 const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 
 /** Canonical production origin, without a trailing slash. */
 export const canonicalUrl = stripTrailingSlash(rawSiteUrl || "https://statementreconcile.com");
 
-const PRICE_USD = numberFromEnv(process.env.NEXT_PUBLIC_PRICE_USD, 19);
-const PRICE_DISPLAY = `$${PRICE_USD}`;
-const MAX_PAGES = numberFromEnv(process.env.NEXT_PUBLIC_MAX_PAGES, 50);
+/**
+ * Price and page cap come from the commercial contract, not the environment.
+ *
+ * `NEXT_PUBLIC_PRICE_USD` and `NEXT_PUBLIC_MAX_PAGES` used to override these. Both are
+ * inlined at build time while the live charge comes from Stripe, so an environment change
+ * could publish one amount and bill another. The offer is now a reviewed code change.
+ */
+const PRICE_USD = OFFER_AMOUNT_MAJOR;
+const PRICE_DISPLAY = OFFER_PRICE_DISPLAY;
+const MAX_PAGES = COMMERCIAL_OFFER.maxTotalPages;
 const MAX_FILE_SIZE_MB = numberFromEnv(process.env.NEXT_PUBLIC_MAX_FILE_SIZE_MB, 20);
 
 export const siteConfig = {
@@ -56,8 +65,8 @@ export const siteConfig = {
   /** Commercial offer. */
   price: {
     amountUsd: PRICE_USD,
-    amountCents: Math.round(PRICE_USD * 100),
-    currency: "USD",
+    amountCents: COMMERCIAL_OFFER.amountCents,
+    currency: COMMERCIAL_OFFER.currency.toUpperCase(),
     display: PRICE_DISPLAY,
   },
   offerLine: `One or more statements · Up to ${MAX_PAGES} total pages · No account`,
@@ -70,7 +79,11 @@ export const siteConfig = {
    * number is interpolated from `price.display` so it can never drift from what Stripe
    * charges.
    */
-  priceLine: `Free verification · ${PRICE_DISPLAY} only if your pack passes · No subscription`,
+  priceLine: publicOffer.compactForm,
+  /** The uploader form, which also answers the "do I need an account" objection. */
+  uploaderPriceLine: publicOffer.uploaderForm,
+  /** The sentence form, for prose and meta descriptions. */
+  priceSentence: publicOffer.longForm,
   verifiedCta: "Get My Verified Excel + CSV",
   ownedCategory: "Verified Bank Statement Conversion",
 

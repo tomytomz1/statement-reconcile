@@ -83,6 +83,41 @@ describe("claims policy", () => {
   });
 
   /**
+   * Copy that says the amount is revealed after verification.
+   *
+   * This was true in V1 and is now false: the price is stated before a file is chosen. The
+   * phrasings below were found across the landing-page template, the FAQ, both legal
+   * documents, and an SEO data file, so a single rendered string was never the problem —
+   * the template propagated one of them to all 21 landers.
+   *
+   * It remains accurate to say checkout opens only after verification. What is banned is
+   * claiming the amount is withheld until then.
+   */
+  it("does not claim the price is revealed only after verification", () => {
+    const stale = [
+      /exact charge/i,
+      /exact one-time charge/i,
+      /exact price/i,
+      /charge appears/i,
+      /price is disclosed/i,
+      /payment disclosed/i,
+      /charge shown after verification/i,
+      /price shown after verification/i,
+      /disclosed after verification/i,
+      /revealed after verification/i,
+      /shown only when/i,
+      /charge is shown only/i,
+    ];
+    for (const [path, text] of collectPublicCopyWithPaths()) {
+      for (const pattern of stale) {
+        expect(text, `${path} still promises the price only after verification`).not.toMatch(
+          pattern,
+        );
+      }
+    }
+  });
+
+  /**
    * The price is public now, so the rule is no longer "never say it" — it is "never say it
    * twice". A literal amount typed into a component is a number that can drift away from the
    * one Stripe actually charges, and the customer would have no way to tell which is real.

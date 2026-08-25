@@ -5,7 +5,7 @@
 **Date:** 2026-08-25
 **Domain:** statementreconcile.com
 
-> **On this copy.** The governing text was supplied by the product owner. This file records it for future work in the repository. Where a section below is condensed rather than quoted in full, it is marked *(condensed)* — the owner's original remains the authority in any dispute, and `docs/prd-v2-implementation-plan.md` records what was actually built.
+> **On this copy.** The governing text was supplied by the product owner. This file records it for future work in the repository. Where a section below is condensed rather than quoted in full, it is marked _(condensed)_ — the owner's original remains the authority in any dispute, and `docs/prd-v2-implementation-plan.md` records what was actually built.
 
 ---
 
@@ -42,7 +42,7 @@ Trigger events: bank feed history too short, account closed, client supplied onl
 
 The buyer is not excited about PDF conversion. They are behind, irritated, under a deadline, doing low-value preparatory work, worried about introducing bad data, reluctant to upload client financial information, unwilling to inspect hundreds of rows by hand, and looking for the fastest defensible path to finished books. Sell the removal of the workload; do not romanticise conversion.
 
-## 6–7. Secondary and excluded audiences *(condensed)*
+## 6–7. Secondary and excluded audiences _(condensed)_
 
 Also supported, but must not dilute positioning: small-business owners, tax professionals, forensic/accounting support, finance teams, individuals.
 
@@ -69,7 +69,9 @@ De-emphasise unsupported marketing language: revolutionary, game-changing, flawl
 
 **Verified Conversion Pack — $19 one-time**, for one or more supported statements up to 50 pages total, with complete preview and verification before payment.
 
-Includes: Excel workbook, CSV, statement summary / verification data, a verification PDF for each accepted statement, source references, pack manifest, 30-day download entitlement, 30-day refund protection.
+Includes: Excel workbook, CSV, statement summary / verification data, a verification PDF for each accepted statement, source references, pack manifest, 30-day paid entitlement, 30-day refund protection.
+
+> **Implementation note.** "30-day download entitlement" as originally worded overstates what survives. The entitlement lasts 30 days; the converted result is held only in the customer's browser and expires within the hour. See `docs/v2-phase1-closure-audit.md` for the full retention semantics.
 
 Excludes: signup, user account, subscription, recurring payment, stored card, hidden commitment.
 
@@ -77,7 +79,7 @@ Present it as the complete verified deliverable, not a stack of bonuses.
 
 **Guarantee — Proof-Before-Payment:** if the required verification checks do not pass, checkout does not open. Secondary: if a paid file is incorrect, incomplete or unusable, request a full refund within 30 days. Do not call the conversion infallible, and do not imply it verifies the authenticity of a statement.
 
-**Price transparency (§17):** the strategy of revealing the price only after successful verification is retired. Price appears on the homepage hero, upload component, pricing page, final CTA, and relevant money landing pages. Preferred microcopy: *Free verification · $19 only if your pack passes · No subscription*. Do not require the customer to expose sensitive data before knowing the price.
+**Price transparency (§17):** the strategy of revealing the price only after successful verification is retired. Price appears on the homepage hero, upload component, pricing page, final CTA, and relevant money landing pages. Preferred microcopy: _Free verification · $19 only if your pack passes · No subscription_. Do not require the customer to expose sensitive data before knowing the price.
 
 If current processing economics make $19 unsustainable, stop before publishing the price and calculate actual cost per successful pack. Do not silently substitute another price.
 
@@ -103,39 +105,39 @@ Primary goal: get a qualified visitor to start verification. Primary CTA: **Veri
 
 Required section order: hero → upload entry → verification proof → problem/catch-up → value proposition → how verification works → general-AI comparison → avatars/use cases → offer and pricing → privacy/security → supported/unsupported → FAQ → final CTA.
 
-**Hero copy.** Eyebrow: *Verified Bank Statement Converter*. H1: *Convert PDF Bank Statements to Excel & CSV — and See the Proof Before You Pay*. Subheadline: turning months of statements into clean transaction files without retyping them or checking hundreds of rows by hand, with accepted transactions traced back to the statement and the applicable numbers checked before checkout. CTA microcopy: *Free verification · $19 only if your pack passes · No signup · No subscription*. Privacy microcopy: *Your original PDF stays on this device.* Secondary proof: *If the required verification checks don't pass, checkout doesn't open.*
+**Hero copy.** Eyebrow: _Verified Bank Statement Converter_. H1: _Convert PDF Bank Statements to Excel & CSV — and See the Proof Before You Pay_. Subheadline: turning months of statements into clean transaction files without retyping them or checking hundreds of rows by hand, with accepted transactions traced back to the statement and the applicable numbers checked before checkout. CTA microcopy: _Free verification · $19 only if your pack passes · No signup · No subscription_. Privacy microcopy: _Your original PDF stays on this device._ Secondary proof: _If the required verification checks don't pass, checkout doesn't open._
 
-**Upload component.** Label *Choose your PDF statements*; button *Choose PDF Statements*; limits line stating PDF, page cap, text-based statements, file-size cap; price line *Verify free. Pay $19 only after the pack passes.*
+**Upload component.** Label _Choose your PDF statements_; button _Choose PDF Statements_; limits line stating PDF, page cap, text-based statements, file-size cap; price line _Verify free. Pay $19 only after the pack passes._
 
 **Trust strip.** Four proof points: No signup / PDF stays local / Verified before payment / Excel + CSV.
 
-## 25–32. Homepage sections *(condensed — full copy in the owner's original)*
+## 25–32. Homepage sections _(condensed — full copy in the owner's original)_
 
-**Proof section.** Eyebrow *Proof, not an accuracy claim*; heading *Don't trust "99.9% accurate." See whether your own statement checks out.* Show a worked example: document coverage, source-linked transactions, running-balance checks, closing-balance difference, plus one converted transaction beside its source line.
+**Proof section.** Eyebrow _Proof, not an accuracy claim_; heading _Don't trust "99.9% accurate." See whether your own statement checks out._ Show a worked example: document coverage, source-linked transactions, running-balance checks, closing-balance difference, plus one converted transaction beside its source line.
 
-**Problem section.** *The converter isn't the expensive part. Checking its work is.* Three cards: don't retype it, don't blindly trust it, don't buy uncertainty.
+**Problem section.** _The converter isn't the expensive part. Checking its work is._ Three cards: don't retype it, don't blindly trust it, don't buy uncertainty.
 
-**Catch-up section.** *Your client sent twelve months of PDFs. You still need the books finished.* Use cases: catch-up bookkeeping, closed or migrated accounts, historical QuickBooks reconstruction, tax prep, cleanup engagements, missing bank-feed history, credit-card history, spreadsheet analysis.
+**Catch-up section.** _Your client sent twelve months of PDFs. You still need the books finished._ Use cases: catch-up bookkeeping, closed or migrated accounts, historical QuickBooks reconstruction, tax prep, cleanup engagements, missing bank-feed history, credit-card history, spreadsheet analysis.
 
 **Source-to-Sheet Verification.** Four checks — Document Coverage, Row-to-Source Tracing, Balance Reconstruction, Fail-Closed Verification — plus the qualification that "verified" refers only to the checks Statement Reconcile performs, and does not authenticate the statement, verify the bank's records, replace accounting reconciliation, or provide advice.
 
 **How it works.** Three steps: choose your statements, review the conversion, decide after it passes.
 
-**General-AI comparison.** *AI can extract rows. Who checks the rows?* A nine-row capability table, fairly stated: use a general AI assistant for flexibility, use Statement Reconcile for a repeatable workflow with verification attached.
+**General-AI comparison.** _AI can extract rows. Who checks the rows?_ A nine-row capability table, fairly stated: use a general AI assistant for flexibility, use Statement Reconcile for a repeatable workflow with verification attached.
 
 **Avatars.** Bookkeepers, accountants, tax preparers, business owners.
 
-**Pricing.** *Free to verify. $19 only when your pack passes.* Price card with inclusions and the commercial rules: no signup, no subscription, no stored card, no charge for failed verification.
+**Pricing.** _Free to verify. $19 only when your pack passes._ Price card with inclusions and the commercial rules: no signup, no subscription, no stored card, no charge for failed verification.
 
 ## 33–36. Subscription rationale, privacy, security, supported files
 
 **No subscription:** statement conversion is often occasional; the bill should be too.
 
-**Privacy:** *Your PDF is never uploaded to Statement Reconcile.* Never simplify this to "nothing leaves your device" — that would be inaccurate. Use "the original PDF never leaves your device" and explain the transient text processing accurately.
+**Privacy:** _Your PDF is never uploaded to Statement Reconcile._ Never simplify this to "nothing leaves your device" — that would be inaccurate. Use "the original PDF never leaves your device" and explain the transient text processing accurately.
 
 **Security proof points** must be facts, not badges: no original PDF upload, no stored statement archive, no password, Stripe-hosted card entry, processing-route CSP, no third-party analytics script on the processing route, statement content excluded from logs, server-side export gate, reconciliation re-run before export, formula-injection protection. Do not display SOC 2, ISO, PCI, or penetration-test claims unless they become true.
 
-**Supported / not yet supported** must reduce failed uploads without frightening good prospects. *Downloaded from online banking? Good.*
+**Supported / not yet supported** must reduce failed uploads without frightening good prospects. _Downloaded from online banking? Good._
 
 ## 37–40. Product states
 
@@ -147,13 +149,13 @@ Required section order: hero → upload entry → verification proof → problem
 
 **Download** shows independent buttons per file, the entitlement expiration, and a refund-policy link. Do not upsell aggressively after payment.
 
-## 41–42. Pricing and bookkeeper pages *(condensed)*
+## 41–42. Pricing and bookkeeper pages _(condensed)_
 
-`/pricing` — H1 *Free to verify. $19 only when your conversion passes.* Sections: why pay after verification, what if my statement fails, is this a subscription.
+`/pricing` — H1 _Free to verify. $19 only when your conversion passes._ Sections: why pay after verification, what if my statement fails, is this a subscription.
 
-Bookkeeper page — preferred URL `/bank-statement-converter-for-bookkeepers`. H1 *Catch Up Months of Bookkeeping Without Retyping Bank Statements*. If the existing accountant URL has SEO equity, either retain and substantially improve it, canonicalize, or redirect only after evaluating indexation and backlinks.
+Bookkeeper page — preferred URL `/bank-statement-converter-for-bookkeepers`. H1 _Catch Up Months of Bookkeeping Without Retyping Bank Statements_. If the existing accountant URL has SEO equity, either retain and substantially improve it, canonicalize, or redirect only after evaluating indexation and backlinks.
 
-## 43–53. SEO strategy *(condensed)*
+## 43–53. SEO strategy _(condensed)_
 
 Do not build SEO around every syntactic variation of the same keyword; search engines understand closely related phrasing. Aim for one strong page per distinct intent, useful supporting pages, genuinely institution-specific bank pages, use-case pages, comparison pages, and original research — topical authority without doorway-page behaviour.
 
@@ -183,7 +185,7 @@ Analytics must measure funnel behaviour without capturing financial content. Pro
 
 **North-star metric: Paid Verified Packs** — not traffic, uploads, generated rows, or accounts. Supporting metric: Verified Pack Completion Rate. A growing top of funnel with low verification success is not success.
 
-## 61–72. Later phases *(condensed)*
+## 61–72. Later phases _(condensed)_
 
 **Phase 2** consolidates SEO, producing `docs/seo-url-migration-v2.md` with every old URL and its target behaviour, no redirect chains, and preserved high-value URLs.
 
@@ -199,7 +201,7 @@ Analytics must measure funnel behaviour without capturing financial content. Pro
 
 Do not pretend to have customers that do not exist. Acquire evidence deliberately — target ten bookkeeper/accountant case studies, with permission required for attribution. Weak testimonials say "amazing product"; strong ones describe the actual job. Until strong customer proof exists, the product carries the trust burden: worked example, exact verification counts, exact arithmetic, transparent methodology, security design, free verification, no-charge failure.
 
-## 76–80. Design, accessibility, performance *(condensed)*
+## 76–80. Design, accessibility, performance _(condensed)_
 
 Feel like a serious financial utility: calm, precise, transparent, modern, technical without being developer-centric. Avoid crypto aesthetics, neon AI gradients, excessive animation, fake dashboards, stock photos, robot illustrations, and pricing theatrics.
 
@@ -209,9 +211,9 @@ Mobile must have no horizontal overflow, an easily tapped upload control, a proo
 
 Target WCAG 2.2 AA where practical. Do not let marketing assets degrade converter performance.
 
-## 81–82. Experiments *(condensed)*
+## 81–82. Experiments _(condensed)_
 
-Test one variable at a time. Hero A: *Convert PDF Bank Statements to Excel & CSV — and See the Proof Before You Pay* (SEO-safe control). Hero B: *The Bank Statement Converter That Won't Sell You a Bad Spreadsheet.* Also test CTA wording, price-line wording, and a generic versus catch-up-bookkeeping avatar callout. Track upload and purchase, not merely clicks. Do not run ad claims inconsistent with the landing page or the product.
+Test one variable at a time. Hero A: _Convert PDF Bank Statements to Excel & CSV — and See the Proof Before You Pay_ (SEO-safe control). Hero B: _The Bank Statement Converter That Won't Sell You a Bad Spreadsheet._ Also test CTA wording, price-line wording, and a generic versus catch-up-bookkeeping avatar callout. Track upload and purchase, not merely clicks. Do not run ad claims inconsistent with the landing page or the product.
 
 ## 83–86. Competitive position and claims guardrails
 
@@ -225,7 +227,7 @@ Copy must be specific over vague, outcome-led over platform-led, in buyer langua
 
 Primary nav: Convert, How It Works, For Bookkeepers, Pricing, Security, with a primary nav CTA. Do not fill primary navigation with SEO pages. Simplify the footer into Product, Use Cases, Supported Banks, and Trust groups; avoid dozens of near-identical anchors. Keep six to eight high-value homepage FAQs.
 
-## 90–98. Support, testing, and regression *(condensed)*
+## 90–98. Support, testing, and regression _(condensed)_
 
 Add safe support categorisation and never prepopulate customer statement content into third-party support systems. Build a privacy-safe bank support matrix from synthetic or redacted fixtures — never from real customer statements. Do not claim "supports every bank" until defensible.
 
@@ -237,7 +239,7 @@ Maintain fixtures for deposit accounts, credit cards, and adversarial cases — 
 
 Preview, XLSX, CSV, verification PDF, manifest and any future QBO export must all correspond to the same sealed paid result. Security regression tests must cover export without payment, fake Stripe sessions, a paid session bound to a different result, altered payloads, altered balances or transactions, expired results, CSP regression, formula injection, malicious filenames, oversized payloads, malformed input, and rate-limit bypass.
 
-## 99–101. Acceptance criteria *(condensed)*
+## 99–101. Acceptance criteria _(condensed)_
 
 A first-time visitor must be able to answer, without scrolling the whole page: what it does, why this rather than another converter, how much, what happens if it doesn't work, whether an account is needed, whether the PDF is uploaded, and what to click.
 

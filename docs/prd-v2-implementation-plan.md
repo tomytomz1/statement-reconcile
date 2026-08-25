@@ -6,12 +6,12 @@ Companion to `docs/product-baseline-before-prd-v2.md`. Scope is PRD Phase 0, Pha
 
 Four questions were resolved with the product owner rather than assumed.
 
-| Question | Decision | Consequence |
-| --- | --- | --- |
-| Price reveal (§17) | Reverse the shipped price-reveal boundary; `$19` becomes public | Two unit tests and two e2e assertions invert; a new ADR supersedes the old decision |
-| Headline experiment (§22 vs §81) | Reseat to the §81 Test 1 pair, 50/50, restart the 200/50 window | ~1 day of a/b/c data is discarded; acceptable because the test began 2026-08-25 |
-| Scope | Phase 0 + Phase 1 + SEO audit, then consolidation as a separate stage | Offer work and redirect work stay independently reviewable |
-| SEO timing (§45) | Consolidate now rather than wait for Search Console | Equity is ~zero today; the same merge costs more once pages age and acquire links |
+| Question                         | Decision                                                              | Consequence                                                                         |
+| -------------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Price reveal (§17)               | Reverse the shipped price-reveal boundary; `$19` becomes public       | Two unit tests and two e2e assertions invert; a new ADR supersedes the old decision |
+| Headline experiment (§22 vs §81) | Reseat to the §81 Test 1 pair, 50/50, restart the 200/50 window       | ~1 day of a/b/c data is discarded; acceptable because the test began 2026-08-25     |
+| Scope                            | Phase 0 + Phase 1 + SEO audit, then consolidation as a separate stage | Offer work and redirect work stay independently reviewable                          |
+| SEO timing (§45)                 | Consolidate now rather than wait for Search Console                   | Equity is ~zero today; the same merge costs more once pages age and acquire links   |
 
 ## Invariants this work does not touch
 

@@ -4,7 +4,12 @@ import { copyVariantFromHeaders } from "@/lib/analytics/copy-variant";
 import { MAX_GATED_BODY_BYTES, createCheckoutSchema } from "@/lib/payments/checkout-payload";
 import { buildCheckoutMetadata } from "@/lib/payments/entitlement";
 import { openSealedResult } from "@/lib/payments/open-sealed-result";
-import { isStripeReady, lineItem, stripe } from "@/lib/payments/stripe";
+import {
+  assertStripePriceMatchesOffer,
+  isStripeReady,
+  lineItem,
+  stripe,
+} from "@/lib/payments/stripe";
 import { logEvent, logFailure } from "@/lib/security/logging";
 import { isAllowedOrigin, isJsonRequest, readJsonBody, requestOrigin } from "@/lib/security/origin";
 import {
@@ -103,6 +108,19 @@ export async function POST(request: Request): Promise<Response> {
       url: `${origin}/checkout/success?session_id=${sessionId}`,
       sessionId,
     });
+  }
+
+  // The dashboard Price is checked against the commercial contract before a session can be
+  // created. A Price that is inactive, recurring, in the wrong currency, or at any amount
+  // other than the advertised one fails the request rather than quietly billing it.
+  const priceOk = await assertStripePriceMatchesOffer();
+  if (!priceOk.ok) {
+    logEvent("checkout_refused", { reason: priceOk.reason });
+    return errorResponse(
+      "internal_error",
+      503,
+      "Payments are misconfigured on this deployment. You have not been charged.",
+    );
   }
 
   try {

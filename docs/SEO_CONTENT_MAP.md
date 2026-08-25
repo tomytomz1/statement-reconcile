@@ -8,14 +8,14 @@ This document used to carry a per-page table of every title, H1, target query, a
 
 So the per-page detail is gone and the data files are the source of truth. To read the current map:
 
-| Question | Where to look |
-| --- | --- |
-| Which pages exist, and in what order | `seoPages` in `src/content/seo/index.ts` |
-| A page's title, H1, target query, intent | its own file in `src/content/seo/` |
-| How pages link to each other | the `related` array on each page, plus `footerGroups` |
-| Which URLs are indexed | `src/app/sitemap.ts`, which derives from `seoPages` |
-| Why a page was merged or renamed | `docs/seo-url-migration-v2.md` |
-| Whether the set is internally consistent | `pnpm audit:seo` |
+| Question                                 | Where to look                                         |
+| ---------------------------------------- | ----------------------------------------------------- |
+| Which pages exist, and in what order     | `seoPages` in `src/content/seo/index.ts`              |
+| A page's title, H1, target query, intent | its own file in `src/content/seo/`                    |
+| How pages link to each other             | the `related` array on each page, plus `footerGroups` |
+| Which URLs are indexed                   | `src/app/sitemap.ts`, which derives from `seoPages`   |
+| Why a page was merged or renamed         | `docs/seo-url-migration-v2.md`                        |
+| Whether the set is internally consistent | `pnpm audit:seo`                                      |
 
 `pnpm audit:seo` is the enforcement this document cannot provide. It fails the build on duplicate titles, descriptions, or H1s, on a `related` href that does not resolve, and on an issuer page missing its independence notice.
 

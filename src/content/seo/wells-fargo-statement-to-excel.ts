@@ -1,4 +1,5 @@
 import type { SeoPage } from "./types";
+import { publicOffer } from "@/config/commerce";
 
 export const wellsFargoStatementToExcel: SeoPage = {
   slug: "wells-fargo-statement-to-excel",
@@ -110,8 +111,7 @@ export const wellsFargoStatementToExcel: SeoPage = {
   faqs: [
     {
       question: "My statement is 34 pages. Does that cost more?",
-      answer:
-        "No. One conversion pack may contain one or more statements up to 50 total pages combined. A thirty-four-page pack and a three-page pack carry the same one-time charge shown after verification.",
+      answer: `No. One conversion pack may contain one or more statements up to 50 total pages combined. A thirty-four-page pack and a three-page pack carry the same ${publicOffer.display} one-time charge, payable only if the pack passes verification.`,
     },
     {
       question: "Will the export contain the headings that repeat throughout the PDF?",

@@ -20,34 +20,34 @@ Ignore vanity unique-visitors. A scanner hitting `/` is not a preview.
 
 Source: `src/lib/analytics/events.ts`. Payloads are buckets/enums only — no amounts, descriptions, bank names, filenames, account ids.
 
-| Event                   | When                                     | Properties                                                                                       |
-| ----------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `page_view`             | Marketing page load                      | `path`                                                                                           |
-| `campaign_landed`       | First touch with UTM                     | `source`, `medium`, `campaign`, `landingPath`                                                    |
-| `file_picker_open`      | File dialog opened                       | `location`                                                                                       |
-| `file_selected`         | PDF chosen                               | `pages` (bucket), `size` (bucket)                                                                |
-| `file_rejected`         | Client reject                            | `code`                                                                                           |
-| `extraction_started`    | Parse kicked off                         | `pages`                                                                                          |
-| `extraction_succeeded`  | Reconciled parse                         | `pages`, `rows`, `statementType`, `method`, `duration`, `source` (`deterministic` \| `provider`) |
-| `extraction_failed`     | Rejected or error                        | `code`, `pages`, `duration`                                                                      |
-| `reconciliation_passed` | Engine passed                            | `method`, `rows`                                                                                 |
-| `reconciliation_failed` | Engine failed                            | `method`, `rows`                                                                                 |
-| `preview_viewed`        | Verdict UI                               | `rows`, `statementType`                                                                          |
-| `source_reference_opened` | A row opened against its source page   | (none)                                                                                           |
-| `checkout_clicked`      | Pay CTA                                  | `rows`, `statementType`                                                                          |
-| `checkout_redirected`   | Stripe URL received                      | (none)                                                                                           |
-| `checkout_failed`       | Checkout API error                       | `code`                                                                                           |
-| `payment_confirmed`     | Success page + paid digest               | (none)                                                                                           |
-| `export_requested`      | Download click                           | `format` (`csv` \| `xlsx` \| `report` \| `manifest`)                                              |
-| `export_downloaded`     | File returned                            | `format`, `rows`                                                                                 |
-| `export_failed`         | Export error                             | `format`, `code`                                                                                 |
-| `recovery_used`         | Lost-tab / session match                 | `outcome` (`found` \| `not_found`)                                                               |
-| `data_deleted`          | Delete-my-data                           | (none)                                                                                           |
-| `pricing_viewed`        | Pricing page read                        | (none)                                                                                           |
-| `refund_link_clicked`   | Refund policy opened from a commercial surface | `location`                                                                                 |
-| `cta_clicked`           | Marketing CTA or homepage file selection | `location`, `label`                                                                              |
-| `faq_opened`            | FAQ accordion                            | `question`                                                                                       |
-| `copy_variant_viewed`   | Homepage H1 variant rendered             | `copyVariant` (`a` \| `b`)                                                                       |
+| Event                     | When                                           | Properties                                                                                       |
+| ------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `page_view`               | Marketing page load                            | `path`                                                                                           |
+| `campaign_landed`         | First touch with UTM                           | `source`, `medium`, `campaign`, `landingPath`                                                    |
+| `file_picker_open`        | File dialog opened                             | `location`                                                                                       |
+| `file_selected`           | PDF chosen                                     | `pages` (bucket), `size` (bucket)                                                                |
+| `file_rejected`           | Client reject                                  | `code`                                                                                           |
+| `extraction_started`      | Parse kicked off                               | `pages`                                                                                          |
+| `extraction_succeeded`    | Reconciled parse                               | `pages`, `rows`, `statementType`, `method`, `duration`, `source` (`deterministic` \| `provider`) |
+| `extraction_failed`       | Rejected or error                              | `code`, `pages`, `duration`                                                                      |
+| `reconciliation_passed`   | Engine passed                                  | `method`, `rows`                                                                                 |
+| `reconciliation_failed`   | Engine failed                                  | `method`, `rows`                                                                                 |
+| `preview_viewed`          | Verdict UI                                     | `rows`, `statementType`                                                                          |
+| `source_reference_opened` | A row opened against its source page           | (none)                                                                                           |
+| `checkout_clicked`        | Pay CTA                                        | `rows`, `statementType`                                                                          |
+| `checkout_redirected`     | Stripe URL received                            | (none)                                                                                           |
+| `checkout_failed`         | Checkout API error                             | `code`                                                                                           |
+| `payment_confirmed`       | Success page + paid digest                     | (none)                                                                                           |
+| `export_requested`        | Download click                                 | `format` (`csv` \| `xlsx` \| `report` \| `manifest`)                                             |
+| `export_downloaded`       | File returned                                  | `format`, `rows`                                                                                 |
+| `export_failed`           | Export error                                   | `format`, `code`                                                                                 |
+| `recovery_used`           | Lost-tab / session match                       | `outcome` (`found` \| `not_found`)                                                               |
+| `data_deleted`            | Delete-my-data                                 | (none)                                                                                           |
+| `pricing_viewed`          | Pricing page read                              | (none)                                                                                           |
+| `refund_link_clicked`     | Refund policy opened from a commercial surface | `location`                                                                                       |
+| `cta_clicked`             | Marketing CTA or homepage file selection       | `location`, `label`                                                                              |
+| `faq_opened`              | FAQ accordion                                  | `question`                                                                                       |
+| `copy_variant_viewed`     | Homepage H1 variant rendered                   | `copyVariant` (`a` \| `b`)                                                                       |
 
 Every event above except `copy_variant_viewed` also carries an optional `copyVariant` (`a` \| `b`), attached from `sessionStorage` when it is available, so the funnel can be split by headline. Only the identifier is ever sent — never the headline text.
 
@@ -92,10 +92,10 @@ Two approved H1s are assigned from the existing anonymous `sr_sid` cookie at 50/
 deterministic and stable for the session, and it is resolved server-side in `src/proxy.ts` so the
 headline never visibly swaps. No second cookie is created.
 
-| Variant | H1                                                                        | Role                   |
-| ------- | ------------------------------------------------------------------------- | ---------------------- |
+| Variant | H1                                                                            | Role                    |
+| ------- | ----------------------------------------------------------------------------- | ----------------------- |
 | a       | Convert PDF Bank Statements to Excel & CSV — and See the Proof Before You Pay | Keyword-bearing control |
-| b       | The Bank Statement Converter That Won’t Sell You a Bad Spreadsheet          | Direct response        |
+| b       | The Bank Statement Converter That Won’t Sell You a Bad Spreadsheet            | Direct response         |
 
 One keyword-bearing headline against one that drops the keywords is the comparison that answers
 whether search-friendly phrasing is costing conversions. `isCopyVariant` rejects `"c"`, so a stale

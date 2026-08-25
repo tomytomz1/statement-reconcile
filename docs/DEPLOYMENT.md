@@ -32,7 +32,7 @@ Suggested Production env: `APP_ENV=production`, live Stripe, webhook secret, Ups
 
 Preview: test Stripe keys, `APP_ENV=preview`, never `E2E_MOCK_PAYMENTS`.
 
-Node 20.x (or 22) in project settings to match `engines`.
+**Node 22.x** in project settings. `package.json` declares `engines.node: 22.x` and CI runs Node 22 with pnpm 11.23.0; Node 20 does not satisfy that and should not be selected.
 
 ## Stripe webhook after first prod URL exists
 

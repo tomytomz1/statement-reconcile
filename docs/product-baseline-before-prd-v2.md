@@ -6,10 +6,10 @@ This document exists because PRD v2 §55 requires the current implementation to 
 
 ## Test baseline
 
-| Suite | Command | Result |
-| --- | --- | --- |
-| Unit + integration | `pnpm test` | 23 files, 274 tests, all passing |
-| End-to-end | `pnpm test:e2e` | 14 passing (chromium + mobile) when Playwright owns its own dev server |
+| Suite              | Command         | Result                                                                 |
+| ------------------ | --------------- | ---------------------------------------------------------------------- |
+| Unit + integration | `pnpm test`     | 23 files, 274 tests, all passing                                       |
+| End-to-end         | `pnpm test:e2e` | 14 passing (chromium + mobile) when Playwright owns its own dev server |
 
 `pnpm format:check` fails locally on Windows for every touched file. `core.autocrlf=true` with no `.gitattributes` means the working tree is CRLF while the committed blobs are LF, and Prettier wants LF. The byte delta is exactly one CR per line. CI runs `ubuntu-latest` and passes. Running `pnpm format` to "fix" this is churn against a non-problem.
 
@@ -49,10 +49,10 @@ Yes, and packs are first-class rather than a loop over single files. `POST /api/
 
 ### 6–7. How long results and entitlements survive
 
-| Thing | Lifetime | Defined in |
-| --- | --- | --- |
+| Thing                           | Lifetime       | Defined in                                                                       |
+| ------------------------------- | -------------- | -------------------------------------------------------------------------------- |
 | Local sealed result (IndexedDB) | **60 minutes** | `siteConfig.limits.localJobTtlMinutes`, applied in `src/lib/client/job-store.ts` |
-| Paid download entitlement | **30 days** | `ENTITLEMENT_TTL_MS` in `src/lib/payments/entitlement.ts` |
+| Paid download entitlement       | **30 days**    | `ENTITLEMENT_TTL_MS` in `src/lib/payments/entitlement.ts`                        |
 
 These are very different numbers and the product copy currently conflates them. See "Known copy defects" below.
 
@@ -116,22 +116,22 @@ See below.
 
 The repository already has an 18-code machine-readable taxonomy in `src/lib/extraction/types.ts` (`EXTRACTION_ERROR_CODES`), with a parallel user-facing message record. PRD §93 proposes different names for overlapping concepts. **The code keeps its names**; renaming a working, tested enum to match a document would churn the analytics `code` property and every failure-copy test for no behavioural gain. The mapping:
 
-| PRD §93 name | Existing code | Notes |
-| --- | --- | --- |
-| `IMAGE_ONLY_PDF` | `no_text_layer` | Triggered below 120 characters per page |
-| `PASSWORD_PROTECTED` | `encrypted_pdf` | |
-| `PAGE_LIMIT_EXCEEDED` | `too_many_pages` | Per-pack |
-| `FILE_TOO_LARGE` | `file_too_large` | Per-file, client-side |
-| `NO_TRANSACTION_TABLE` | `no_transactions_found` | |
-| `MULTIPLE_ACCOUNTS_UNRESOLVED` | `multiple_accounts` | |
-| `PAGE_COVERAGE_INCOMPLETE` | `completeness_failed` | Detail in completeness codes |
-| `BALANCE_MISMATCH` | `reconciliation_failed` | |
-| `SIGN_AMBIGUITY` | `verification_rejected` | Detail in `ambiguityCodeSchema.debit_credit_sign` |
-| `AMOUNT_AMBIGUITY` | `verification_rejected` | Detail in `ambiguityCodeSchema.amount_digits` |
-| `SOURCE_LINK_MISSING` | `verification_rejected` | Detail in completeness `unmapped_rows` |
-| `UNSUPPORTED_LAYOUT` | `layout_not_recognized` | |
-| `INSUFFICIENT_BALANCE_EVIDENCE` | `reconciliation_failed` | Rejection reason distinguishes it |
-| `PROCESSING_ERROR` | `internal_error` | |
+| PRD §93 name                    | Existing code           | Notes                                             |
+| ------------------------------- | ----------------------- | ------------------------------------------------- |
+| `IMAGE_ONLY_PDF`                | `no_text_layer`         | Triggered below 120 characters per page           |
+| `PASSWORD_PROTECTED`            | `encrypted_pdf`         |                                                   |
+| `PAGE_LIMIT_EXCEEDED`           | `too_many_pages`        | Per-pack                                          |
+| `FILE_TOO_LARGE`                | `file_too_large`        | Per-file, client-side                             |
+| `NO_TRANSACTION_TABLE`          | `no_transactions_found` |                                                   |
+| `MULTIPLE_ACCOUNTS_UNRESOLVED`  | `multiple_accounts`     |                                                   |
+| `PAGE_COVERAGE_INCOMPLETE`      | `completeness_failed`   | Detail in completeness codes                      |
+| `BALANCE_MISMATCH`              | `reconciliation_failed` |                                                   |
+| `SIGN_AMBIGUITY`                | `verification_rejected` | Detail in `ambiguityCodeSchema.debit_credit_sign` |
+| `AMOUNT_AMBIGUITY`              | `verification_rejected` | Detail in `ambiguityCodeSchema.amount_digits`     |
+| `SOURCE_LINK_MISSING`           | `verification_rejected` | Detail in completeness `unmapped_rows`            |
+| `UNSUPPORTED_LAYOUT`            | `layout_not_recognized` |                                                   |
+| `INSUFFICIENT_BALANCE_EVIDENCE` | `reconciliation_failed` | Rejection reason distinguishes it                 |
+| `PROCESSING_ERROR`              | `internal_error`        |                                                   |
 
 Three adjacent taxonomies also exist and are unchanged: `ambiguityCodeSchema` (12 codes), `fileVerificationStateSchema` (9 states), and the completeness codes (strings, not an enum).
 
@@ -139,25 +139,25 @@ Three adjacent taxonomies also exist and are unchanged: `ambiguityCodeSchema` (1
 
 PRD §58 proposes 17 event names. The existing 22 already cover the funnel and are live in Plausible. Renaming them would break both the dashboard history and the running headline experiment's server-log attribution, so the existing names stand and only genuinely missing events are added.
 
-| PRD §58 | Existing | Action |
-| --- | --- | --- |
-| `homepage_view` | `page_view` | Existing, covers all paths |
-| `converter_cta_click` | `cta_clicked` | Existing, carries `location` |
-| `file_picker_open` | — | **Added** |
-| `conversion_started` | `extraction_started` | Existing |
-| `conversion_rejected_input` | `file_rejected` | Existing |
-| `conversion_processing_error` | `extraction_failed` | Existing |
-| `conversion_verification_failed` | `reconciliation_failed` | Existing |
-| `conversion_verification_passed` | `reconciliation_passed` | Existing |
-| `verification_preview_viewed` | `preview_viewed` | Existing |
-| `source_reference_opened` | — | **Added** |
-| `pricing_viewed` | — | **Added** |
-| `checkout_started` | `checkout_clicked` | Existing |
-| `checkout_returned_paid` | `payment_confirmed` | Existing |
-| `checkout_returned_unpaid` | `checkout_failed` | Existing |
-| `export_started` | `export_requested` | Existing |
-| `export_completed` | `export_downloaded` | Existing |
-| `refund_link_clicked` | — | **Added** |
+| PRD §58                          | Existing                | Action                       |
+| -------------------------------- | ----------------------- | ---------------------------- |
+| `homepage_view`                  | `page_view`             | Existing, covers all paths   |
+| `converter_cta_click`            | `cta_clicked`           | Existing, carries `location` |
+| `file_picker_open`               | —                       | **Added**                    |
+| `conversion_started`             | `extraction_started`    | Existing                     |
+| `conversion_rejected_input`      | `file_rejected`         | Existing                     |
+| `conversion_processing_error`    | `extraction_failed`     | Existing                     |
+| `conversion_verification_failed` | `reconciliation_failed` | Existing                     |
+| `conversion_verification_passed` | `reconciliation_passed` | Existing                     |
+| `verification_preview_viewed`    | `preview_viewed`        | Existing                     |
+| `source_reference_opened`        | —                       | **Added**                    |
+| `pricing_viewed`                 | —                       | **Added**                    |
+| `checkout_started`               | `checkout_clicked`      | Existing                     |
+| `checkout_returned_paid`         | `payment_confirmed`     | Existing                     |
+| `checkout_returned_unpaid`       | `checkout_failed`       | Existing                     |
+| `export_started`                 | `export_requested`      | Existing                     |
+| `export_completed`               | `export_downloaded`     | Existing                     |
+| `refund_link_clicked`            | —                       | **Added**                    |
 
 ## Unit economics for the $19 price (§13)
 

@@ -170,7 +170,11 @@ const INFRASTRUCTURE_FAILURES = new Set<string>([
  * which rules out anything derived from the document, the filename, or the job.
  */
 function supportCode(code: string): string {
-  const stem = code.replace(/[^a-z]/g, "").slice(0, 3).toUpperCase().padEnd(3, "X");
+  const stem = code
+    .replace(/[^a-z]/g, "")
+    .slice(0, 3)
+    .toUpperCase()
+    .padEnd(3, "X");
   const suffix = Math.floor(Math.random() * 36 ** 4)
     .toString(36)
     .toUpperCase()

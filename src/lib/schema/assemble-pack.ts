@@ -99,6 +99,20 @@ export async function assemblePack(files: readonly PackFileInput[]): Promise<Ass
     envelopeFiles.push({ fileId: stableFileId, statement: canonical.statement });
   }
 
+  // Pack identity must not depend on the order the customer happened to pick the files in.
+  //
+  // The 30-day entitlement is redeemed by re-uploading the same PDFs and reproducing the
+  // paid pack digest. Building the manifest in input order meant the same statements chosen
+  // in a different order produced a different digest, so a customer who paid could be
+  // refused their own files for a reason no message could sensibly explain.
+  //
+  // Sorting by the file-level content digest makes the identity a function of the contents
+  // alone. It is a total order because duplicate digests are rejected above, and it is
+  // stable across devices because the digest is canonical. Ordering carries no meaning here:
+  // each statement is verified independently against its own printed balances.
+  manifestFiles.sort((a, b) => (a.resultDigest < b.resultDigest ? -1 : 1));
+  envelopeFiles.sort((a, b) => (a.fileId < b.fileId ? -1 : 1));
+
   const manifest: PackManifest = {
     schemaVersion: SCHEMA_VERSION,
     manifestVersion: PACK_MANIFEST_VERSION,

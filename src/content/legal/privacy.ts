@@ -1,4 +1,5 @@
 import type { LegalDocument } from "./types";
+import { publicOffer } from "@/config/commerce";
 
 export const privacyPolicy: LegalDocument = {
   slug: "privacy",
@@ -24,7 +25,7 @@ export const privacyPolicy: LegalDocument = {
       blocks: [
         {
           kind: "paragraph",
-          text: "Statement Reconcile is a single-purpose tool that converts one or more PDF bank or credit-card statements into Excel, CSV, and verification reports for a one-time payment disclosed after verification, up to 50 total pages. The operator of the service is the entity named as the legal business name in our site configuration. There is no account system, no subscription, and no mailing list.",
+          text: `Statement Reconcile is a single-purpose tool that converts one or more PDF bank or credit-card statements into Excel, CSV, and verification reports for a one-time payment of ${publicOffer.display}, charged only if the pack passes verification, up to 50 total pages. The operator of the service is the entity named as the legal business name in our site configuration. There is no account system, no subscription, and no mailing list.`,
         },
         {
           kind: "paragraph",

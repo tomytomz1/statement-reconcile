@@ -59,8 +59,12 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Unit and integration tests
-        run: pnpm test
+      - name: Unit and integration tests with coverage thresholds
+        # Runs coverage rather than plain `test` so the per-module thresholds in
+        # vitest.config.mts are enforced in CI, not only when someone remembers locally.
+        # A regression in reconciliation, verification, pack identity, the payment
+        # boundary, or the security headers fails the build here.
+        run: pnpm test:coverage
 
       - name: Synthetic release benchmark
         run: pnpm benchmark:synthetic

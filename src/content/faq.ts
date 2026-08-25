@@ -11,6 +11,8 @@
  * only contains flattering answers is not read as reassuring, it is read as marketing.
  */
 
+import { publicOffer } from "@/config/commerce";
+
 export type FaqEntry = {
   question: string;
   answer: string[];
@@ -117,7 +119,7 @@ export const faqs: readonly FaqEntry[] = [
     category: "Payment",
     question: "When do I see the charge?",
     answer: [
-      "Only after every statement kept in the pack passes verification. You review actual rows, source links, document coverage, and applicable balance checks first. The exact one-time charge appears on the final billing screen before secure checkout.",
+      `The price is stated up front, before you choose a file: ${publicOffer.display} once, and only if your pack passes. Checkout itself opens only after every statement you keep has passed verification, so you review actual rows, source links, document coverage, and applicable balance checks before paying anything. If the checks fail there is nothing to buy.`,
     ],
   },
   {
