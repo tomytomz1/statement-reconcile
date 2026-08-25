@@ -18,6 +18,10 @@ Next config: TypeScript errors fail the build; production browser source maps of
 
 ## Vercel
 
+**Pushing to `main` deploys production automatically.** The GitHub repo is connected to Vercel and production tracks `main`'s HEAD — confirmed 2026-08-25, when `/api/health` reported the merge commit `88432c0` within about thirty seconds of the push. Treat a merge to `main` as a production release, not as a staging step.
+
+The CLI flow below still works for a manual or out-of-band deploy:
+
 ```bash
 vercel link
 vercel env pull .env.local          # optional, local
