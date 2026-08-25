@@ -8,9 +8,14 @@ import { expect, test } from "@playwright/test";
 import { generateFixture } from "@/lib/fixtures/generator";
 import { writePdf } from "@/lib/fixtures/pdf-writer";
 
-function syntheticPdfPath(): string {
-  const bytes = writePdf(generateFixture("checking-debit-credit-balance", 1).pages);
-  const path = join(tmpdir(), `statement-reconcile-e2e-${Date.now()}.pdf`);
+let fixtureCounter = 0;
+
+function syntheticPdfPath(family = "checking-debit-credit-balance"): string {
+  const bytes = writePdf(generateFixture(family, 1).pages);
+  // The counter matters when several fixtures are written inside the same millisecond:
+  // colliding names would silently hand the picker the same file more than once.
+  fixtureCounter += 1;
+  const path = join(tmpdir(), `statement-reconcile-e2e-${Date.now()}-${fixtureCounter}.pdf`);
   writeFileSync(path, bytes);
   return path;
 }
@@ -109,6 +114,43 @@ test.describe("funnel and public pages", () => {
     await expect(page).toHaveURL(/\/checkout\/success/, { timeout: 30_000 });
     await expect(page.getByTestId("download-xlsx")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("download-csv")).toBeVisible();
+  });
+
+  test("removing a file from a multi-file pack re-assembles it server-side", async ({ page }) => {
+    test.setTimeout(120_000);
+    // Three different passing layouts, so the pack is not three copies of one document.
+    const pdfPaths = [
+      syntheticPdfPath("checking-debit-credit-balance"),
+      syntheticPdfPath("checking-signed-amount-balance"),
+      syntheticPdfPath("savings-with-interest"),
+    ];
+
+    await page.goto("/");
+    const chooserPromise = page.waitForEvent("filechooser");
+    await page.getByRole("button", { name: "Choose My PDF Statements" }).click();
+    const chooser = await chooserPromise;
+    await chooser.setFiles(pdfPaths);
+    await expect(page).toHaveURL(/\/app$/, { timeout: 15_000 });
+
+    // Every file has to pass before checkout is offered at all. The per-file Remove control
+    // only renders while more than one file is in the pack, so counting it is an unambiguous
+    // read of the pack's size — the surrounding page has several other "N files" strings.
+    await expect(page.getByTestId("checkout-button")).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByRole("button", { name: "Remove" })).toHaveCount(3);
+    await expect(page.getByText("VERIFICATION REJECTED")).toHaveCount(0);
+
+    // This is the only path that reaches POST /api/pack. Dropping a file cannot leave the
+    // customer holding a digest that covers documents no longer in the pack, so the pack is
+    // re-assembled and re-sealed on the server before checkout is offered again.
+    const packResponse = page.waitForResponse(
+      (response) => response.url().includes("/api/pack") && response.request().method() === "POST",
+      { timeout: 30_000 },
+    );
+    await page.getByRole("button", { name: "Remove" }).first().click();
+    expect((await packResponse).status()).toBe(200);
+
+    await expect(page.getByRole("button", { name: "Remove" })).toHaveCount(2);
+    await expect(page.getByTestId("checkout-button")).toBeVisible({ timeout: 30_000 });
   });
 
   test("checkout cancel page loads", async ({ page }) => {
