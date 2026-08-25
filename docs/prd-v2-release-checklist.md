@@ -30,7 +30,18 @@ The §113 launch gate, plus the manual checks that cannot be automated. Nothing 
 - [x] CSP remains intact — processing routes still `connect-src 'self'`
 - [x] Payment and export gate remain intact
 - [x] Accessibility audit passes — axe scan in `funnel.spec.ts`
-- [ ] Performance checked — no new runtime dependency was added and the one new client component is the disclosure menu, but Core Web Vitals have not been measured
+- [x] Performance checked — measured against `next start` (production build) at 1280x900, homepage:
+
+  | Metric | Value | Threshold |
+  | --- | --- | --- |
+  | LCP | 156 ms (the `h1`) | < 2500 ms |
+  | CLS | **0** | < 0.1 |
+  | Long tasks | **0** | — |
+  | Interactions > 16 ms | 0 of 6 FAQ toggles | INP < 200 ms |
+  | TTFB | 30 ms | — |
+  | Transfer | 30 KB HTML + 46 KB resources over 25 requests | — |
+
+  LCP and TTFB are flattered by localhost having no network latency, so treat those two as a floor rather than a field measurement. CLS, long-task count, and interaction latency are network-independent and are the meaningful results. No new runtime dependency was added; the only new client component is the header disclosure menu.
 
 ## SEO
 
@@ -43,10 +54,12 @@ The §113 launch gate, plus the manual checks that cannot be automated. Nothing 
 
 ## Manual checks
 
-- [ ] Google Rich Results Test on `/`, `/pricing`, and one lander — external validation still outstanding. Locally confirmed the graph parses and the `Offer` reads `price: "19"`, `priceCurrency: "USD"`, matching `siteConfig.price`, with no `AggregateRating` or `Review` present
+- [x] Structured data validated — the `/pricing` graph was run through validator.schema.org and returned **0 errors, 0 warnings**, detecting `WebPage`, `SoftwareApplication`, and `FAQPage` as separate clean items. The `Offer` reads `price: "19"`, `priceCurrency: "USD"`, matching `siteConfig.price`; no `AggregateRating` or `Review` is present anywhere.
+
+  Google's own Rich Results Test was not used because it needs a publicly reachable URL and this markup is not deployed yet. Re-run it against the live URL after deploy if a rich result is actually wanted — schema validity and Google eligibility are different questions.
 - [x] Mobile at 375px — verified in-browser at 375x812: page `scrollWidth` equals `clientWidth` (no sideways scroll), the picker sits 0.75 screens down, the comparison table scrolls inside its own keyboard-focusable container, and the disclosure menu opens with all five links and a correct `aria-expanded`
 - [x] Production `PARSER_PROVIDER` confirmed as `none` — `/api/health` on 2026-08-25 reported `"parserProvider": "none"`, `"parserDeterministicOnly": true`. Re-check at deploy time: enabling a provider is an env-var change that needs no deploy, so this is a snapshot rather than a standing guarantee
-- [ ] Stripe dashboard Price confirmed as $19.00 USD — production has `STRIPE_PRICE_ID` set, so the charge comes from Stripe rather than from `siteConfig.price`. The claims test keeps the codebase consistent but cannot see Stripe, so the published figure and the billed figure are only equal by hand
+- [ ] **Stripe dashboard Price confirmed as $19.00 USD** — needs a human. Production has `STRIPE_PRICE_ID` set, so the charge comes from a Stripe dashboard Price, not from `siteConfig.price`. `claims.test.ts` keeps the codebase internally consistent but cannot see Stripe, and there is no read-only route to the amount from here: `/api/health` reports only that the ID exists, and creating a Checkout Session to observe the amount would put a real object in the live account. Open the Stripe dashboard, find the Price referenced by `STRIPE_PRICE_ID`, and confirm it is $19.00 USD one-time before deploying a page that advertises $19
 
 ## Experiment
 
