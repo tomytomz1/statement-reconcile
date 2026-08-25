@@ -26,7 +26,9 @@ price: { amountUsd: PRICE_USD, amountCents: Math.round(PRICE_USD * 100), currenc
 
 The checkout amount is server-controlled. `src/lib/payments/stripe.ts` prefers the dashboard `STRIPE_PRICE_ID` and falls back to inline `price_data` built from `siteConfig.price.amountCents`. The client cannot influence it: `createCheckoutSchema` in `src/lib/payments/checkout-payload.ts` accepts only `jobId`, `digest`, `sealed`, `pageCount`, and `fileCount`.
 
-Caveat worth knowing: `NEXT_PUBLIC_PRICE_USD` is inlined at build time, so without `STRIPE_PRICE_ID` the "server" price is a build constant.
+Production has `STRIPE_PRICE_ID` set (confirmed 2026-08-25 via `/api/health`: `"stripePriceId": true`), so the live charge comes from a Stripe dashboard Price rather than from inline `price_data`.
+
+That splits the amount across two systems. `siteConfig.price` drives the marketing copy and the `Offer` schema; the dashboard Price drives what the customer is actually billed. `tests/unit/claims.test.ts` keeps the codebase internally consistent but cannot see Stripe, so **the dashboard Price has to be confirmed as $19.00 USD by hand** whenever the published figure changes.
 
 ### 3. Can a pack contain multiple statements?
 
@@ -159,6 +161,6 @@ PRD §58 proposes 17 event names. The existing 22 already cover the funnel and a
 
 ## Unit economics for the $19 price (§13)
 
-`PARSER_PROVIDER` defaults to `"none"` and `parserProviderConfigured()` returns false without an API key, so the shipped path is the deterministic parser with no per-pack model cost. Marginal cost of a successful pack is the Stripe fee (roughly $0.85 on $19) plus serverless compute for parse, checkout, and export. The price is comfortably positive and §17's price transparency is therefore economically approved.
+`PARSER_PROVIDER` defaults to `"none"` and `parserProviderConfigured()` returns false without an API key. Confirmed in production on 2026-08-25 via `/api/health`, which reported `"parserProvider": "none"` and `"parserDeterministicOnly": true`, so the shipped path is the deterministic parser with no per-pack model cost. Marginal cost of a successful pack is the Stripe fee (roughly $0.85 on $19) plus serverless compute for parse, checkout, and export. The price is comfortably positive and §17's price transparency is therefore economically approved.
 
-This holds only while no paid provider is enabled in production. If `PARSER_PROVIDER` is ever set with a key, recompute before leaving the price public.
+This holds only while no paid provider is enabled in production, and that is a snapshot rather than a guarantee: enabling a provider is an environment-variable change that needs no deploy and touches no file in this repository. `/api/health` reports the effective value, so re-check it there rather than inferring it from the code.

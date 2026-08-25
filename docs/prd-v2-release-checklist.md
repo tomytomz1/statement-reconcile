@@ -45,7 +45,8 @@ The §113 launch gate, plus the manual checks that cannot be automated. Nothing 
 
 - [ ] Google Rich Results Test on `/`, `/pricing`, and one lander — external validation still outstanding. Locally confirmed the graph parses and the `Offer` reads `price: "19"`, `priceCurrency: "USD"`, matching `siteConfig.price`, with no `AggregateRating` or `Review` present
 - [x] Mobile at 375px — verified in-browser at 375x812: page `scrollWidth` equals `clientWidth` (no sideways scroll), the picker sits 0.75 screens down, the comparison table scrolls inside its own keyboard-focusable container, and the disclosure menu opens with all five links and a correct `aria-expanded`
-- [ ] Production `PARSER_PROVIDER` confirmed as `none` — if a paid provider is live, recompute unit economics before leaving the price public
+- [x] Production `PARSER_PROVIDER` confirmed as `none` — `/api/health` on 2026-08-25 reported `"parserProvider": "none"`, `"parserDeterministicOnly": true`. Re-check at deploy time: enabling a provider is an env-var change that needs no deploy, so this is a snapshot rather than a standing guarantee
+- [ ] Stripe dashboard Price confirmed as $19.00 USD — production has `STRIPE_PRICE_ID` set, so the charge comes from Stripe rather than from `siteConfig.price`. The claims test keeps the codebase consistent but cannot see Stripe, so the published figure and the billed figure are only equal by hand
 
 ## Experiment
 

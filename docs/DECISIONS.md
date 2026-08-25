@@ -66,7 +66,9 @@ That is now reversed. The visitor sees `$19` in the hero, the upload card, the o
 
 The reasoning is that the old boundary asked someone to hand a bank statement to an unknown tool in order to find out what it charges. For the target customer — a bookkeeper putting a client's financial documents through a service they have not used before — that is the wrong order. The commercial terms are the cheapest thing to disclose and the most reassuring to see early.
 
-The economics were checked before publishing rather than assumed. `PARSER_PROVIDER` defaults to `none`, so a successful pack costs the Stripe fee (roughly $0.85 on $19) plus serverless compute, not a model call. If a paid provider is ever enabled in production, recompute before leaving the price public.
+The economics were checked before publishing rather than assumed. Production `/api/health` reported `"parserProvider": "none"` on 2026-08-25, so a successful pack costs the Stripe fee (roughly $0.85 on $19) plus serverless compute, not a model call. Enabling a provider is an env-var change that needs no deploy, so re-check `/api/health` rather than assuming the code still describes production.
+
+Note that production also has `STRIPE_PRICE_ID` set, so the billed amount comes from a Stripe dashboard Price. The published price and the charged price are therefore two values in two systems, and only the first is guarded by tests.
 
 The guardrails were inverted rather than deleted. `tests/unit/claims.test.ts` now asserts that any price in public copy derives from `siteConfig.price`, so a literal amount typed into a component fails the build. What a customer reads and what Stripe charges cannot drift apart.
 
