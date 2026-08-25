@@ -24,6 +24,7 @@ Canonical URL must be **https://statementreconcile.com**. Offer: $19 once, 50 pa
 - [x] Webhook secret configured; events are listed in MANUAL_CONNECTIONS
 - [ ] One real $19 purchase of **your** statement, export CSV + XLSX, then refund
 - [ ] `E2E_MOCK_PAYMENTS` unset on Vercel
+- [ ] `E2E_ISOLATE_RATE_LIMIT` unset on Vercel
 
 ## Security / privacy architecture
 

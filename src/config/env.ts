@@ -70,6 +70,12 @@ const serverEnvSchema = z.object({
    */
   E2E_MOCK_PAYMENTS: optionalString,
 
+  /**
+   * Test-only rate-limit isolation for end-to-end tests. Guarded the same three ways as
+   * the payment bypass. See `rateLimitIdentityPerSession`.
+   */
+  E2E_ISOLATE_RATE_LIMIT: optionalString,
+
   /** Set by Vercel; used only for non-sensitive build identification on /api/health. */
   VERCEL_GIT_COMMIT_SHA: optionalString,
   VERCEL_ENV: optionalString,
@@ -149,4 +155,26 @@ export function mockPaymentsEnabled(): boolean {
   if (process.env.NODE_ENV === "production") return false;
   if (env.APP_ENV !== "test") return false;
   return isTruthy(env.E2E_MOCK_PAYMENTS);
+}
+
+/**
+ * Key the rate limiter on the anonymous session cookie instead of the forwarded IP.
+ *
+ * Only ever true under end-to-end tests, and impossible to enable in production. Every
+ * browser context Playwright opens is a distinct client, but they all reach the dev server
+ * over loopback, and Next stamps `x-forwarded-for` with that one socket address. Preferring
+ * the IP therefore collapses the whole suite — every worker, every project, and every
+ * consecutive run against a surviving dev server — into a single window, so tests exhaust
+ * each other's budget and fail with 429 depending on scheduling. Keying on the per-context
+ * cookie gives each test its own window, leaving the limits themselves untouched.
+ *
+ * This is a test-only inversion because the cookie is client-supplied: in any real
+ * deployment a caller could mint a fresh one per request and buy unlimited budget, which is
+ * exactly why the forwarded IP wins everywhere else.
+ */
+export function rateLimitIdentityPerSession(): boolean {
+  const env = serverEnv();
+  if (process.env.NODE_ENV === "production") return false;
+  if (env.APP_ENV !== "test") return false;
+  return isTruthy(env.E2E_ISOLATE_RATE_LIMIT);
 }
