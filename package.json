@@ -27,6 +27,7 @@
     "benchmark:synthetic": "tsx benchmarks/runners/index.ts",
     "setup:check": "tsx scripts/setup-check.ts",
     "doctor": "tsx scripts/doctor.ts",
+    "funnel:variants": "tsx scripts/funnel-variant-report.ts",
     "audit:seo": "tsx scripts/audit-seo.ts",
     "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm benchmark:synthetic && pnpm build",
     "postinstall": "tsx scripts/copy-pdf-worker.ts"

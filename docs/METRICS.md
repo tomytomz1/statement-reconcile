@@ -43,9 +43,9 @@ Source: `src/lib/analytics/events.ts`. Payloads are buckets/enums only — no am
 | `data_deleted`          | Delete-my-data                           | (none)                                                                                           |
 | `cta_clicked`           | Marketing CTA or homepage file selection | `location`, `label`                                                                              |
 | `faq_opened`            | FAQ accordion                            | `question`                                                                                       |
-| `copy_variant_viewed`   | Homepage H1 variant rendered             | `copyVariant` (`a` \| `b` \| `c`)                                                                |
+| `copy_variant_viewed`   | Homepage H1 variant rendered             | `copyVariant` (`a` \| `b`)                                                                       |
 
-Every event above except `copy_variant_viewed` also carries an optional `copyVariant` (`a` \| `b` \| `c`), attached from `sessionStorage` when it is available, so the funnel can be split by headline. Only the identifier is ever sent — never the headline text.
+Every event above except `copy_variant_viewed` also carries an optional `copyVariant` (`a` \| `b`), attached from `sessionStorage` when it is available, so the funnel can be split by headline. Only the identifier is ever sent — never the headline text.
 
 Page buckets: `1`, `2-5`, `6-10`, `11-20`, `21-50`. File-size buckets: `<1mb`, `1-5mb`, `5-10mb`, `10-20mb`, `20mb+`. Row buckets: `0`, `1-25`, `26-100`, `101-300`, `301-1000`, `1000+`. Duration: `<1s`, `1-3s`, `3-10s`, `10-30s`, `>30s`. Statement type: `checking` \| `savings` \| `credit_card` \| `unknown`.
 
@@ -80,18 +80,24 @@ Server logs (`checkout_started`, `export_delivered`, `payment_completed`) are th
 
 Authority: master build prompt §42.2 and §42.4.
 
-Three approved H1s are assigned from the existing anonymous `sr_sid` cookie at approximately
-34/33/33 by `src/lib/analytics/copy-variant.ts`. Assignment is a pure hash of the session id, so it
-is deterministic and stable for the session, and it is resolved server-side in `src/proxy.ts` so the
+**Reseated 2026-08-25 (PRD v2).** The experiment previously ran three H1s at 34/33/33. It now runs
+two at 50/50, and the earlier counter is void — the window restarts from the 2026-08-25 deploy.
+
+Two approved H1s are assigned from the existing anonymous `sr_sid` cookie at 50/50 by
+`src/lib/analytics/copy-variant.ts`. Assignment is a pure hash of the session id, so it is
+deterministic and stable for the session, and it is resolved server-side in `src/proxy.ts` so the
 headline never visibly swaps. No second cookie is created.
 
-| Variant | H1                                                                                        |
-| ------- | ----------------------------------------------------------------------------------------- |
-| A       | Convert Bank Statements to Excel & CSV—Then Make the Spreadsheet Prove It Matches the PDF |
-| B       | The Spreadsheet Looks Clean. But Did the Converter Miss a Row?                            |
-| C       | Stop Retyping Bank Statements—and Stop Checking a Converter’s Work by Hand                |
+| Variant | H1                                                                        | Role                   |
+| ------- | ------------------------------------------------------------------------- | ---------------------- |
+| a       | Convert PDF Bank Statements to Excel & CSV — and See the Proof Before You Pay | Keyword-bearing control |
+| b       | The Bank Statement Converter That Won’t Sell You a Bad Spreadsheet          | Direct response        |
 
-`?copy_variant=a|b|c` overrides the assignment **only** when `VERCEL_ENV === "preview"`. Production
+One keyword-bearing headline against one that drops the keywords is the comparison that answers
+whether search-friendly phrasing is costing conversions. `isCopyVariant` rejects `"c"`, so a stale
+cookie or a bookmarked preview URL cannot resurrect a retired headline.
+
+`?copy_variant=a|b` overrides the assignment **only** when `VERCEL_ENV === "preview"`. Production
 and development ignore the parameter entirely, and an invalid value falls back to the session's
 normal assignment. Do not put the variant in a production URL.
 
@@ -105,7 +111,14 @@ and successful downloads.
 **Stopping rule: do not declare a winner before 200 qualified verified previews overall and at
 least 50 per variant.** Below that, report the observed split _and the uncertainty around it_. Do
 not manufacture statistical confidence, and do not pick a winner on taste or on a small sample.
-Preserve all three variants until the threshold is reached.
+Preserve both variants until the threshold is reached.
+
+`pnpm funnel:variants` reads this straight from the server logs and prints the counts with the
+threshold check applied, so the stopping rule is enforced by the tool rather than remembered:
+
+```bash
+pnpm funnel:variants --since 2026-08-25T14:41:00Z
+```
 
 ### Where the numbers actually come from
 
