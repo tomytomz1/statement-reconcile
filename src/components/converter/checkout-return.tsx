@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { routes } from "@/config/site";
+import { routes, siteConfig } from "@/config/site";
 import { rowBucket } from "@/lib/analytics/events";
 import { track } from "@/lib/analytics/client";
 import { requestExport, saveBlob, verifyPayment } from "@/lib/client/api";
@@ -117,22 +117,22 @@ export function CheckoutReturn({ sessionId }: { sessionId: string | null }) {
   if (state.kind === "unpaid") {
     return (
       <Card className="border-l-caution-700 border-l-4">
-        <Heading level={3}>That payment has not completed</Heading>
+        <Heading level={3}>Your verified result is still available on this device</Heading>
         <p className="text-ink-700 mt-2 text-sm leading-relaxed">
-          Stripe has not recorded this checkout as paid. If you have just finished paying, some
-          payment methods take a few seconds to settle — refresh this page in a moment.
+          Stripe has not recorded this checkout as paid, and you have not been charged by{" "}
+          {siteConfig.brandName} unless Stripe confirms the payment. Your conversion and its
+          verification are untouched.
         </p>
         <p className="text-ink-600 mt-3 text-sm leading-relaxed">
-          If you cancelled, nothing was charged and your converted statement is still waiting in
-          this browser.
+          If you have just finished paying, some payment methods take a few seconds to settle —
+          check again in a moment. If you cancelled, nothing was charged and there is nothing to
+          undo.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
+          <ButtonLink href={routes.app}>Return to checkout</ButtonLink>
           <Button variant="secondary" onClick={() => window.location.reload()}>
             Check again
           </Button>
-          <ButtonLink href={routes.app} variant="quiet">
-            Back to my conversion
-          </ButtonLink>
         </div>
       </Card>
     );

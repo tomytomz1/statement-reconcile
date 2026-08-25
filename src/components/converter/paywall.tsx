@@ -28,7 +28,10 @@ export function Paywall({
     <Card className="border-accent-200 from-accent-50/70 bg-gradient-to-b to-white">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div className="max-w-xl">
-          <Heading level={3}>Your {siteConfig.productName} is ready</Heading>
+          <p className="text-verified-800 text-sm font-bold">Your conversion passed.</p>
+          <Heading level={3} className="mt-1">
+            Get the complete {siteConfig.productName}
+          </Heading>
           <p className="text-ink-700 mt-2 text-sm leading-relaxed">
             All {transactionCount.toLocaleString("en-US")}{" "}
             {transactionCount === 1 ? "transaction" : "transactions"} are included, in Excel, CSV,
@@ -58,7 +61,7 @@ export function Paywall({
           <p className="text-ink-950 text-4xl font-bold tracking-tight">
             {siteConfig.price.display}
           </p>
-          <p className="text-ink-600 mt-1 text-sm">once · no account</p>
+          <p className="text-ink-600 mt-1 text-sm">one-time · no account</p>
           <Button
             className="mt-4"
             size="lg"
@@ -69,7 +72,10 @@ export function Paywall({
           >
             {busy ? "Opening secure checkout…" : siteConfig.verifiedCta}
           </Button>
-          <p className="text-ink-500 mt-3 max-w-[15rem] text-xs leading-relaxed sm:ml-auto">
+          <p className="text-ink-600 mt-3 max-w-[15rem] text-xs leading-relaxed sm:ml-auto">
+            30-day refund protection · Secure checkout by Stripe
+          </p>
+          <p className="text-ink-500 mt-2 max-w-[15rem] text-xs leading-relaxed sm:ml-auto">
             Card details are entered on Stripe&rsquo;s own page. They never reach our servers.
           </p>
         </div>
