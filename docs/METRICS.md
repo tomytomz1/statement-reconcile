@@ -24,6 +24,7 @@ Source: `src/lib/analytics/events.ts`. Payloads are buckets/enums only — no am
 | ----------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | `page_view`             | Marketing page load                      | `path`                                                                                           |
 | `campaign_landed`       | First touch with UTM                     | `source`, `medium`, `campaign`, `landingPath`                                                    |
+| `file_picker_open`      | File dialog opened                       | `location`                                                                                       |
 | `file_selected`         | PDF chosen                               | `pages` (bucket), `size` (bucket)                                                                |
 | `file_rejected`         | Client reject                            | `code`                                                                                           |
 | `extraction_started`    | Parse kicked off                         | `pages`                                                                                          |
@@ -32,15 +33,18 @@ Source: `src/lib/analytics/events.ts`. Payloads are buckets/enums only — no am
 | `reconciliation_passed` | Engine passed                            | `method`, `rows`                                                                                 |
 | `reconciliation_failed` | Engine failed                            | `method`, `rows`                                                                                 |
 | `preview_viewed`        | Verdict UI                               | `rows`, `statementType`                                                                          |
+| `source_reference_opened` | A row opened against its source page   | (none)                                                                                           |
 | `checkout_clicked`      | Pay CTA                                  | `rows`, `statementType`                                                                          |
 | `checkout_redirected`   | Stripe URL received                      | (none)                                                                                           |
 | `checkout_failed`       | Checkout API error                       | `code`                                                                                           |
 | `payment_confirmed`     | Success page + paid digest               | (none)                                                                                           |
-| `export_requested`      | Download click                           | `format` (`csv` \| `xlsx`)                                                                       |
+| `export_requested`      | Download click                           | `format` (`csv` \| `xlsx` \| `report` \| `manifest`)                                              |
 | `export_downloaded`     | File returned                            | `format`, `rows`                                                                                 |
 | `export_failed`         | Export error                             | `format`, `code`                                                                                 |
 | `recovery_used`         | Lost-tab / session match                 | `outcome` (`found` \| `not_found`)                                                               |
 | `data_deleted`          | Delete-my-data                           | (none)                                                                                           |
+| `pricing_viewed`        | Pricing page read                        | (none)                                                                                           |
+| `refund_link_clicked`   | Refund policy opened from a commercial surface | `location`                                                                                 |
 | `cta_clicked`           | Marketing CTA or homepage file selection | `location`, `label`                                                                              |
 | `faq_opened`            | FAQ accordion                            | `question`                                                                                       |
 | `copy_variant_viewed`   | Homepage H1 variant rendered             | `copyVariant` (`a` \| `b`)                                                                       |

@@ -7,13 +7,13 @@ Canonical URL must be **https://statementreconcile.com**. Offer: $19 once, 50 pa
 - [x] `NEXT_PUBLIC_LEGAL_BUSINESS_NAME` is `Statement Reconcile LLC`
 - [x] `NEXT_PUBLIC_LEGAL_JURISDICTION` is `Michigan`
 - [ ] `support@`, `security@`, `privacy@` mailboxes receive mail
-- [ ] Privacy, Terms, Security, Refund pages read as built (last updated 2026-08-24 in content files) — no leftover `[[JURISDICTION]]` if the env is set
-- [ ] Issuer pages keep the non-affiliation notice; `NEXT_PUBLIC_ENABLE_BANK_SPECIFIC_CLAIMS` remains false until a layout is actually tested
+- [x] Privacy, Terms, Security, Refund pages read as built — verified live 2026-08-25: no `[[PLACEHOLDER]]` on any of the five legal pages, and `Michigan` renders from `NEXT_PUBLIC_LEGAL_JURISDICTION`
+- [x] Issuer pages keep the non-affiliation notice — verified live on Chase, Discover and Citi, and enforced for every issuer page by `pnpm audit:seo`. `NEXT_PUBLIC_ENABLE_BANK_SPECIFIC_CLAIMS` is absent from Vercel Production and `/api/health` reports `bankSpecificClaims: false`
 
 ## Product honesty
 
 - [x] Homepage H1 is the converter outcome, not the differentiator
-- [ ] Price on site matches Stripe Price ($19 USD)
+- [x] Price on site matches Stripe Price ($19 USD) — dashboard Price confirmed by the product owner 2026-08-25. Note the site figure comes from `siteConfig.price` and the charge from `STRIPE_PRICE_ID`, so these are two systems; `claims.test.ts` guards only the first
 - [x] Flags: OCR/QBO/OFX off; marketing does not mention them
 - [x] Internal accuracy numbers from [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md) are **not** on the site
 
@@ -23,8 +23,8 @@ Canonical URL must be **https://statementreconcile.com**. Offer: $19 once, 50 pa
 - [x] `STRIPE_PRICE_ID` configured for the one-time Price (owner still verifies the Dashboard amount during the live purchase)
 - [x] Webhook secret configured; events are listed in MANUAL_CONNECTIONS
 - [ ] One real $19 purchase of **your** statement, export CSV + XLSX, then refund
-- [ ] `E2E_MOCK_PAYMENTS` unset on Vercel
-- [ ] `E2E_ISOLATE_RATE_LIMIT` unset on Vercel
+- [x] `E2E_MOCK_PAYMENTS` unset on Vercel — verified 2026-08-25 via `vercel env ls production`; the variable does not exist in any scope
+- [x] `E2E_ISOLATE_RATE_LIMIT` unset on Vercel — verified 2026-08-25 via `vercel env ls production`; the variable does not exist. It is also unreachable in production regardless, needing `NODE_ENV !== production` and `APP_ENV === test`
 
 ## Security / privacy architecture
 
@@ -52,7 +52,7 @@ Canonical URL must be **https://statementreconcile.com**. Offer: $19 once, 50 pa
 
 - [ ] Health URL bookmarked
 - [ ] Stripe email notifications for disputes on
-- [ ] Analytics optional; if on, event names match [`METRICS.md`](METRICS.md)
+- [x] Analytics on (`plausible`); all 26 event names in `src/lib/analytics/events.ts` are documented in [`METRICS.md`](METRICS.md) — checked programmatically 2026-08-25, which found four undocumented and they were added
 
 ## Remaining owner work
 
