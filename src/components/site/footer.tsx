@@ -34,7 +34,7 @@ export function SiteFooter() {
   return (
     <footer className="no-print border-ink-200 mt-auto border-t bg-white">
       <Container className="py-14">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-6">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
             <p className="text-ink-950 text-sm font-bold">{siteConfig.brandName}</p>
             <p className="text-ink-600 mt-3 max-w-xs text-sm leading-relaxed">
@@ -47,34 +47,42 @@ export function SiteFooter() {
 
           <FooterColumn heading="Product" links={PRODUCT_LINKS} />
           <FooterColumn heading="Trust" links={TRUST_LINKS} />
+        </div>
 
-          <div className="sm:col-span-2 lg:col-span-2">
-            <p className="text-ink-500 text-xs font-semibold tracking-[0.1em] uppercase">
-              Conversions
-            </p>
-            <div className="mt-4 grid gap-x-8 gap-y-6 sm:grid-cols-2">
-              {footerGroups.map((group) => (
-                <div key={group.heading}>
-                  <p className="text-ink-700 text-xs font-semibold">{group.heading}</p>
-                  <ul className="mt-2 space-y-1.5">
-                    {group.slugs.map((slug) => {
-                      const page = seoPage(slug);
-                      if (!page) return null;
-                      return (
-                        <li key={slug}>
-                          <Link
-                            href={`/${slug}`}
-                            className="text-ink-600 hover:text-accent-700 text-[0.8125rem] leading-snug underline-offset-2 hover:underline"
-                          >
-                            {page.h1}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              ))}
-            </div>
+        {/*
+         * The conversion directory gets its own full-width row rather than a quarter of the
+         * row above. Twenty-six links squeezed into a narrow column wrapped almost every label
+         * onto a second line, which made this block taller than the rest of the footer put
+         * together while the brand column sat half empty. One column per group gives each
+         * label the width to sit on one line and reads as a directory rather than the main
+         * event.
+         */}
+        <div className="border-ink-200 mt-12 border-t pt-10">
+          <p className="text-ink-500 text-xs font-semibold tracking-[0.1em] uppercase">
+            Conversions
+          </p>
+          <div className="mt-6 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+            {footerGroups.map((group) => (
+              <div key={group.heading}>
+                <p className="text-ink-700 text-xs font-semibold">{group.heading}</p>
+                <ul className="mt-2.5 space-y-1.5">
+                  {group.slugs.map((slug) => {
+                    const page = seoPage(slug);
+                    if (!page) return null;
+                    return (
+                      <li key={slug}>
+                        <Link
+                          href={`/${slug}`}
+                          className="text-ink-600 hover:text-accent-700 text-[0.8125rem] leading-snug underline-offset-2 hover:underline"
+                        >
+                          {page.h1}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
 
