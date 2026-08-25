@@ -140,8 +140,8 @@ export const chaseStatementToExcel: SeoPage = {
       context: "The general version of this page, without a named institution.",
     },
     {
-      href: "/pdf-bank-statement-to-excel",
-      label: "PDF bank statement to Excel",
+      href: "/extract-transactions-from-pdf",
+      label: "Extract transactions from a PDF",
       context: "More detail on what the parser reads out of a PDF's text layer.",
     },
     {

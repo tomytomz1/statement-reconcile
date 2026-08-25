@@ -136,13 +136,13 @@ export const wellsFargoStatementToExcel: SeoPage = {
   ],
   related: [
     {
-      href: "/pdf-bank-statement-to-excel",
-      label: "PDF bank statement to Excel",
+      href: "/bank-statement-to-excel",
+      label: "Bank statement to Excel",
       context: "What the parser does with a PDF's text layer before any totalling happens.",
     },
     {
-      href: "/bank-statement-transaction-extractor",
-      label: "Bank statement transaction extractor",
+      href: "/extract-transactions-from-pdf",
+      label: "Extract transactions from a PDF",
       context: "Focused on pulling the transaction rows out, whatever you do with them next.",
     },
     {

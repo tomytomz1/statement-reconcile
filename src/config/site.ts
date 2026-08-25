@@ -11,6 +11,7 @@ const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 export const canonicalUrl = stripTrailingSlash(rawSiteUrl || "https://statementreconcile.com");
 
 const PRICE_USD = numberFromEnv(process.env.NEXT_PUBLIC_PRICE_USD, 19);
+const PRICE_DISPLAY = `$${PRICE_USD}`;
 const MAX_PAGES = numberFromEnv(process.env.NEXT_PUBLIC_MAX_PAGES, 50);
 const MAX_FILE_SIZE_MB = numberFromEnv(process.env.NEXT_PUBLIC_MAX_FILE_SIZE_MB, 20);
 
@@ -34,8 +35,19 @@ export const siteConfig = {
   primaryOutcome: "Convert Bank Statements to Excel & CSV",
   /** Trust differentiator. Never the homepage H1. */
   differentiator: "Trace accepted rows to their source and see whether the numbers balance.",
-  /** Primary call to action label used across the funnel. */
-  primaryCta: "Check My Statements",
+  /**
+   * Primary call to action label used across the funnel.
+   *
+   * "Verify" rather than "check": the visitor is being offered a free verification whose
+   * result they inspect before any charge, and "check my statements" describes neither the
+   * value nor the exchange.
+   */
+  primaryCta: "Verify My Statements Free",
+  /**
+   * The header button. Same promise, minus "Free", because the word has to survive a 360px
+   * viewport next to the wordmark and the price line already carries it everywhere else.
+   */
+  navCta: "Verify My Statements",
   secondaryCta: "See how it works",
 
   /** Public name of the one-time paid bundle. */
@@ -46,9 +58,19 @@ export const siteConfig = {
     amountUsd: PRICE_USD,
     amountCents: Math.round(PRICE_USD * 100),
     currency: "USD",
-    display: `$${PRICE_USD}`,
+    display: PRICE_DISPLAY,
   },
   offerLine: `One or more statements · Up to ${MAX_PAGES} total pages · No account`,
+  /**
+   * The commercial bargain, stated before the visitor selects a file.
+   *
+   * V1 withheld the amount until a pack had passed, on the theory that the verification
+   * result sold the price. It also meant someone had to hand a bank statement to an unknown
+   * tool to discover what it cost. Stating the terms up front is the better trade, and the
+   * number is interpolated from `price.display` so it can never drift from what Stripe
+   * charges.
+   */
+  priceLine: `Free verification · ${PRICE_DISPLAY} only if your pack passes · No subscription`,
   verifiedCta: "Get My Verified Excel + CSV",
   ownedCategory: "Verified Bank Statement Conversion",
 

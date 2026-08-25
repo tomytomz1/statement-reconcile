@@ -46,8 +46,13 @@ export function Wordmark({ className }: { className?: string }) {
           />
         </svg>
         <span className="flex flex-col leading-none">
-          <span className="text-[0.9375rem] font-bold tracking-tight">{siteConfig.brandName}</span>
-          <span className="text-ink-500 mt-0.5 text-[0.6875rem] font-medium">
+          <span className="text-[0.9375rem] font-bold tracking-tight whitespace-nowrap">
+            {siteConfig.brandName}
+          </span>
+          {/* The descriptor is the first thing to go when space is short: at 375px it pushed
+              the brand name onto three lines, and the H1 immediately below says the same
+              thing at full size. */}
+          <span className="text-ink-500 mt-0.5 hidden text-[0.6875rem] font-medium sm:block">
             {siteConfig.brandDescriptor}
           </span>
         </span>

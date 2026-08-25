@@ -142,16 +142,15 @@ export const bankStatementToExcel: SeoPage = {
         "The same transactions as a plain text file, if you are feeding another system rather than reading it yourself.",
     },
     {
-      href: "/pdf-bank-statement-to-excel",
-      label: "PDF bank statement to Excel",
+      href: "/bank-statement-converter",
+      label: "Bank statement converter",
       context:
-        "More detail on the PDF side: text layers, scans, and how the columns are recovered from the page.",
+        "The overview: text layers, scans, and how the columns are recovered from the page.",
     },
     {
-      href: "/convert-bank-statement-to-excel",
-      label: "Convert a bank statement to Excel",
-      context:
-        "A comparison with retyping, copy-and-paste, and generic converters, if you are still weighing the options.",
+      href: "/bank-statement-converter-for-bookkeepers",
+      label: "Bank statement converter for bookkeepers",
+      context: "The professional case, if you are converting a client's statements rather than your own.",
     },
     {
       href: "/pricing",

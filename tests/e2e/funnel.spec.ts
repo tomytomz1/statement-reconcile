@@ -21,13 +21,15 @@ function syntheticPdfPath(family = "checking-debit-credit-balance"): string {
 }
 
 test.describe("funnel and public pages", () => {
-  test("homepage has an approved H1, CTA, brand, and no premature price", async ({ page }) => {
+  test("homepage has an approved H1, CTA, brand, and a visible price", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      /Convert Bank Statements|The Spreadsheet Looks Clean|Stop Retyping Bank Statements/,
+      /Convert PDF Bank Statements|Bank Statement Converter That/,
     );
-    await expect(page.getByRole("button", { name: "Choose My PDF Statements" })).toBeVisible();
-    await expect(page.locator("body")).not.toContainText("$19");
+    await expect(page.getByRole("button", { name: "Choose PDF Statements" })).toBeVisible();
+    // The price is stated before a file is chosen: nobody should have to hand a bank
+    // statement to an unknown tool to find out what it costs.
+    await expect(page.locator("body")).toContainText("$19");
     await expect(page.getByText("Statement Reconcile").first()).toBeVisible();
     await expect(page).toHaveTitle(/Bank Statement.*Excel.*CSV/i);
 
@@ -37,11 +39,31 @@ test.describe("funnel and public pages", () => {
     expect(copy).not.toMatch(/\b5 stars\b/);
   });
 
+  test("retired landing pages redirect to their survivor in one hop", async ({ page }) => {
+    // The unit test proves the redirect table is internally consistent. This proves Next
+    // actually serves it — `dynamicParams = false` means a missing redirect is a 404, and a
+    // 404 on a consolidated URL is the one outcome this migration had to avoid.
+    const response = await page.goto("/pdf-bank-statement-to-excel");
+
+    expect(new URL(page.url()).pathname).toBe("/bank-statement-to-excel");
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+
+    // The redirect chain, if there were one, would show up as more than a single hop here.
+    const chain: string[] = [];
+    let hop = response?.request().redirectedFrom() ?? null;
+    while (hop) {
+      chain.push(new URL(hop.url()).pathname);
+      hop = hop.redirectedFrom();
+    }
+    expect(chain).toEqual(["/pdf-bank-statement-to-excel"]);
+  });
+
   test("SEO landing pages have unique H1s and bank pages disclose independence", async ({
     page,
   }) => {
     await page.goto("/bank-statement-to-excel");
-    await expect(page.locator("body")).not.toContainText("$19");
+    await expect(page.locator("body")).toContainText("$19");
     const excelH1 = (await page.getByRole("heading", { level: 1 }).innerText()).trim();
     expect(excelH1.length).toBeGreaterThan(0);
     expect(excelH1).not.toBe("Convert Bank Statements to Excel & CSV");
@@ -59,7 +81,7 @@ test.describe("funnel and public pages", () => {
 
     await page.goto("/");
     const chooserPromise = page.waitForEvent("filechooser");
-    await page.getByRole("button", { name: "Choose My PDF Statements" }).click();
+    await page.getByRole("button", { name: "Choose PDF Statements" }).click();
     const chooser = await chooserPromise;
     await chooser.setFiles(pdfPath);
     await expect(page).toHaveURL(/\/app$/, { timeout: 15_000 });
@@ -127,7 +149,7 @@ test.describe("funnel and public pages", () => {
 
     await page.goto("/");
     const chooserPromise = page.waitForEvent("filechooser");
-    await page.getByRole("button", { name: "Choose My PDF Statements" }).click();
+    await page.getByRole("button", { name: "Choose PDF Statements" }).click();
     const chooser = await chooserPromise;
     await chooser.setFiles(pdfPaths);
     await expect(page).toHaveURL(/\/app$/, { timeout: 15_000 });

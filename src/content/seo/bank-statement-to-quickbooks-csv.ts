@@ -151,8 +151,8 @@ export const bankStatementToQuickbooksCsv: SeoPage = {
         "The specification of the file itself: encoding, quoting, and the fixed column order.",
     },
     {
-      href: "/convert-bank-statement-to-csv",
-      label: "Convert a bank statement to CSV",
+      href: "/bank-feed-history-missing",
+      label: "When your bank feed does not go back far enough",
       context: "How a converted period fits into a bookkeeping run rather than a single import.",
     },
     {

@@ -158,20 +158,20 @@ export const extractTransactionsFromPdf: SeoPage = {
   ],
   related: [
     {
-      href: "/bank-statement-transaction-extractor",
-      label: "Bank statement transaction extractor",
+      href: "/bank-statement-converter",
+      label: "Bank statement converter",
       context:
         "The same machinery framed around statements specifically rather than the file format.",
     },
     {
-      href: "/pdf-bank-transaction-extractor",
-      label: "PDF bank transaction extractor",
-      context: "What can and cannot be extracted, including text layers versus scans.",
+      href: "/bank-statement-to-excel",
+      label: "Bank statement to Excel",
+      context: "The output side: how the rebuilt table is written into a workbook.",
     },
     {
-      href: "/pdf-bank-statement-to-excel",
-      label: "PDF bank statement to Excel",
-      context: "The output side: how the rebuilt table is written into a workbook.",
+      href: "/bank-statement-to-csv",
+      label: "Bank statement to CSV",
+      context: "The same rows as a plain text file, for feeding another system.",
     },
     {
       href: "/how-it-works",

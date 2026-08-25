@@ -145,13 +145,13 @@ export const businessBankStatementToExcel: SeoPage = {
   ],
   related: [
     {
-      href: "/bank-statement-spreadsheet-for-accountants",
-      label: "Bank statement spreadsheets for accountants",
+      href: "/bank-statement-converter-for-bookkeepers",
+      label: "Bank statement converter for bookkeepers",
       context: "Written for the person receiving the file rather than the person producing it.",
     },
     {
-      href: "/convert-bank-statement-to-csv",
-      label: "Convert a bank statement to CSV",
+      href: "/bank-statement-to-csv",
+      label: "Bank statement to CSV",
       context: "How the export fits into a bookkeeping run over a whole period.",
     },
     {

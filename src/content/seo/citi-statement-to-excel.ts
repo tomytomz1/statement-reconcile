@@ -140,8 +140,8 @@ export const citiStatementToExcel: SeoPage = {
       context: "The fixed seven-column output, described on its own terms.",
     },
     {
-      href: "/convert-pdf-transactions-to-excel",
-      label: "Convert PDF transactions to Excel",
+      href: "/extract-transactions-from-pdf",
+      label: "Extract transactions from a PDF",
       context: "For documents where the transaction list matters more than the account summary.",
     },
     {

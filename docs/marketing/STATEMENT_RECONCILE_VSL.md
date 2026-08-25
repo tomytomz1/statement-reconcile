@@ -79,6 +79,6 @@ financial advice.
 If you have one or more authorized PDF bank or credit-card statements, choose them once and see
 what the system can prove before you make a commercial decision.
 
-**CTA: Check My Statements**
+**CTA: Verify My Statements Free**
 
-Microcopy: PDF only · No signup · Original PDFs stay on this device
+Microcopy: Free verification · $19 only if your pack passes · No subscription

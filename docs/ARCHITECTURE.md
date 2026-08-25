@@ -6,7 +6,7 @@ Statement Reconcile is a single Next.js 16 App Router application on Vercel. Rea
 
 | Surface         | Path                                    | Role                                                                                 |
 | --------------- | --------------------------------------- | ------------------------------------------------------------------------------------ |
-| Marketing       | `src/app/(site)/`                       | Home, pricing, how-it-works, FAQ, legal, 26 SEO landers at `/(slug)`                 |
+| Marketing       | `src/app/(site)/`                       | Home, pricing, how-it-works, FAQ, legal, 21 SEO landers at `/(slug)`                 |
 | Converter       | `/app`                                  | Dropzone, preview, paywall. `noindex`. Strict CSP + per-request nonce                |
 | Checkout return | `/checkout/success`, `/checkout/cancel` | Match Stripe session to the local sealed job                                         |
 | API             | `src/app/api/`                          | Parse, checkout, verify, export, webhook, health                                     |

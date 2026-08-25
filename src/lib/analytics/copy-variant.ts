@@ -1,16 +1,23 @@
 export const COPY_VARIANT_HEADER = "x-sr-copy-variant";
 export const COPY_VARIANT_STORAGE_KEY = "sr_copy_variant";
 
-export type CopyVariant = "a" | "b" | "c";
+export type CopyVariant = "a" | "b";
 
+/**
+ * The two hero headlines under test.
+ *
+ * `a` is the control and carries the category keywords, so it stays safe to rank on if it
+ * wins. `b` drops the keywords for a sharper promise. Testing one keyword-bearing headline
+ * against one direct-response headline is the only comparison that answers whether the
+ * search-friendly phrasing is costing conversions.
+ */
 export const COPY_HEADLINES: Record<CopyVariant, string> = {
-  a: "Convert Bank Statements to Excel & CSV—Then Make the Spreadsheet Prove It Matches the PDF",
-  b: "The Spreadsheet Looks Clean. But Did the Converter Miss a Row?",
-  c: "Stop Retyping Bank Statements—and Stop Checking a Converter’s Work by Hand",
+  a: "Convert PDF Bank Statements to Excel & CSV — and See the Proof Before You Pay",
+  b: "The Bank Statement Converter That Won’t Sell You a Bad Spreadsheet",
 };
 
 export function isCopyVariant(value: unknown): value is CopyVariant {
-  return value === "a" || value === "b" || value === "c";
+  return value === "a" || value === "b";
 }
 
 /** Stable, dependency-free assignment from the existing anonymous session id. */
@@ -21,9 +28,7 @@ export function copyVariantForSession(sessionId: string): CopyVariant {
     hash = Math.imul(hash, 16777619);
   }
   const bucket = (hash >>> 0) % 100;
-  if (bucket < 34) return "a";
-  if (bucket < 67) return "b";
-  return "c";
+  return bucket < 50 ? "a" : "b";
 }
 
 export function resolveCopyVariant(
