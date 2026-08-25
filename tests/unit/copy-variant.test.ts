@@ -17,34 +17,38 @@ describe("copy variant assignment", () => {
     expect(COPY_HEADLINES[first].length).toBeGreaterThan(20);
   });
 
-  it("distributes a representative session set near the intended thirds", () => {
-    const counts = { a: 0, b: 0, c: 0 };
+  it("distributes a representative session set near the intended halves", () => {
+    const counts = { a: 0, b: 0 };
     for (let index = 0; index < 10_000; index += 1) {
       counts[copyVariantForSession(index.toString(16).padStart(16, "0"))] += 1;
     }
     for (const count of Object.values(counts)) {
-      expect(count).toBeGreaterThan(3_000);
-      expect(count).toBeLessThan(3_700);
+      expect(count).toBeGreaterThan(4_600);
+      expect(count).toBeLessThan(5_400);
     }
   });
 
   it("rejects invalid preview assignments", () => {
     expect(isCopyVariant("a")).toBe(true);
+    expect(isCopyVariant("b")).toBe(true);
+    // "c" was a variant before the headlines were reseated; a stale cookie or a bookmarked
+    // preview URL must not resurrect a headline that no longer exists.
+    expect(isCopyVariant("c")).toBe(false);
     expect(isCopyVariant("control")).toBe(false);
     expect(isCopyVariant(undefined)).toBe(false);
   });
 
   it("honors URL overrides only in protected preview deployments", () => {
     const session = "0011223344556677";
-    expect(resolveCopyVariant(session, "c", "preview")).toBe("c");
-    expect(resolveCopyVariant(session, "c", "production")).toBe(copyVariantForSession(session));
+    expect(resolveCopyVariant(session, "b", "preview")).toBe("b");
+    expect(resolveCopyVariant(session, "b", "production")).toBe(copyVariantForSession(session));
     expect(resolveCopyVariant(session, "invalid", "preview")).toBe(copyVariantForSession(session));
   });
 });
 
 describe("server-side variant attribution", () => {
   it("reads an approved variant from the proxy header", () => {
-    for (const variant of ["a", "b", "c"] as const) {
+    for (const variant of ["a", "b"] as const) {
       expect(copyVariantFromHeaders(new Headers({ [COPY_VARIANT_HEADER]: variant }))).toBe(variant);
     }
   });
