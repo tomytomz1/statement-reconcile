@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { routes, siteConfig } from "@/config/site";
 import { FaqList } from "@/components/site/faq-list";
 import { JsonLd } from "@/components/site/json-ld";
 import { ButtonLink } from "@/components/ui/button";
@@ -16,22 +15,17 @@ import {
   Lede,
   Section,
 } from "@/components/ui/primitives";
+import { routes, siteConfig } from "@/config/site";
 import { faqByQuestion, faqForSchema, homepageFaqQuestions, type FaqEntry } from "@/content/faq";
 import { seoPage } from "@/content/seo";
 import { HOMEPAGE_TITLE, pageMetadata } from "@/lib/seo/metadata";
 import { faqSchema, howToSchema, jsonLdGraph, webPageSchema } from "@/lib/seo/structured-data";
 
-/**
- * Homepage.
- *
- * The H1 is the category and the outcome — what someone searching for this product types —
- * and the differentiator is the sentence directly beneath it. Putting the differentiator in
- * the H1 would be a positioning mistake and a ranking one: nobody searches for "see whether
- * the numbers balance", but plenty of people search for "convert bank statement to Excel".
- */
-
 const TITLE = HOMEPAGE_TITLE;
-const DESCRIPTION = `Convert PDF bank and credit-card statements to Excel and CSV. Preview the transactions and confirm the statement balances before paying ${siteConfig.price.display}. No account, nothing stored.`;
+const DESCRIPTION =
+  "Convert PDF bank and credit-card statements to Excel and CSV. Preview source-linked transactions and exact balance checks before paying " +
+  siteConfig.price.display +
+  ". No account, nothing stored.";
 
 export const metadata: Metadata = pageMetadata({
   title: TITLE,
@@ -42,23 +36,23 @@ export const metadata: Metadata = pageMetadata({
 
 const STEPS = [
   {
-    title: "Choose your PDF statement",
+    title: "Choose your statements",
     detail:
-      "Your browser opens the file and reads its text layer. The PDF is never uploaded to us.",
+      "Select one or more PDF statements, up to " +
+      siteConfig.limits.maxPages +
+      " pages total. The files stay on your device.",
   },
   {
-    title: "We rebuild the transaction table",
+    title: "Review the evidence",
     detail:
-      "Column positions, wrapped descriptions, date order, and debit or credit direction are all recovered from the page itself.",
+      "Inspect the transaction preview, open any row at its source, and see every balance check that passed or failed.",
   },
   {
-    title: "We check the arithmetic",
+    title: "Pay only if it checks out",
     detail:
-      "Every extracted row is re-added with exact decimal arithmetic and compared against the balances and subtotals your bank printed.",
-  },
-  {
-    title: "You see the result, then decide",
-    detail: `The equation, both numbers, the difference, and a sample of your table are shown before the ${siteConfig.price.display} payment step appears.`,
+      "If the statements verify, pay " +
+      siteConfig.price.display +
+      " once and download both Excel and CSV. Ambiguity blocks checkout.",
   },
 ] as const;
 
@@ -73,9 +67,9 @@ export default function HomePage() {
         data={jsonLdGraph([
           webPageSchema({ path: routes.home, name: TITLE, description: DESCRIPTION }),
           howToSchema({
-            name: "Convert a PDF bank statement to Excel and CSV",
+            name: "Convert and verify PDF bank statements",
             description:
-              "Read a PDF statement in the browser, extract its transactions, verify the totals against the printed balances, and download Excel and CSV files.",
+              "Read PDF statements locally, rebuild and verify their transactions, then download Excel and CSV files.",
             steps: STEPS,
           }),
           faqSchema(faqForSchema(entries)),
@@ -83,11 +77,10 @@ export default function HomePage() {
       />
 
       <Hero />
-      <ReconciliationExplainer />
+      <ConfidenceStrip />
+      <VerificationProof />
       <HowItWorks />
-      <WhatYouGet />
-      <Honesty />
-      <Privacy />
+      <TrustDetails />
       <Pricing />
       <Faq entries={entries} />
       <FinalCta />
@@ -97,363 +90,273 @@ export default function HomePage() {
 
 function Hero() {
   return (
-    <Section className="pt-14 pb-10 sm:pt-20 sm:pb-14">
+    <Section className="pt-12 pb-14 sm:pt-20 sm:pb-20">
       <Container>
-        <div className="grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_26rem]">
+        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_27rem] lg:gap-16">
           <div>
-            <Eyebrow>{siteConfig.primaryCategory}</Eyebrow>
-            <Heading level={1} className="mt-3">
-              Convert Bank Statements to Excel &amp; CSV
+            <Eyebrow>Verified statement conversion</Eyebrow>
+            <Heading level={1} className="mt-4 max-w-3xl">
+              A bank statement converter that shows its work.
             </Heading>
-            <p className="text-ink-800 mt-4 text-xl leading-snug font-medium">
-              {siteConfig.differentiator}
-            </p>
-            <Lede className="mt-4 max-w-2xl">
-              Upload a PDF bank or credit-card statement and get a clean transaction table as an
-              Excel workbook and a CSV file. Before you are asked to pay, every row we extracted is
-              added up and checked against the balances printed on your statement.
+            <Lede className="mt-5 max-w-2xl">
+              Turn PDF bank and credit-card statements into clean Excel and CSV files. Every
+              transaction stays linked to its source, every balance is checked, and checkout stays
+              locked if the result is ambiguous.
             </Lede>
+
+            <CheckList
+              className="mt-7 max-w-xl"
+              items={[
+                "See the result and verification report before paying",
+                siteConfig.price.display +
+                  " once for up to " +
+                  siteConfig.limits.maxPages +
+                  " pages",
+                "Your raw PDF never leaves your browser",
+                "No account, email address, or subscription",
+              ]}
+            />
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <ButtonLink href={routes.app} size="lg">
-                {siteConfig.primaryCta}
+                Start a conversion
               </ButtonLink>
               <Link
                 href={routes.howItWorks}
                 className="text-accent-700 text-sm font-semibold underline-offset-4 hover:underline"
               >
-                {siteConfig.secondaryCta} →
+                See how verification works →
               </Link>
-            </div>
-
-            <p className="text-ink-600 mt-4 text-sm font-medium">{siteConfig.offerLine}</p>
-
-            <div className="mt-8 flex flex-wrap gap-2">
-              <Badge tone="verified">Balance check before payment</Badge>
-              <Badge tone="neutral">PDF never uploaded</Badge>
-              <Badge tone="neutral">No subscription</Badge>
-              <Badge tone="neutral">Excel + CSV included</Badge>
             </div>
           </div>
 
-          <VerdictMock />
+          <UploadCard />
         </div>
       </Container>
     </Section>
   );
 }
 
-/**
- * A static illustration of the verdict panel.
- *
- * Deliberately not a screenshot: a screenshot would either contain real statement data or an
- * obviously fake one, and it would go stale the first time the panel changes. This is built
- * from the same tokens as the real component, with figures that are visibly a worked example.
- */
-function VerdictMock() {
+function UploadCard() {
   return (
-    <Card className="border-l-verified-600 border-l-4" aria-hidden="true">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-ink-950 text-base font-bold">This statement balances</p>
-        <Badge tone="verified">Verified</Badge>
+    <Card className="border-accent-200 bg-accent-50/50 p-5 sm:p-6">
+      <div className="rounded-card border-accent-200 border bg-white p-6 text-center">
+        <div className="bg-accent-100 text-accent-700 mx-auto flex size-12 items-center justify-center rounded-full text-xl font-bold">
+          ↑
+        </div>
+        <Heading level={3} className="mt-4">
+          Start with your PDF statements
+        </Heading>
+        <p className="text-ink-600 mt-2 text-sm leading-relaxed">
+          Choose one file or a batch. Nothing is uploaded until your browser has removed the PDF
+          itself.
+        </p>
+        <ButtonLink href={routes.app} size="lg" className="mt-6 w-full justify-center">
+          Choose PDF statements
+        </ButtonLink>
+        <p className="text-ink-500 mt-3 text-xs">
+          PDF only · up to {siteConfig.limits.maxPages} pages total
+        </p>
       </div>
 
-      <div className="bg-ink-50 mt-4 rounded-lg p-3">
-        <p className="text-ink-500 text-[0.6875rem] font-semibold tracking-[0.08em] uppercase">
-          Check applied
-        </p>
-        <p className="tabular text-ink-900 mt-1.5 text-sm font-medium">
-          Opening balance + credits − debits = closing balance
-        </p>
-      </div>
-
-      <dl className="mt-4 space-y-2.5 text-sm">
+      <div className="mt-5 grid grid-cols-3 gap-3 text-center">
         {[
-          ["Opening balance", "4,182.55"],
-          ["Credits", "+ 6,930.00"],
-          ["Debits", "− 7,411.28"],
-        ].map(([label, value]) => (
-          <div key={label} className="flex justify-between gap-4">
-            <dt className="text-ink-600">{label}</dt>
-            <dd className="tabular text-ink-900 font-medium">{value}</dd>
+          ["Local", "PDF reading"],
+          ["Exact", "money math"],
+          ["Private", "by design"],
+        ].map(([value, label]) => (
+          <div key={value}>
+            <p className="text-ink-950 text-sm font-bold">{value}</p>
+            <p className="text-ink-500 mt-0.5 text-[0.6875rem]">{label}</p>
           </div>
         ))}
-        <div className="border-ink-200 flex justify-between gap-4 border-t pt-2.5">
-          <dt className="text-ink-900 font-semibold">Calculated closing</dt>
-          <dd className="tabular text-ink-950 font-semibold">3,701.27</dd>
-        </div>
-        <div className="flex justify-between gap-4">
-          <dt className="text-ink-600">Printed on statement</dt>
-          <dd className="tabular text-ink-900 font-medium">3,701.27</dd>
-        </div>
-        <div className="bg-verified-50 flex justify-between gap-4 rounded-md px-3 py-2">
-          <dt className="text-verified-900 font-semibold">Difference</dt>
-          <dd className="tabular text-verified-700 font-bold">0.00</dd>
-        </div>
-      </dl>
-
-      <p className="text-ink-500 mt-4 text-xs leading-relaxed">
-        Worked example. Your own figures, and every check we ran, are shown before the payment step.
-      </p>
+      </div>
     </Card>
   );
 }
 
-function ReconciliationExplainer() {
+function ConfidenceStrip() {
   return (
-    <Section tone="raised" labelledBy="why-it-matters">
+    <div className="border-ink-200 border-y bg-white">
       <Container>
-        <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-          <div>
-            <Eyebrow>Why this is different</Eyebrow>
-            <Heading id="why-it-matters" className="mt-3">
-              A converter that cannot check itself is selling you the risk
-            </Heading>
-            <div className="text-ink-700 mt-5 space-y-4 text-[0.975rem] leading-relaxed">
-              <p>
-                A PDF statement is a table that has been flattened into a page description. There
-                are no cells and no headers in the file — only text placed at coordinates. Turning
-                it back into a table means reconstructing the columns from those positions, and that
-                is where converters go wrong.
-              </p>
-              <p>
-                A description that wraps onto a second line becomes a phantom transaction. A debit
-                column and a credit column get swapped. <span className="tabular">03/04</span> is
-                read as the third of April when it meant the fourth of March. None of these mistakes
-                look like mistakes once they are sitting in a spreadsheet.
-              </p>
-              <p>
-                <strong className="text-ink-900 font-semibold">
-                  Checking the arithmetic catches all of them at once.
-                </strong>{" "}
-                A dropped row, a misread amount, a duplicated line — each one breaks the total. So
-                we re-add every row we extracted and compare it with what your bank printed, and we
-                show you that comparison before asking for money.
-              </p>
+        <dl className="divide-ink-200 grid divide-y sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          {[
+            [siteConfig.price.display, "one payment, not a subscription"],
+            ["$0", "to extract, check, and preview"],
+            ["0 files", "stored on our servers"],
+          ].map(([value, label]) => (
+            <div key={label} className="px-5 py-5 text-center">
+              <dt className="text-ink-950 text-lg font-bold">{value}</dt>
+              <dd className="text-ink-500 mt-1 text-xs">{label}</dd>
             </div>
+          ))}
+        </dl>
+      </Container>
+    </div>
+  );
+}
+
+function VerificationProof() {
+  return (
+    <Section tone="raised" labelledBy="verification-proof">
+      <Container>
+        <div className="grid items-center gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
+          <div>
+            <Eyebrow>Proof, not promises</Eyebrow>
+            <Heading id="verification-proof" className="mt-3">
+              Not just converted. Verified.
+            </Heading>
+            <Lede className="mt-4">
+              A spreadsheet can look tidy and still be wrong. Statement Reconcile gives you a
+              compact audit trail before payment, so you can see what was read, where it came from,
+              and whether the arithmetic holds.
+            </Lede>
+            <p className="text-ink-600 mt-5 text-sm leading-relaxed">
+              Select any transaction in the real preview to see the original statement page and
+              source line beside it. If a date, sign, amount, page, or balance cannot be resolved
+              safely, the result does not pass and checkout does not open.
+            </p>
           </div>
 
-          <div className="space-y-4">
-            <Card className="p-5">
-              <Heading level={4}>Checked by our own arithmetic, not by a model</Heading>
-              <p className="text-ink-600 mt-2 text-sm leading-relaxed">
-                The verification is ordinary exact-decimal arithmetic in code we wrote, run
-                separately from whatever read the page. Nothing that produced the numbers gets a say
-                in whether they are right, and nothing can be persuaded to agree.
-              </p>
-            </Card>
-            <Card className="p-5">
-              <Heading level={4}>Exact decimals, never floating point</Heading>
-              <p className="text-ink-600 mt-2 text-sm leading-relaxed">
-                Every amount is handled as an exact decimal from the moment it is read to the moment
-                it is written. Money arithmetic done in binary floating point accumulates error, and
-                an error of a cent is enough to make a real discrepancy invisible or invent a fake
-                one.
-              </p>
-            </Card>
-            <Card className="p-5">
-              <Heading level={4}>Four ways to balance a statement</Heading>
-              <p className="text-ink-600 mt-2 text-sm leading-relaxed">
-                Opening and closing balances, a running-balance column checked row by row, the
-                category subtotals credit cards print, or stated totals for debits and credits.
-                Whichever your statement supports is the one used, and the panel names it.
-              </p>
-            </Card>
-          </div>
+          <VerificationPanel />
         </div>
       </Container>
     </Section>
+  );
+}
+
+function VerificationPanel() {
+  const checks = [
+    ["Document completeness", "8 / 8 pages"],
+    ["Source-linked transactions", "147 / 147 rows"],
+    ["Running-balance checks", "147 / 147 passed"],
+    ["Closing-balance difference", "$0.00"],
+  ];
+
+  return (
+    <Card className="overflow-hidden p-0" aria-label="Worked example verification report">
+      <div className="border-ink-200 flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
+        <div>
+          <p className="text-ink-950 font-bold">Verification report</p>
+          <p className="text-ink-500 mt-0.5 text-xs">Worked example · checking.pdf</p>
+        </div>
+        <Badge tone="verified">Verification passed</Badge>
+      </div>
+
+      <dl className="divide-ink-200 divide-y px-5 sm:px-6">
+        {checks.map(([label, value]) => (
+          <div key={label} className="flex items-center justify-between gap-4 py-3.5 text-sm">
+            <dt className="text-ink-600">{label}</dt>
+            <dd className="text-verified-700 tabular font-bold">{value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="border-ink-200 bg-ink-50 border-t p-5 sm:p-6">
+        <div className="border-ink-200 rounded-lg border bg-white p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-ink-500 text-[0.6875rem] font-semibold tracking-[0.08em] uppercase">
+                Transaction 84 · source linked
+              </p>
+              <p className="text-ink-950 mt-1.5 text-sm font-semibold">
+                ACH PAYMENT — LAKESHORE UTILITIES
+              </p>
+            </div>
+            <p className="text-ink-950 tabular text-sm font-bold">− $128.47</p>
+          </div>
+          <div className="border-accent-200 bg-accent-50 mt-4 rounded-md border px-3 py-2.5">
+            <p className="text-accent-800 text-xs font-semibold">
+              Page 6 · original statement line
+            </p>
+            <p className="text-ink-700 tabular mt-1 text-xs">
+              05/18 ACH PMT LAKESHORE UTILITIES 128.47 3,150.73
+            </p>
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 }
 
 function HowItWorks() {
   return (
-    <Section labelledBy="how">
+    <Section labelledBy="how-it-works">
       <Container>
-        <Eyebrow>How it works</Eyebrow>
-        <Heading id="how" className="mt-3">
-          Four steps, and you decide at the last one
-        </Heading>
+        <div className="max-w-2xl">
+          <Eyebrow>How it works</Eyebrow>
+          <Heading id="how-it-works" className="mt-3">
+            Evidence first. Payment last.
+          </Heading>
+          <Lede className="mt-4">
+            The whole workflow is designed to let you judge the result before taking any risk.
+          </Lede>
+        </div>
 
-        <ol className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-10 grid gap-5 lg:grid-cols-3">
           {STEPS.map((step, index) => (
-            <li
-              key={step.title}
-              className="rounded-card border-ink-200 relative border bg-white p-6"
-            >
-              <span className="tabular text-accent-700 text-sm font-bold">
-                {String(index + 1).padStart(2, "0")}
+            <li key={step.title} className="rounded-card border-ink-200 border bg-white p-6">
+              <span className="bg-accent-50 text-accent-700 flex size-8 items-center justify-center rounded-full text-sm font-bold">
+                {index + 1}
               </span>
-              <Heading level={4} className="mt-3">
+              <Heading level={4} className="mt-4">
                 {step.title}
               </Heading>
               <p className="text-ink-600 mt-2 text-sm leading-relaxed">{step.detail}</p>
             </li>
           ))}
         </ol>
-
-        <p className="text-ink-600 mt-8 text-sm">
-          <Link
-            href={routes.howItWorks}
-            className="text-accent-700 font-semibold underline-offset-4 hover:underline"
-          >
-            Read the detailed walk-through
-          </Link>{" "}
-          — including what each reconciliation method checks and why a statement can fail.
-        </p>
       </Container>
     </Section>
   );
 }
 
-function WhatYouGet() {
+function TrustDetails() {
   return (
-    <Section tone="raised" labelledBy="output">
+    <Section tone="raised" labelledBy="trust-details">
       <Container>
-        <Eyebrow>What you download</Eyebrow>
-        <Heading id="output" className="mt-3">
-          Both formats, one payment
-        </Heading>
-
-        <div className="mt-10 grid gap-6 lg:grid-cols-2">
-          <Card>
-            <Heading level={3}>Excel workbook (.xlsx)</Heading>
-            <CheckList
-              className="mt-4"
-              items={[
-                "Transaction sheet with a frozen header row and an autofilter already applied",
-                "Amounts written as real numbers with a number format matching the statement currency",
-                "A Statement Summary sheet recording the period, balances, totals, and every check that ran",
-                "No formulas, no macros, no external links — nothing that executes when you open it",
-              ]}
-            />
-          </Card>
-          <Card>
-            <Heading level={3}>CSV file</Heading>
-            <CheckList
-              className="mt-4"
-              items={[
-                "Fixed column order: Date, Posted Date, Description, Debit, Credit, Amount, Balance",
-                "ISO dates (YYYY-MM-DD), so nothing is ambiguous on import",
-                "UTF-8 with a byte-order mark, so Excel on Windows opens it correctly",
-                "RFC 4180 quoting, and leading =, +, − or @ in text neutralised so a spreadsheet cannot run it",
-              ]}
-            />
-          </Card>
+        <div className="text-center">
+          <Eyebrow>Built for financial documents</Eyebrow>
+          <Heading id="trust-details" className="mt-3">
+            Clear boundaries make the result trustworthy
+          </Heading>
         </div>
-      </Container>
-    </Section>
-  );
-}
 
-/**
- * The limitations section.
- *
- * On the homepage, above the pricing. Stating the four things the product refuses to do —
- * before asking for money — is what makes the reconciliation claim credible. A page that only
- * lists strengths reads as marketing; this one is checkable.
- */
-function Honesty() {
-  return (
-    <Section labelledBy="limits">
-      <Container>
-        <Eyebrow>Where this tool stops</Eyebrow>
-        <Heading id="limits" className="mt-3">
-          What it will not do
-        </Heading>
-        <Lede className="mt-4 max-w-2xl">
-          Every one of these is a refusal rather than a gap. Each is a case where a converter could
-          produce something plausible and wrong, and where we would rather hand you nothing.
-        </Lede>
-
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
+        <div className="mt-10 grid gap-5 md:grid-cols-3">
           {[
             {
-              title: "Scanned or photographed statements",
+              title: "The raw PDF stays local",
               detail:
-                "There is no text in an image of text. We do not run OCR, because a misread digit from OCR is indistinguishable from a correct one until it costs you.",
+                "Your browser reads the document. We receive only the text required for conversion, never the original file, and store neither.",
             },
             {
-              title: "Password-protected PDFs",
+              title: "Ambiguity stops the sale",
               detail:
-                "Unlock the file in your PDF reader and save a copy without the password. We will not ask you for it.",
+                "Missing pages, uncertain debit or credit signs, unresolved amounts, or failed balance checks prevent checkout instead of producing a plausible guess.",
             },
             {
-              title: "Documents with several accounts",
+              title: "Your evidence travels with you",
               detail:
-                "There is no single opening and closing balance to check against, so the extraction cannot be verified — and an unverified conversion is not what we sell.",
-            },
-            {
-              title: "Statements with nothing to check against",
-              detail:
-                "If the document prints no balances and no subtotals, the arithmetic cannot be confirmed. We say so rather than charging you for a guess.",
+                "The Excel workbook, CSV file, and verification report preserve the cleaned transactions and the checks used to validate them.",
             },
           ].map((item) => (
-            <Card key={item.title} className="p-5">
+            <Card key={item.title} className="p-6">
               <Heading level={4}>{item.title}</Heading>
               <p className="text-ink-600 mt-2 text-sm leading-relaxed">{item.detail}</p>
             </Card>
           ))}
         </div>
-      </Container>
-    </Section>
-  );
-}
 
-function Privacy() {
-  return (
-    <Section tone="ink" labelledBy="privacy">
-      <Container>
-        <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-          <div>
-            <p className="text-accent-300 text-xs font-semibold tracking-[0.12em] uppercase">
-              Data handling
-            </p>
-            <h2
-              id="privacy"
-              className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl"
-            >
-              We designed the risk out rather than promising to manage it
-            </h2>
-            <p className="text-ink-300 mt-5 text-[0.975rem] leading-relaxed">
-              There is no account, so there are no credentials to steal. There is no stored
-              statement, so there is nothing for a breach to expose. The PDF is read on your device
-              and never uploaded at all.
-            </p>
-            <Link
-              href={routes.security}
-              className="text-accent-300 mt-6 inline-block text-sm font-semibold underline-offset-4 hover:underline"
-            >
-              Read the security architecture →
-            </Link>
-          </div>
-
-          <ul className="space-y-4">
-            {[
-              [
-                "The PDF stays on your device",
-                "Your browser extracts the text; the file is never sent to us.",
-              ],
-              [
-                "Nothing is stored server-side",
-                "No database, no object storage, no file writes. The text exists for the length of one request.",
-              ],
-              [
-                "The result is sealed and held by you",
-                "Between the preview and the download, the converted statement lives encrypted in your browser and expires within the hour.",
-              ],
-              [
-                "Statement data is never logged",
-                "Logs carry event names, counts, and error codes. No descriptions, amounts, balances, or filenames.",
-              ],
-            ].map(([title, detail]) => (
-              <li key={title} className="rounded-card border-ink-800 bg-ink-900/60 border p-5">
-                <p className="font-semibold text-white">{title}</p>
-                <p className="text-ink-300 mt-1.5 text-sm leading-relaxed">{detail}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <p className="text-ink-600 mt-8 text-center text-sm">
+          Scanned images, password-protected PDFs, and statements with no usable balance evidence
+          are rejected rather than guessed.{" "}
+          <Link
+            href={routes.security}
+            className="text-accent-700 font-semibold underline-offset-4 hover:underline"
+          >
+            Read the security architecture →
+          </Link>
+        </p>
       </Container>
     </Section>
   );
@@ -461,39 +364,45 @@ function Privacy() {
 
 function Pricing() {
   return (
-    <Section labelledBy="price">
+    <Section labelledBy="pricing">
       <Container width="narrow">
         <div className="text-center">
-          <Eyebrow>Pricing</Eyebrow>
-          <Heading id="price" className="mt-3">
-            One conversion pack, one payment
+          <Eyebrow>Simple pricing</Eyebrow>
+          <Heading id="pricing" className="mt-3">
+            One pack. Everything included.
           </Heading>
+          <Lede className="mx-auto mt-4 max-w-xl">
+            Check the conversion for free. Pay once only when it is verified and worth downloading.
+          </Lede>
         </div>
 
-        <Card className="mt-10 text-center">
-          <p className="text-ink-950 text-5xl font-bold tracking-tight">
-            {siteConfig.price.display}
-          </p>
-          <p className="text-ink-600 mt-2 text-sm">
-            per pack · up to {siteConfig.limits.maxPages} total pages
-          </p>
+        <Card className="mt-9">
+          <div className="flex flex-col gap-7 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <strong className="text-ink-950 text-5xl font-bold tracking-tight">
+                {siteConfig.price.display}
+              </strong>
+              <p className="text-ink-600 mt-2 text-sm">
+                once · up to {siteConfig.limits.maxPages} total pages
+              </p>
+            </div>
+            <ButtonLink href={routes.app} size="lg">
+              Check my statements
+            </ButtonLink>
+          </div>
           <Divider className="my-6" />
           <CheckList
-            className="mx-auto max-w-md text-left"
             items={[
-              "Excel workbook and CSV file both included",
-              "30-day entitlement; re-upload the same files after the local copy expires",
-              "No account, no subscription, no stored card",
-              "Charged only after you have seen the statement balance",
-              "Full refund within 30 days if the file is wrong",
+              "Multiple statements in one conversion pack",
+              "Excel workbook, CSV file, and verification report",
+              "Preview before payment and no charge for a failed check",
+              "30-day download entitlement and 30-day refund policy",
+              "No account, recurring fee, or stored card",
             ]}
           />
-          <ButtonLink href={routes.app} size="lg" className="mt-8">
-            {siteConfig.primaryCta}
-          </ButtonLink>
-          <p className="text-ink-500 mt-4 text-xs">
+          <p className="text-ink-500 mt-6 text-xs">
             <Link href={routes.pricing} className="hover:text-ink-700 underline underline-offset-2">
-              Full pricing detail
+              Full pricing details
             </Link>{" "}
             ·{" "}
             <Link
@@ -513,9 +422,9 @@ function Faq({ entries }: { entries: readonly FaqEntry[] }) {
   return (
     <Section tone="raised" labelledBy="faq">
       <Container width="narrow">
-        <Eyebrow>Questions</Eyebrow>
+        <Eyebrow>Common questions</Eyebrow>
         <Heading id="faq" className="mt-3">
-          What people ask before converting
+          Before you convert
         </Heading>
         <div className="mt-8">
           <FaqList entries={entries} />
@@ -525,7 +434,7 @@ function Faq({ entries }: { entries: readonly FaqEntry[] }) {
             href={routes.faq}
             className="text-accent-700 font-semibold underline-offset-4 hover:underline"
           >
-            All questions and answers
+            Read every question and answer →
           </Link>
         </p>
       </Container>
@@ -543,20 +452,21 @@ function FinalCta() {
   return (
     <Section labelledBy="start">
       <Container width="narrow" className="text-center">
-        <Heading id="start" level={2}>
-          Convert a statement and see for yourself
+        <Eyebrow>No signup required</Eyebrow>
+        <Heading id="start" className="mt-3">
+          See whether your statements check out
         </Heading>
         <Lede className="mx-auto mt-4 max-w-xl">
-          It costs nothing to find out whether your statement can be read and verified. The price
-          only appears once it has been.
+          It costs nothing to extract, review, and verify them. Pay only when the evidence earns
+          your confidence.
         </Lede>
         <ButtonLink href={routes.app} size="lg" className="mt-8">
-          {siteConfig.primaryCta}
+          Start a conversion
         </ButtonLink>
 
         <div className="border-ink-200 mt-12 border-t pt-8">
           <p className="text-ink-500 text-xs font-semibold tracking-[0.1em] uppercase">
-            Looking for something specific
+            More conversion options
           </p>
           <ul className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2">
             {featured.map((slug) => {
@@ -565,7 +475,7 @@ function FinalCta() {
               return (
                 <li key={slug}>
                   <Link
-                    href={`/${slug}`}
+                    href={"/" + slug}
                     className="text-accent-700 text-sm font-medium underline-offset-4 hover:underline"
                   >
                     {page.h1}

@@ -16,16 +16,14 @@ function syntheticPdfPath(): string {
 }
 
 test.describe("funnel and public pages", () => {
-  test("homepage has the category H1, CTA, price, brand, and no fake testimonials", async ({
+  test("homepage has the product H1, CTA, price, brand, and no fake testimonials", async ({
     page,
   }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      "Convert Bank Statements to Excel & CSV",
+      "A bank statement converter that shows its work.",
     );
-    await expect(
-      page.getByRole("link", { name: "Convert My Bank Statement" }).first(),
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Start a conversion" }).first()).toBeVisible();
     await expect(page.locator("body")).toContainText("$19");
     await expect(page.getByText("Statement Reconcile").first()).toBeVisible();
     await expect(page).toHaveTitle(/Bank Statement.*Excel.*CSV/i);
