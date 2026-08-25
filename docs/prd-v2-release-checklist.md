@@ -59,7 +59,7 @@ The §113 launch gate, plus the manual checks that cannot be automated. Nothing 
   Google's own Rich Results Test was not used because it needs a publicly reachable URL and this markup is not deployed yet. Re-run it against the live URL after deploy if a rich result is actually wanted — schema validity and Google eligibility are different questions.
 - [x] Mobile at 375px — verified in-browser at 375x812: page `scrollWidth` equals `clientWidth` (no sideways scroll), the picker sits 0.75 screens down, the comparison table scrolls inside its own keyboard-focusable container, and the disclosure menu opens with all five links and a correct `aria-expanded`
 - [x] Production `PARSER_PROVIDER` confirmed as `none` — `/api/health` on 2026-08-25 reported `"parserProvider": "none"`, `"parserDeterministicOnly": true`. Re-check at deploy time: enabling a provider is an env-var change that needs no deploy, so this is a snapshot rather than a standing guarantee
-- [ ] **Stripe dashboard Price confirmed as $19.00 USD** — needs a human. Production has `STRIPE_PRICE_ID` set, so the charge comes from a Stripe dashboard Price, not from `siteConfig.price`. `claims.test.ts` keeps the codebase internally consistent but cannot see Stripe, and there is no read-only route to the amount from here: `/api/health` reports only that the ID exists, and creating a Checkout Session to observe the amount would put a real object in the live account. Open the Stripe dashboard, find the Price referenced by `STRIPE_PRICE_ID`, and confirm it is $19.00 USD one-time before deploying a page that advertises $19
+- [x] **Stripe dashboard Price confirmed as $19.00 USD** — confirmed by the product owner on 2026-08-25. Production has `STRIPE_PRICE_ID` set, so the charge comes from a Stripe dashboard Price rather than from `siteConfig.price`; `claims.test.ts` keeps the codebase internally consistent but cannot see Stripe. Re-confirm by hand whenever the published figure changes
 
 ## Experiment
 
@@ -78,7 +78,7 @@ The §113 launch gate, plus the manual checks that cannot be automated. Nothing 
 
 ## Deployment
 
-- [ ] Merge to `main` explicitly approved by the product owner
-- [ ] Deploy to production explicitly approved by the product owner
+- [x] Merge to `main` explicitly approved by the product owner — 2026-08-25
+- [x] Deploy to production explicitly approved by the product owner — 2026-08-25, with the owner confirming that merging auto-deploys on this setup and that this is intended
 
 Production is treated as unchanged until both are given, even with the full suite green. Live Stripe keys and a fail-closed financial product make an accidental deploy costly.
