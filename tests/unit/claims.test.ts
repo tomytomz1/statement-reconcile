@@ -31,6 +31,11 @@ function collectPublicCopy(): string[] {
     join(process.cwd(), "src", "content"),
     join(process.cwd(), "src", "app", "(site)"),
     join(process.cwd(), "src", "config", "site.ts"),
+    // The public chrome — header, footer, hero, processing shell — renders on every
+    // pre-verification surface, so it is bound by the same claims and price rules as the
+    // copy it wraps. `src/components/converter` is deliberately excluded: the paywall is
+    // the one place downstream of a pass that is allowed to state the amount.
+    join(process.cwd(), "src", "components", "site"),
   ];
   const files: string[] = [];
   function walk(dir: string): void {

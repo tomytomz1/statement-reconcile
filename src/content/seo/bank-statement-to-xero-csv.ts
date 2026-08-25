@@ -7,7 +7,7 @@ export const bankStatementToXeroCsv: SeoPage = {
     "Someone about to import a statement into a Xero bank account manually, who wants to know what shape the CSV has to be in and what happens if the file turns out to be wrong.",
   title: "Bank Statement to Xero CSV | Statement Reconcile",
   metaDescription:
-    "Prepare a bank statement CSV for your own Xero mapping: column expectations, date-format pitfalls, and a balance check that runs before billing appears. Independent tool.",
+    "Prepare a bank statement CSV for your own Xero mapping: column expectations, date-format pitfalls, and a balance check that runs before billing. Independent tool.",
   eyebrow: "Statement import",
   h1: "Bank statement to Xero CSV",
   intro: [
