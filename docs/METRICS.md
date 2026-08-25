@@ -107,6 +107,33 @@ least 50 per variant.** Below that, report the observed split _and the uncertain
 not manufacture statistical confidence, and do not pick a winner on taste or on a small sample.
 Preserve all three variants until the threshold is reached.
 
+### Where the numbers actually come from
+
+The conversion half of the funnel **cannot be measured client-side, by design**. `/app` and
+`/checkout` are processing paths, and `contentSecurityPolicy()` in `src/lib/security/headers.ts`
+gives them `connect-src 'self'` with no analytics origin, so a page holding a statement cannot
+reach a vendor at all. Do not widen that policy to close the measurement gap.
+
+So the experiment is read from two sources, and neither one alone is enough:
+
+| Half of the funnel                                                | Source                                 |
+| ----------------------------------------------------------------- | -------------------------------------- |
+| Exposure and top of funnel — `copy_variant_viewed`, `cta_clicked` | Client analytics on marketing pages    |
+| Verified preview → payment                                        | Server logs stamped with `copyVariant` |
+
+`copyVariantFromHeaders()` reads the variant from the `x-sr-copy-variant` header that
+`src/proxy.ts` already sets, and stamps it onto `pack_assembled`, `checkout_started`, and
+`export_delivered`. One character from a closed set; nothing customer- or statement-derived. An
+absent or unrecognised header logs no variant rather than guessing, so unattributed requests are
+visibly unattributed instead of being miscounted.
+
+`payment_completed` is deliberately **not** stamped: it comes from a Stripe webhook, which carries
+no session cookie, so any variant there would be assigned from a session id invented for that
+request. Attribute paid conversions through `export_delivered` instead.
+
+Read the funnel as `pack_assembled` → `checkout_started` → `export_delivered`, grouped by
+`copyVariant`.
+
 ## Attribution
 
 `src/lib/analytics/attribution.ts` stores first-touch UTM + landing path in `sessionStorage` (not a cookie). Use `landingPath` to see whether an SEO slug earns previews and purchases. First touch wins.
@@ -114,3 +141,13 @@ Preserve all three variants until the threshold is reached.
 ## Hygiene
 
 Analytics is off unless `NEXT_PUBLIC_ENABLE_ANALYTICS` and a provider are set. DNT/GPC → no events. No vendor script on `/app`.
+
+Two provider notes worth knowing before switching one on:
+
+- **`plausible`** posts to the vendor's `/api/event` from first-party code, so no third-party
+  script is loaded. `NEXT_PUBLIC_ANALYTICS_HOST` must be set explicitly even though the client
+  defaults to `https://plausible.io` — `src/proxy.ts` only adds an origin to `connect-src` when
+  that variable is present, so leaving it empty means the CSP blocks the request on every page.
+- **`vercel`** requires `@vercel/analytics`, which is **not currently a dependency**. `sendVercel()`
+  calls `window.va`, and nothing defines that global today, so selecting this provider silently
+  records nothing until the package is installed and wired into the marketing layout only.

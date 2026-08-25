@@ -1,3 +1,4 @@
+import { copyVariantFromHeaders } from "@/lib/analytics/copy-variant";
 import { MAX_GATED_BODY_BYTES, exportRequestSchema } from "@/lib/payments/checkout-payload";
 import {
   isWithinEntitlementWindow,
@@ -97,6 +98,7 @@ export async function POST(request: Request): Promise<Response> {
       rows: opened.files.reduce((sum, file) => sum + file.statement.transactions.length, 0),
       files: opened.files.length,
       method: opened.reconciliation.method,
+      copyVariant: copyVariantFromHeaders(request.headers),
     });
     return fileResponse(delivered.body, delivered.contentType, delivered.filename);
   } catch (error) {
