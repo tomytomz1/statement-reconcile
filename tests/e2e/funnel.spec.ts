@@ -16,17 +16,13 @@ function syntheticPdfPath(): string {
 }
 
 test.describe("funnel and public pages", () => {
-  test("homepage has the category H1, CTA, price, brand, and no fake testimonials", async ({
-    page,
-  }) => {
+  test("homepage has an approved H1, CTA, brand, and no premature price", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      "Convert Bank Statements to Excel & CSV",
+      /Convert Bank Statements|The Spreadsheet Looks Clean|Stop Retyping Bank Statements/,
     );
-    await expect(
-      page.getByRole("link", { name: "Convert My Bank Statement" }).first(),
-    ).toBeVisible();
-    await expect(page.locator("body")).toContainText("$19");
+    await expect(page.getByRole("button", { name: "Choose My PDF Statements" })).toBeVisible();
+    await expect(page.locator("body")).not.toContainText("$19");
     await expect(page.getByText("Statement Reconcile").first()).toBeVisible();
     await expect(page).toHaveTitle(/Bank Statement.*Excel.*CSV/i);
 
@@ -40,6 +36,7 @@ test.describe("funnel and public pages", () => {
     page,
   }) => {
     await page.goto("/bank-statement-to-excel");
+    await expect(page.locator("body")).not.toContainText("$19");
     const excelH1 = (await page.getByRole("heading", { level: 1 }).innerText()).trim();
     expect(excelH1.length).toBeGreaterThan(0);
     expect(excelH1).not.toBe("Convert Bank Statements to Excel & CSV");
@@ -52,14 +49,61 @@ test.describe("funnel and public pages", () => {
 
   test("app is noindex and the mock-pay funnel reaches download", async ({ page }) => {
     test.setTimeout(120_000);
-    await page.goto("/app");
-    const robots = page.locator('meta[name="robots"]');
-    await expect(robots).toHaveAttribute("content", /noindex/i);
+    const pdfPath = syntheticPdfPath();
+    const pdfName = pdfPath.split(/[\\/]/).at(-1) ?? "statement.pdf";
 
-    await page.getByTestId("pdf-input").setInputFiles(syntheticPdfPath());
+    await page.goto("/");
+    const chooserPromise = page.waitForEvent("filechooser");
+    await page.getByRole("button", { name: "Choose My PDF Statements" }).click();
+    const chooser = await chooserPromise;
+    await chooser.setFiles(pdfPath);
+    await expect(page).toHaveURL(/\/app$/, { timeout: 15_000 });
+
+    const robots = page.locator('meta[name="robots"][content*="noindex"]');
+    await expect(robots).toHaveCount(1);
+
     await expect(
       page.getByText(/This statement balances|Download verified|Unlock Excel|Unlock for/i).first(),
     ).toBeVisible({ timeout: 90_000 });
+    await expect(page.locator("body")).toContainText("$19");
+
+    expect(page.url()).not.toContain(encodeURIComponent(pdfName));
+    const resourceUrls = await page.evaluate(() =>
+      performance.getEntriesByType("resource").map((entry) => entry.name),
+    );
+    expect(resourceUrls.join("\n")).not.toContain(pdfName);
+
+    const storedBytes = await page.evaluate(async () => {
+      const databases = await indexedDB.databases();
+      const bytes: number[] = [];
+      for (const database of databases) {
+        if (!database.name) continue;
+        const db = await new Promise<IDBDatabase>((resolve, reject) => {
+          const request = indexedDB.open(database.name as string);
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+        for (const storeName of Array.from(db.objectStoreNames)) {
+          if (storeName === "keys") continue;
+          const records = await new Promise<unknown[]>((resolve, reject) => {
+            const request = db.transaction(storeName, "readonly").objectStore(storeName).getAll();
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+          });
+          for (const record of records) {
+            if (!record || typeof record !== "object") continue;
+            for (const value of Object.values(record)) {
+              if (value instanceof ArrayBuffer) bytes.push(...new Uint8Array(value));
+            }
+          }
+        }
+        db.close();
+      }
+      return bytes;
+    });
+    const storedAscii = String.fromCharCode(...storedBytes);
+    expect(storedAscii).not.toContain("%PDF");
+    expect(storedAscii).not.toContain(pdfName);
 
     await page.getByTestId("checkout-button").click();
     await expect(page).toHaveURL(/\/checkout\/success/, { timeout: 30_000 });

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { routes, siteConfig } from "@/config/site";
+import { routes } from "@/config/site";
 import { ButtonLink } from "@/components/ui/button";
 import { Card, Container, Heading, Lede } from "@/components/ui/primitives";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -38,8 +38,8 @@ export default function CheckoutCancelPage() {
       <Card>
         <p className="text-ink-700 text-sm leading-relaxed">
           The conversion you ran has not gone anywhere — it is held in this browser and expires by
-          itself within the hour. Go back to it and the {siteConfig.price.display} payment step will
-          be exactly where you left it.
+          itself within the hour. Go back to it and the payment step will be exactly where you left
+          it.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <ButtonLink href={routes.app}>Back to my conversion</ButtonLink>

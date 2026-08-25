@@ -7,7 +7,7 @@ export const bankStatementToCsv: SeoPage = {
     "Someone who needs a plain, predictable text file to feed into another system, and who cares about column order, encoding, and whether the file will import cleanly.",
   title: "Bank Statement to CSV Export | Statement Reconcile",
   metaDescription:
-    "Export a PDF bank statement as a CSV with a fixed column order and UTF-8 text that imports cleanly. The figures are reconciled before the $19 payment appears.",
+    "Export a PDF bank statement as a CSV with a fixed column order and UTF-8 text. The figures are reconciled before the billing screen appears.",
   eyebrow: "CSV export",
   h1: "Bank statement to CSV",
   intro: [
@@ -53,9 +53,9 @@ export const bankStatementToCsv: SeoPage = {
         "The totals computed from the extracted rows are compared with what the statement printed, and the result is shown to you before any payment step exists.",
     },
     {
-      title: "Download the CSV for $19",
+      title: "Review the verification, then take the CSV",
       detail:
-        "One $19 payment, one conversion pack with one or more statements up to 50 total pages. The Excel workbook and verification reports come with it.",
+        "One payment covers a conversion pack with one or more statements up to 50 total pages. The Excel workbook and verification reports come with it.",
     },
   ],
   sections: [

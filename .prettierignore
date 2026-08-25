@@ -8,3 +8,4 @@ pnpm-lock.yaml
 public/pdf.worker.min.mjs
 fixtures/generated
 *.pdf
+.claude

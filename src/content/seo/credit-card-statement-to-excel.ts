@@ -52,9 +52,9 @@ export const creditCardStatementToExcel: SeoPage = {
         "The equation is walked forward from your previous balance and checked against the new balance and against any category subtotals on the statement.",
     },
     {
-      title: "Review, then pay $19 once",
+      title: "Review first, then decide once",
       detail:
-        "The result of the check is on screen first. If it failed, no payment step appears. If it passed, $19 unlocks the workbook and the CSV.",
+        "The result of the check is on screen first. If it failed, no payment step appears. If it passed, the billing screen unlocks the workbook and CSV.",
     },
   ],
   sections: [
@@ -130,7 +130,7 @@ export const creditCardStatementToExcel: SeoPage = {
     {
       question: "Can I get the same data as a CSV as well as the workbook?",
       answer:
-        "Both files come with the one $19 payment and contain the same transactions, so you do not have to decide in advance which one you will end up using.",
+        "Both files come with the one-time pack payment and contain the same transactions, so you do not have to decide in advance which one you will use.",
     },
   ],
   related: [

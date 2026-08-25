@@ -12,7 +12,7 @@ export const bankStatementToGoogleSheets: SeoPage = {
   h1: "Bank statement to Google Sheets",
   intro: [
     "If your working spreadsheet lives in a browser, the route from a PDF statement to usable rows is the CSV rather than the workbook. Google Sheets imports CSV files readily — the care is needed in the import dialogue and in one setting most people never look at, because that is where amounts quietly become text and dates quietly become the wrong month.",
-    "The conversion itself comes first. Your statement is read in the browser, the transactions are extracted, and the totals are tested against the balances printed on the document before the $19 payment step appears. What you then import is a file whose arithmetic has already been shown to agree with the bank's own figures.",
+    "The conversion itself comes first. Your statement is read in the browser, the transactions are extracted, and the totals are tested against the balances printed on the document before the payment step appears. What you then import is a file whose arithmetic has already been shown to agree with the bank's own figures.",
   ],
   outputFormats: ["csv", "xlsx"],
   outputDetails: [
@@ -21,7 +21,7 @@ export const bankStatementToGoogleSheets: SeoPage = {
     "CRLF line endings and RFC 4180 quoting, which means a description containing a comma, a quotation mark, or a line break cannot break the row it belongs to.",
     "Description fields beginning with =, +, -, or @ neutralised, so a spreadsheet displays the merchant name instead of evaluating it.",
     "Amounts written as plain decimal numbers with a dot separator and no thousands separators or currency symbols, which is what a spreadsheet needs in order to treat them as numbers.",
-    "The Excel workbook is included in the same $19 purchase, which is where the statement period, balances, and reconciliation record live.",
+    "The Excel workbook is included in the same one-time purchase, which is where the statement period, balances, and verification record live.",
   ],
   reconciliation: {
     heading: "A spreadsheet will total whatever you give it, correct or not",
@@ -39,9 +39,9 @@ export const bankStatementToGoogleSheets: SeoPage = {
         "The PDF is opened in your browser and the transaction table is rebuilt from the text positions. The period, balances, computed totals, equation, and ten sample rows are shown before any payment step exists.",
     },
     {
-      title: "Pay $19 and download the CSV",
+      title: "Review the result and download the CSV",
       detail:
-        "One $19 conversion pack with one or more statements up to 50 total pages, with the Excel workbook and verification reports included.",
+        "One paid conversion pack may contain one or more statements up to 50 total pages, with the Excel workbook and verification reports included.",
     },
     {
       title: "Set the spreadsheet locale before importing",

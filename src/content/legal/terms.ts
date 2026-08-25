@@ -4,7 +4,7 @@ export const termsOfService: LegalDocument = {
   slug: "terms",
   title: "Terms of Service | Statement Reconcile",
   metaDescription:
-    "The rules for using Statement Reconcile: one $19 payment converts a multi-file pack of up to 50 combined pages, you own the output, and plain limits on our liability.",
+    "The rules for using Statement Reconcile: one payment converts a multi-file pack of up to 50 combined pages, you own the output, and plain limits on our liability.",
   h1: "Terms of Service",
   lastUpdated: "2026-08-24",
   summary: [
@@ -12,7 +12,7 @@ export const termsOfService: LegalDocument = {
     "They are written to be read. Where a clause has to use formal wording to do its job, a plain-English sentence follows it.",
   ],
   plainEnglish: [
-    "You pay $19 and we convert one or more statements in a verified conversion pack into Excel, CSV, and verification reports. That is the whole deal.",
+    "You pay the one-time charge shown after verification and we convert one or more statements in a verified conversion pack into Excel, CSV, and verification reports. That is the whole deal.",
     "The statement is yours and so is the output. We claim no rights over either and we keep no copy.",
     "Only convert statements you are allowed to handle, and do not try to get the files without paying.",
     "The output is a mechanical conversion of what your statement says. Check it before you rely on it. If something goes wrong, the most we owe you is what you paid.",
@@ -108,7 +108,7 @@ export const termsOfService: LegalDocument = {
       blocks: [
         {
           kind: "paragraph",
-          text: "The price is $19, charged once, for one conversion pack containing one or more statements and up to 50 total pages combined. There is no subscription and no recurring charge. Excel, CSV, the verification report, and the pack manifest are included.",
+          text: "The exact price is disclosed after verification and before secure checkout. It is charged once for one conversion pack containing one or more statements and up to 50 total pages combined. There is no subscription or recurring charge. Excel, CSV, the verification report, and the pack manifest are included.",
         },
         {
           kind: "paragraph",
@@ -117,7 +117,7 @@ export const termsOfService: LegalDocument = {
         {
           kind: "callout",
           tone: "neutral",
-          text: "Each file is extracted and verified independently. Files that pass may be kept together in the same $19 pack, provided the combined pack stays within 50 pages.",
+          text: "Each file is extracted and verified independently. Files that pass may be kept together in the same paid pack, provided the combined pack stays within 50 pages.",
         },
       ],
     },
@@ -184,7 +184,7 @@ export const termsOfService: LegalDocument = {
         {
           kind: "callout",
           tone: "neutral",
-          text: "In plain English: if something goes wrong, the most we will pay you is the $19 you paid us. We are not responsible for what happens downstream of a spreadsheet — a filing based on it, a decision made from it, or time spent fixing it.",
+          text: "In plain English: if something goes wrong, the most we will pay you is the amount you paid us. We are not responsible for what happens downstream of a spreadsheet — a filing based on it, a decision made from it, or time spent fixing it.",
         },
         {
           kind: "paragraph",

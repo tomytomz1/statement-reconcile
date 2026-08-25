@@ -6,7 +6,7 @@ import { siteConfig } from "@/config/site";
  * The social sharing image.
  *
  * Generated rather than designed as a static file so it stays correct when the brand name or
- * the price changes, and so there is no binary asset in the repository that can drift out of
+ * the offer changes, and so there is no binary asset in the repository that can drift out of
  * sync with the copy. It renders the same claim the homepage leads with, because a share card
  * that says something different from the page it links to is a wasted impression.
  */
@@ -85,8 +85,6 @@ export default function OpengraphImage() {
           color: "#b1bac8",
         }}
       >
-        <span style={{ color: "#ffffff", fontWeight: 700 }}>{siteConfig.price.display} once</span>
-        <span>·</span>
         <span>Up to {siteConfig.limits.maxPages} pages</span>
         <span>·</span>
         <span>No account</span>

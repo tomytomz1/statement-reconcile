@@ -54,7 +54,7 @@ export const citiStatementToExcel: SeoPage = {
     {
       title: "See where it stands, then buy or walk away",
       detail:
-        "The preview reports which checks passed and the numbers behind them. $19 unlocks the files only when the reconciliation succeeded.",
+        "The preview reports which checks passed and the numbers behind them. The billing screen unlocks the files only when reconciliation succeeded.",
     },
   ],
   sections: [

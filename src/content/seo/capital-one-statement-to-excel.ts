@@ -7,7 +7,7 @@ export const capitalOneStatementToExcel: SeoPage = {
     "A customer who could be holding either a deposit-account statement or a card statement from the same issuer, and needs to know which one converts how.",
   title: "Capital One Statement to Excel | Statement Reconcile",
   metaDescription:
-    "Convert an eligible Capital One PDF statement to Excel and CSV, deposit account or card. Independent tool, and the totals must reconcile before you pay $19.",
+    "Convert an eligible Capital One PDF statement to Excel and CSV, deposit account or card. Independent tool, and the totals must reconcile before billing appears.",
   eyebrow: "Two statement types",
   h1: "Capital One Statement to Excel",
   intro: [
@@ -19,7 +19,7 @@ export const capitalOneStatementToExcel: SeoPage = {
     "A Transactions sheet with an autofilter and a frozen header row, identical in shape for either statement type, so downstream formulas never have to branch on which account you exported.",
     "A Statement Summary sheet naming which reconciliation method was applied — the asset-account ledger or the card roll-forward — alongside the period, balances, totals, fees, interest, transaction count, result, and generation time.",
     "A CSV whose seven columns never move: Date, Posted Date, Description, Debit, Credit, Amount, Balance. On a card statement the Balance column is populated only where the document actually prints a figure for it.",
-    "One $19 payment covering both files for that statement, up to 50 pages, whichever of the two account types it turns out to be.",
+    "One pack payment covers both files, up to 50 total pages, whichever of the two account types it turns out to be.",
   ],
   reconciliation: {
     heading: "Two account types, two equations, one gate",
@@ -54,7 +54,7 @@ export const capitalOneStatementToExcel: SeoPage = {
     {
       title: "Unlock it if it balanced",
       detail:
-        "$19 releases the workbook and the CSV. No account is created, no email is required, and there is no subscription behind the payment.",
+        "The one-time billing screen releases the workbook and CSV. No account is created, no email is required, and there is no subscription behind the payment.",
     },
   ],
   sections: [
@@ -112,7 +112,7 @@ export const capitalOneStatementToExcel: SeoPage = {
       question:
         "I have both a card and a checking account with the same issuer. Is that one conversion?",
       answer:
-        "Yes, as two separate files in one $19 conversion pack, provided the combined pack stays within 50 pages. Each statement keeps its own equation and is verified independently; two accounts still cannot be bundled inside one PDF.",
+        "Yes, as two separate files in one paid conversion pack, provided the combined pack stays within 50 pages. Each statement keeps its own equation and is verified independently; two accounts still cannot be bundled inside one PDF.",
     },
     {
       question: "How does the converter know which equation to apply?",

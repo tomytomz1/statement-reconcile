@@ -7,7 +7,7 @@ export const bankStatementToXeroCsv: SeoPage = {
     "Someone about to import a statement into a Xero bank account manually, who wants to know what shape the CSV has to be in and what happens if the file turns out to be wrong.",
   title: "Bank Statement to Xero CSV | Statement Reconcile",
   metaDescription:
-    "Prepare a bank statement CSV for the Xero import: column expectations, date-format pitfalls, and a balance check that runs before you pay $19. Independent tool.",
+    "Prepare a bank statement CSV for your own Xero mapping: column expectations, date-format pitfalls, and a balance check that runs before billing. Independent tool.",
   eyebrow: "Statement import",
   h1: "Bank statement to Xero CSV",
   intro: [
@@ -49,9 +49,9 @@ export const bankStatementToXeroCsv: SeoPage = {
         "Check the statement period against the period you intend to import, confirm the balances match the document in front of you, and look over the ten preview rows.",
     },
     {
-      title: "Pay $19 and download the CSV",
+      title: "Review the result and download the CSV",
       detail:
-        "One $19 conversion pack with one or more statements up to 50 total pages and all outputs included. Open each CSV before importing and confirm its first and last dates.",
+        "One paid conversion pack includes one or more statements up to 50 total pages and all outputs. Open each CSV before mapping it and confirm its first and last dates.",
     },
     {
       title: "Import and map the columns",

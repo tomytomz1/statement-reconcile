@@ -1,4 +1,4 @@
-import { absoluteUrl, routes, siteConfig } from "@/config/site";
+import { absoluteUrl, siteConfig } from "@/config/site";
 
 /**
  * JSON-LD builders.
@@ -48,8 +48,8 @@ export function websiteSchema(): Record<string, unknown> {
 /**
  * The product itself.
  *
- * `SoftwareApplication` with a single fixed-price offer, which is exactly what this is. No
- * `aggregateRating` — inventing one would be markup fraud.
+ * Product capabilities that are visibly described on the public site. Commercial terms are
+ * intentionally omitted until the verified-result paywall.
  */
 export function softwareApplicationSchema(): Record<string, unknown> {
   return {
@@ -62,14 +62,6 @@ export function softwareApplicationSchema(): Record<string, unknown> {
     url: siteConfig.url,
     description: `Converts PDF bank and credit-card statements into Excel and CSV files, and verifies that the extracted transactions balance against the statement before payment.`,
     publisher: { "@id": ORGANIZATION_ID },
-    offers: {
-      "@type": "Offer",
-      price: String(siteConfig.price.amountUsd),
-      priceCurrency: siteConfig.price.currency,
-      url: absoluteUrl(routes.pricing),
-      availability: "https://schema.org/InStock",
-      category: "One-time purchase",
-    },
     featureList: [
       "Deterministic reconciliation before payment",
       "Excel (.xlsx) and CSV output",
@@ -137,11 +129,6 @@ export function howToSchema(input: {
     name: input.name,
     description: input.description,
     totalTime: "PT2M",
-    estimatedCost: {
-      "@type": "MonetaryAmount",
-      currency: siteConfig.price.currency,
-      value: String(siteConfig.price.amountUsd),
-    },
     step: input.steps.map((step, index) => ({
       "@type": "HowToStep",
       position: index + 1,

@@ -7,12 +7,12 @@ export const businessBankStatementToExcel: SeoPage = {
     "A business owner, office manager, or in-house bookkeeper who has to get a company account statement into a spreadsheet so that someone else — a bookkeeper, an accountant, a director — can work from it.",
   title: "Business Bank Statement to Excel | Statement Reconcile",
   metaDescription:
-    "Convert a business account PDF statement into Excel and CSV for month-end close. Every row is reconciled against the printed balances before the $19 unlock.",
+    "Convert a business account PDF statement into Excel and CSV for month-end close. Every row is checked against the printed evidence before billing appears.",
   eyebrow: "Company accounts",
   h1: "Business bank statement to Excel",
   intro: [
     "A business account statement is rarely read for its own sake. It goes to a bookkeeper, into a close file, or in front of a lender, and whoever receives it treats the numbers as given. That changes what a conversion has to deliver: not a table that looks plausible, but a table someone else can safely build on.",
-    "This converter turns one PDF statement into an Excel workbook and a CSV, then adds the extracted rows back up and tests them against the balances and totals the bank printed. You see that test, and the first rows of the table, before the $19 payment step exists.",
+    "This converter turns PDF statements into an Excel workbook and CSV, then adds the extracted rows back up and tests them against the balances and totals the bank printed. You see that test, and the first rows of the table, before the payment step exists.",
   ],
   outputFormats: ["xlsx", "csv"],
   outputDetails: [
@@ -53,9 +53,9 @@ export const businessBankStatementToExcel: SeoPage = {
         "Read the period, the balances, the totals, and the verdict. Ten sample rows are shown; look for supplier names that appear truncated and for two payments to the same supplier collapsing into one line.",
     },
     {
-      title: "Unlock the workbook for $19 and hand it on",
+      title: "Review the verification and take the workbook",
       detail:
-        "One $19 payment covers a conversion pack with one or more statements up to 50 total pages, including the workbook, CSV, and verification reports. There is no account to create.",
+        "One payment covers a conversion pack with one or more statements up to 50 total pages, including the workbook, CSV, and verification reports. There is no account to create.",
     },
   ],
   sections: [
@@ -161,7 +161,7 @@ export const businessBankStatementToExcel: SeoPage = {
     },
     {
       href: "/pricing",
-      label: "What $19 covers",
+      label: "What the pack includes",
       context:
         "One multi-file conversion pack, all outputs, no subscription and nothing to cancel.",
     },

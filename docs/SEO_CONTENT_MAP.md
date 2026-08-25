@@ -1,8 +1,8 @@
 # SEO content map
 
-Canonical origin: `https://statementreconcile.com`. Titles and H1s below are from `src/content/seo/*.ts` and `src/app/(site)/page.tsx`. Primary CTA on every conversion page: **Convert My Bank Statement** → `/app` (`siteConfig.primaryCta`). Sitewide inbound: header, footer (all 26 landers grouped in `footerGroups`), sitemap.
+Canonical origin: `https://statementreconcile.com`. Titles and H1s below are from `src/content/seo/*.ts` and `src/app/(site)/page.tsx`. Primary CTA on conversion pages: **Check My Statements** → `/app` (`siteConfig.primaryCta`). The homepage picker uses **Choose My PDF Statements**. Sitewide inbound: header, footer (all 26 landers grouped in `footerGroups`), sitemap.
 
-Shared differentiating angle (never the homepage H1): reconciliation before payment; PDF stays in the browser; $19 once; no account. Issuer pages add a non-affiliation notice and do not claim a bank-specific parser (`bankSpecificClaims` is off).
+Shared differentiating angle: Source-to-Sheet Verification before checkout; original PDF stays in the browser; no account. The exact charge is hidden on every public pre-verification surface and revealed only at the verified-result paywall. Issuer pages add a non-affiliation notice and do not claim a bank-specific parser (`bankSpecificClaims` is off).
 
 QBO/OFX export is not promised. QuickBooks/Xero pages are **CSV import** only. Google Sheets is CSV import, not a live integration.
 
@@ -12,13 +12,13 @@ QBO/OFX export is not promised. QuickBooks/Xero pages are **CSV import** only. G
 
 |                  |                                                                                                                                                                     |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Title**        | Convert Bank Statements to Excel & CSV — $19 \| Statement Reconcile                                                                                                 |
+| **Title**        | Convert Bank Statements to Excel & CSV \| Statement Reconcile                                                                                                       |
 | **H1**           | Convert Bank Statements to Excel & CSV                                                                                                                              |
 | **Target query** | convert bank statements to excel & csv; bank statement converter                                                                                                    |
 | **Intent**       | Category / outcome: turn a PDF statement into a spreadsheet.                                                                                                        |
-| **Promise**      | Upload in the browser, see extracted rows and the arithmetic check, pay $19 only if it balances.                                                                    |
+| **Promise**      | Choose PDFs in the browser, inspect source-linked rows and arithmetic checks, and see billing only after verification.                                              |
 | **Angle**        | Differentiator sits under the H1, not in it (ADR-008).                                                                                                              |
-| **CTA**          | Convert My Bank Statement → `/app`; secondary See how it works → `/how-it-works`                                                                                    |
+| **CTA**          | Check My Statements → `/app`; homepage picker Choose My PDF Statements; secondary See how it works → `/how-it-works`                                                |
 | **Out**          | `/app`, `/how-it-works`, `/security`, `/pricing`, `/refund-policy`, `/faq`, `/bank-statement-to-excel`, `/bank-statement-to-csv`, `/credit-card-statement-to-excel` |
 | **In**           | Wordmark, every footer/header                                                                                                                                       |
 | **Expansion**    | Do not add bank-branded claims on the home H1. Worked examples belong on landers.                                                                                   |
@@ -33,7 +33,7 @@ QBO/OFX export is not promised. QuickBooks/Xero pages are **CSV import** only. G
 | **H1**           | Bank Statement Converter                                                                                 |
 | **Target query** | bank statement converter                                                                                 |
 | **Intent**       | Broad category: PDF in, spreadsheet out.                                                                 |
-| **Promise**      | Excel + CSV; rows added up against printed balances before $19.                                          |
+| **Promise**      | Excel + CSV; rows added up against printed balances before billing.                                      |
 | **Angle**        | Column reconstruction + independent decimal check, not “AI converter.”                                   |
 | **Out**          | `/bank-statement-to-excel`, `/bank-statement-to-csv`, `/credit-card-statement-to-excel`, `/how-it-works` |
 | **In**           | `/bank-statement-to-csv`, `/bank-statement-transaction-extractor`, footer Excel group                    |
@@ -49,7 +49,7 @@ QBO/OFX export is not promised. QuickBooks/Xero pages are **CSV import** only. G
 | **H1**           | Bank statement to Excel                                                                                      |
 | **Target query** | bank statement to excel                                                                                      |
 | **Intent**       | Finished workbook: filter, sort, pivot immediately.                                                          |
-| **Promise**      | `.xlsx` with autofilter Transactions sheet + Statement Summary; CSV included in the same $19.                |
+| **Promise**      | `.xlsx` with autofilter Transactions sheet + Statement Summary; CSV included in the same paid pack.          |
 | **Angle**        | Workbook quality + visible equation, not a CSV renamed to xlsx.                                              |
 | **Out**          | `/bank-statement-to-csv`, `/pdf-bank-statement-to-excel`, `/convert-bank-statement-to-excel`, `/pricing`     |
 | **In**           | Home featured, converter, pdf-excel, convert-excel, capital-one, google-sheets, csv page, accountants, chase |
@@ -81,8 +81,8 @@ QBO/OFX export is not promised. QuickBooks/Xero pages are **CSV import** only. G
 | **H1**           | Convert a bank statement to Excel                                                                    |
 | **Target query** | convert bank statement to excel                                                                      |
 | **Intent**       | Job-to-do: retype vs paste vs paid tool.                                                             |
-| **Promise**      | Verdict on screen before payment; both formats after $19.                                            |
-| **Angle**        | Cost of a dropped row vs $19; check is not a spot-check.                                             |
+| **Promise**      | Verdict on screen before payment; both formats included after billing.                               |
+| **Angle**        | Cost of a dropped row; verification is not a spot-check.                                             |
 | **Out**          | `/bank-statement-to-excel`, `/convert-bank-statement-to-csv`, `/pdf-bank-statement-to-excel`, `/faq` |
 | **In**           | Excel page, convert-pdf-excel, BofA                                                                  |
 | **Expansion**    | Time/error vs transcription; portal export vs PDF; why sampling rows misses a drop                   |
@@ -97,7 +97,7 @@ QBO/OFX export is not promised. QuickBooks/Xero pages are **CSV import** only. G
 | **H1**           | Convert a bank statement to CSV                                                                                |
 | **Target query** | convert bank statement to csv                                                                                  |
 | **Intent**       | Bookkeeper/owner: period into a ledger, first-time import correct.                                             |
-| **Promise**      | Period + totals visible; $19 CSV (Excel included).                                                             |
+| **Promise**      | Period + totals visible; CSV and Excel included in the verified pack.                                          |
 | **Angle**        | Verify printed totals before import mapping.                                                                   |
 | **Out**          | `/bank-statement-to-csv`, `/credit-card-statement-to-csv`, `/convert-bank-statement-to-excel`, `/how-it-works` |
 | **In**           | Convert-excel, QB CSV, csv page, business                                                                      |
@@ -129,7 +129,7 @@ QBO/OFX export is not promised. QuickBooks/Xero pages are **CSV import** only. G
 | **H1**           | PDF bank statement to CSV                                                                                 |
 | **Target query** | pdf bank statement to csv                                                                                 |
 | **Intent**       | PDF → machine-readable file without hand tidying.                                                         |
-| **Promise**      | Normalized dates/signs; reconciled totals; $19.                                                           |
+| **Promise**      | Normalized dates/signs and reconciled totals before billing.                                              |
 | **Angle**        | Encoding, signs, dates as import failures, caught by balance check.                                       |
 | **Out**          | `/pdf-bank-statement-to-excel`, `/bank-statement-to-csv`, `/convert-pdf-transactions-to-csv`, `/security` |
 | **In**           | Pdf extractor, convert-pdf-csv, Xero, csv page, pdf-excel                                                 |
@@ -162,7 +162,7 @@ QBO/OFX export is not promised. QuickBooks/Xero pages are **CSV import** only. G
 | **Target query** | convert pdf transactions to csv                                                                      |
 | **Intent**       | Developer/analyst/bookkeeper feeding another program.                                                |
 | **Promise**      | Parseable values, no cleanup pass; formula neutralization.                                           |
-| **Angle**        | Precision and quoting, then the same $19 gate.                                                       |
+| **Angle**        | Precision and quoting, followed by the same verification gate.                                       |
 | **Out**          | `/convert-pdf-transactions-to-excel`, `/bank-statement-to-csv`, `/pdf-bank-statement-to-csv`, `/faq` |
 | **In**           | Pdf-csv, card-csv, convert-pdf-excel                                                                 |
 | **Expansion**    | Sample edge-case CSV; mixed locale sections; Python/SQL import without float                         |
@@ -210,7 +210,7 @@ QBO/OFX export is not promised. QuickBooks/Xero pages are **CSV import** only. G
 | **Target query** | business bank statement to excel                                                                                               |
 | **Intent**       | Owner/OM/bookkeeper handing a company statement to someone else.                                                               |
 | **Promise**      | One account per conversion; Summary sheet for working papers.                                                                  |
-| **Angle**        | Multi-account PDFs refused; $19 per statement is explicit.                                                                     |
+| **Angle**        | Multi-account PDFs refused; one verified pack may contain several separate statements up to the combined page cap.             |
 | **Out**          | `/bank-statement-spreadsheet-for-accountants`, `/convert-bank-statement-to-csv`, `/credit-card-statement-to-excel`, `/pricing` |
 | **In**           | Accountants page                                                                                                               |
 | **Expansion**    | Month-end checklist; merchant settlement lines; inter-account transfers                                                        |
@@ -273,7 +273,7 @@ QBO/OFX export is not promised. QuickBooks/Xero pages are **CSV import** only. G
 | **H1**           | Bank statement to spreadsheet for accountants                                                                     |
 | **Target query** | bank statement to spreadsheet for accountants                                                                     |
 | **Intent**       | Practitioner: cost per job, evidence quality, client data.                                                        |
-| **Promise**      | No account, PDF never uploaded, Summary sheet for papers; $19/statement.                                          |
+| **Promise**      | No account, PDF never uploaded, Summary and verification sheets included after a verified pack reaches billing.   |
 | **Angle**        | Evidence trail without holding client files.                                                                      |
 | **Out**          | `/business-bank-statement-to-excel`, `/bank-statement-to-quickbooks-csv`, `/bank-statement-to-excel`, `/security` |
 | **In**           | Business page                                                                                                     |
@@ -321,7 +321,7 @@ QBO/OFX export is not promised. QuickBooks/Xero pages are **CSV import** only. G
 | **H1**           | Bank statement to Google Sheets                                                                                       |
 | **Target query** | bank statement to google sheets                                                                                       |
 | **Intent**       | Browser spreadsheet; share/filter/total in Sheets.                                                                    |
-| **Promise**      | CSV → File → Import; locale/decimal warning; same $19 files.                                                          |
+| **Promise**      | CSV → File → Import; locale/decimal warning; both files included after verification.                                  |
 | **Angle**        | Locale settings as the hidden import bug.                                                                             |
 | **Out**          | `/bank-statement-to-csv`, `/bank-statement-to-xero-csv`, `/bank-statement-to-excel`, `/extract-transactions-from-pdf` |
 | **In**           | Xero page                                                                                                             |
@@ -448,7 +448,7 @@ These are real routes with their own copy. They are not conversion landers.
 | Path                                            | Role in the graph                                                                   |
 | ----------------------------------------------- | ----------------------------------------------------------------------------------- |
 | `/how-it-works`                                 | Process + equation; linked from many `related` arrays and header                    |
-| `/pricing`                                      | $19 once, 50 pages; linked from excel/csv/business/wells/convert-pdf                |
+| `/pricing`                                      | Billing policy, included deliverables, 50-page cap, and refund; no public amount    |
 | `/security`                                     | Trust page; linked from issuer and extractor related                                |
 | `/faq`                                          | Objections; linked from convert-excel, extractors, QB, Capital One, convert-pdf-csv |
 | `/privacy` `/terms` `/refund-policy` `/contact` | Footer trust column                                                                 |

@@ -1,6 +1,7 @@
 import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 
+import { PendingFilesProvider } from "@/components/converter/pending-files";
 import { siteConfig } from "@/config/site";
 import { JsonLd } from "@/components/site/json-ld";
 import { PageAnalytics } from "@/components/site/page-analytics";
@@ -40,7 +41,11 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${inter.variable} h-full antialiased`}
+    >
       <body className="flex min-h-full flex-col">
         <a
           href="#main"
@@ -48,7 +53,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           Skip to main content
         </a>
-        {children}
+        <PendingFilesProvider>{children}</PendingFilesProvider>
         <PageAnalytics />
         <JsonLd
           data={jsonLdGraph([organizationSchema(), websiteSchema(), softwareApplicationSchema()])}

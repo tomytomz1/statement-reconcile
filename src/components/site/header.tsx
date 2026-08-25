@@ -47,11 +47,8 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <span className="text-ink-500 hidden text-sm lg:inline">
-            {siteConfig.price.display} once
-          </span>
           <ButtonLink href={routes.app} size="sm">
-            Convert a statement
+            {siteConfig.primaryCta}
           </ButtonLink>
         </div>
       </Container>

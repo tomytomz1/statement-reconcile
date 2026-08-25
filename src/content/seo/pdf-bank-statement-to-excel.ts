@@ -52,7 +52,7 @@ export const pdfBankStatementToExcel: SeoPage = {
         "The recovered rows are added up and compared with the statement's own figures, and the outcome is displayed alongside a sample of the table.",
     },
     {
-      title: "Unlock the workbook for $19",
+      title: "Review the evidence and unlock the workbook",
       detail:
         "One conversion pack, one or more statements, up to 50 total pages, all outputs, no account, and no recurring charge.",
     },

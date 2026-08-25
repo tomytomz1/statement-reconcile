@@ -22,6 +22,8 @@ const FORBIDDEN = [
   /guaranteed authentic/i,
   /unique in (the )?market/i,
   /only (tool|converter) that/i,
+  /accounting[- ]ready/i,
+  /ready to import/i,
 ];
 
 function collectPublicCopy(): string[] {
@@ -29,6 +31,11 @@ function collectPublicCopy(): string[] {
     join(process.cwd(), "src", "content"),
     join(process.cwd(), "src", "app", "(site)"),
     join(process.cwd(), "src", "config", "site.ts"),
+    // The public chrome — header, footer, hero, processing shell — renders on every
+    // pre-verification surface, so it is bound by the same claims and price rules as the
+    // copy it wraps. `src/components/converter` is deliberately excluded: the paywall is
+    // the one place downstream of a pass that is allowed to state the amount.
+    join(process.cwd(), "src", "components", "site"),
   ];
   const files: string[] = [];
   function walk(dir: string): void {
@@ -58,11 +65,18 @@ describe("claims policy", () => {
     }
   });
 
-  it("states the $19 pack as one or more statements and a combined page cap", () => {
+  it("keeps public offer copy price-free while preserving pack scope", () => {
     expect(siteConfig.offerLine).toMatch(/one or more statements/i);
     expect(siteConfig.offerLine).toMatch(/total pages/i);
-    expect(siteConfig.verifiedCta).toMatch(/verified Excel \+ CSV \+ reports/i);
+    expect(siteConfig.offerLine).not.toMatch(/\$|19/);
+    expect(siteConfig.verifiedCta).toMatch(/verified Excel \+ CSV/i);
     expect(siteConfig.ownedCategory).toBe("Verified Bank Statement Conversion");
+  });
+
+  it("does not disclose the exact amount in pre-verification public copy", () => {
+    for (const text of collectPublicCopy()) {
+      expect(text).not.toMatch(/\$19/i);
+    }
   });
 
   it("explains that verified means extraction checks, in FAQ or terms", () => {

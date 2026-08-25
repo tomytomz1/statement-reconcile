@@ -54,7 +54,7 @@ export const convertPdfTransactionsToExcel: SeoPage = {
     {
       title: "Review and download the workbook",
       detail:
-        "The summary, the row count, and the check result come first; $19 then unlocks the .xlsx and the .csv for that statement.",
+        "The summary, row count, and check result come first; the billing screen then unlocks the .xlsx and .csv for that pack.",
     },
   ],
   sections: [
@@ -121,7 +121,7 @@ export const convertPdfTransactionsToExcel: SeoPage = {
     {
       question: "Is a quarterly statement one conversion or three?",
       answer:
-        "One, provided it is a single document with one opening and one closing balance and no more than 50 pages. It is $19 for that statement no matter how many months it covers.",
+        "One, provided it is a single document with one opening and one closing balance and no more than 50 pages. It remains one conversion pack no matter how many months it covers.",
     },
     {
       question: "What if only part of a long statement reconciles?",
@@ -153,7 +153,7 @@ export const convertPdfTransactionsToExcel: SeoPage = {
     {
       href: "/pricing",
       label: "Pricing",
-      context: "How the single $19 charge relates to statement length and page count.",
+      context: "How the single pack charge relates to statement length and page count.",
     },
   ],
   futureExpansion: [

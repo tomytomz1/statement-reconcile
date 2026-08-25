@@ -1,3 +1,5 @@
+import type { CopyVariant } from "./copy-variant";
+
 /**
  * The complete list of analytics events, and the complete list of properties each one may
  * carry.
@@ -21,10 +23,12 @@ export type RowBucket = "0" | "1-25" | "26-100" | "101-300" | "301-1000" | "1000
 
 export type DurationBucket = "<1s" | "1-3s" | "3-10s" | "10-30s" | ">30s";
 
-export type AnalyticsEventMap = {
+export type SizeBucket = "<1mb" | "1-5mb" | "5-10mb" | "10-20mb" | "20mb+";
+
+type BaseAnalyticsEventMap = {
   page_view: { path: string };
   campaign_landed: { source: string; medium: string; campaign: string; landingPath: string };
-  file_selected: { pages: PageBucket; sizeMb: number };
+  file_selected: { pages: PageBucket; size: SizeBucket };
   file_rejected: { code: string };
   extraction_started: { pages: PageBucket };
   extraction_succeeded: {
@@ -52,6 +56,14 @@ export type AnalyticsEventMap = {
   faq_opened: { question: string };
 };
 
+type WithCopyVariant<T> = T & { copyVariant?: CopyVariant };
+
+export type AnalyticsEventMap = {
+  [Event in keyof BaseAnalyticsEventMap]: WithCopyVariant<BaseAnalyticsEventMap[Event]>;
+} & {
+  copy_variant_viewed: { copyVariant: CopyVariant };
+};
+
 export type AnalyticsEventName = keyof AnalyticsEventMap;
 
 export function pageBucket(pages: number): PageBucket {
@@ -77,4 +89,13 @@ export function durationBucket(ms: number): DurationBucket {
   if (ms < 10_000) return "3-10s";
   if (ms < 30_000) return "10-30s";
   return ">30s";
+}
+
+export function sizeBucket(bytes: number): SizeBucket {
+  const megabytes = bytes / 1_048_576;
+  if (megabytes < 1) return "<1mb";
+  if (megabytes < 5) return "1-5mb";
+  if (megabytes < 10) return "5-10mb";
+  if (megabytes <= 20) return "10-20mb";
+  return "20mb+";
 }

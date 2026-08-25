@@ -7,7 +7,7 @@ export const bankStatementToExcel: SeoPage = {
     "Someone who wants the finished spreadsheet, not just the data — a workbook they can filter, sort, and pivot the moment it opens.",
   title: "Bank Statement to Excel (.xlsx) | Statement Reconcile",
   metaDescription:
-    "Turn a PDF bank statement into a formatted .xlsx workbook with a filterable transaction sheet and a summary sheet. The totals are checked before you pay $19.",
+    "Turn a PDF bank statement into a formatted .xlsx workbook with a filterable transaction sheet and a summary sheet. The totals are checked before billing appears.",
   eyebrow: "Excel workbook output",
   h1: "Bank statement to Excel",
   intro: [
@@ -53,7 +53,7 @@ export const bankStatementToExcel: SeoPage = {
         "The period, the balances, the equation that was used, and the first rows of the table appear together, so you can judge the extraction before spending anything.",
     },
     {
-      title: "Pay $19 once and open the workbook",
+      title: "Review the evidence, then open the workbook",
       detail:
         "The .xlsx and the CSV download together. There is no subscription and no account to create.",
     },
@@ -126,7 +126,7 @@ export const bankStatementToExcel: SeoPage = {
     {
       question: "Do I get the CSV as well, or is that a separate purchase?",
       answer:
-        "Both files come with the same $19. The workbook and the CSV describe the same transactions, so you can hand the CSV to another system while keeping the workbook for your own review.",
+        "Both files come with the same one-time payment. The workbook and the CSV describe the same transactions, so you can map the CSV elsewhere while keeping the workbook for your own review.",
     },
     {
       question: "Why is the autofilter switched on before I receive the file?",
@@ -156,7 +156,7 @@ export const bankStatementToExcel: SeoPage = {
     {
       href: "/pricing",
       label: "Pricing",
-      context: "What the single $19 payment covers and why there is no subscription.",
+      context: "What the single payment covers and why there is no subscription.",
     },
   ],
   futureExpansion: [

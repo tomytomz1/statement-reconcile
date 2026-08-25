@@ -47,9 +47,9 @@ export const convertBankStatementToCsv: SeoPage = {
         "The extracted rows are summed and set against the printed balances, so the completeness of the period is settled before anything is imported.",
     },
     {
-      title: "Pay $19 and take the CSV",
+      title: "Review the result and take the CSV",
       detail:
-        "$19 per conversion pack, with one or more statements and up to 50 total pages. There is no subscription or account, and the Excel workbook and verification reports are included.",
+        "One payment per conversion pack, with one or more statements and up to 50 total pages. There is no subscription or account, and the Excel workbook and verification reports are included.",
     },
     {
       title: "Map the columns once",
@@ -76,7 +76,7 @@ export const convertBankStatementToCsv: SeoPage = {
       heading: "Working through a backlog of periods",
       body: [
         "Catch-up work has its own rhythm. A stack of statements is usually processed in date order, one period at a time, with each import checked before the next begins — partly because the closing balance of one period should meet the opening balance of the next, which gives you a natural checkpoint at every boundary.",
-        "Each file is extracted and verified against its own opening and closing figures. One $19 conversion pack may contain several independently verified statements, up to 50 total pages combined.",
+        "Each file is extracted and verified against its own opening and closing figures. One paid conversion pack may contain several independently verified statements, up to 50 total pages combined.",
       ],
       bullets: [
         "Work in date order so each period's opening balance can be checked against the last one's closing balance",

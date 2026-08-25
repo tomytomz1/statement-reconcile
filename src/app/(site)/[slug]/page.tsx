@@ -124,7 +124,9 @@ export default async function ConversionLandingPage({
                 <ButtonLink href={routes.app} size="lg">
                   {siteConfig.primaryCta}
                 </ButtonLink>
-                <span className="text-ink-600 text-sm font-medium">{siteConfig.offerLine}</span>
+                <span className="text-ink-600 text-sm font-medium">
+                  Verify the result before checkout
+                </span>
               </div>
 
               <div className="mt-7 flex flex-wrap gap-2">
@@ -138,9 +140,9 @@ export default async function ConversionLandingPage({
               <Heading level={4}>What you get</Heading>
               <CheckList className="mt-4" items={page.outputDetails} />
               <p className="border-ink-200 text-ink-500 mt-5 border-t pt-4 text-xs leading-relaxed">
-                {siteConfig.price.display} once, for one or more statements up to{" "}
-                {siteConfig.limits.maxPages} total pages. Both formats and verification reports are
-                included.
+                One or more statements up to {siteConfig.limits.maxPages} total pages. Both formats
+                and verification reports are included. The exact charge appears only after the pack
+                passes verification.
               </p>
             </Card>
           </div>
@@ -313,8 +315,8 @@ export default async function ConversionLandingPage({
               Find out whether your statement can be verified
             </h2>
             <p className="text-ink-300 mx-auto mt-3 max-w-xl text-[0.975rem] leading-relaxed">
-              It costs nothing to try. The {siteConfig.price.display} payment step only appears once
-              the extracted transactions have been checked against your statement.
+              Choose your PDFs and inspect the result. The billing step only appears once the
+              extracted transactions have been checked against your statement.
             </p>
             <ButtonLink href={routes.app} size="lg" className="mt-7">
               {siteConfig.primaryCta}

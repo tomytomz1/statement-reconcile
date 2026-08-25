@@ -188,7 +188,7 @@ export const EXTRACTION_ERROR_MESSAGES: Record<ExtractionErrorCode, string> = {
     "This statement appears to be scanned. We could not verify it reliably, so we will not charge you.",
   encrypted_pdf:
     "This PDF is password protected. Remove the password in your PDF reader and try again.",
-  too_many_pages: `This conversion pack has more than ${siteConfig.limits.maxPages} total pages, which is above the limit for a single ${siteConfig.price.display} conversion.`,
+  too_many_pages: `This conversion pack has more than ${siteConfig.limits.maxPages} total pages, which is above the limit for one conversion pack.`,
   file_too_large: `This file is larger than ${siteConfig.limits.maxFileSizeMb} MB.`,
   not_a_pdf: "That file is not a PDF. Please upload the PDF your bank issued.",
   unreadable_pdf: "We could not read this PDF. It may be damaged or incomplete.",

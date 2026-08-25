@@ -28,17 +28,17 @@ export function Paywall({
     <Card className="border-accent-200 from-accent-50/70 bg-gradient-to-b to-white">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div className="max-w-xl">
-          <Heading level={3}>Download your verified files</Heading>
+          <Heading level={3}>Your {siteConfig.productName} is ready</Heading>
           <p className="text-ink-700 mt-2 text-sm leading-relaxed">
             All {transactionCount.toLocaleString("en-US")}{" "}
             {transactionCount === 1 ? "transaction" : "transactions"} are included, in Excel, CSV,
-            and a verification report. One payment, for this conversion pack.
+            verification PDFs, and a pack manifest. One payment, for this conversion pack.
           </p>
 
           <ul className="text-ink-700 mt-4 space-y-2 text-sm">
             {[
               "Excel workbook (.xlsx) with transactions, a summary sheet, a verification sheet, and source references",
-              "CSV file with a fixed column order, ready to import",
+              "CSV file with a fixed column order for your own review or mapping",
               "Per-statement verification PDF and pack-manifest.json",
               "30-day entitlement; re-upload the same files after the local copy expires",
               "Full refund if the file is wrong or you cannot use it",

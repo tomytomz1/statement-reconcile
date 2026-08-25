@@ -33,10 +33,13 @@ export const siteConfig = {
   /** Primary outcome the customer wants. */
   primaryOutcome: "Convert Bank Statements to Excel & CSV",
   /** Trust differentiator. Never the homepage H1. */
-  differentiator: "See whether the numbers balance before you pay.",
+  differentiator: "Trace accepted rows to their source and see whether the numbers balance.",
   /** Primary call to action label used across the funnel. */
-  primaryCta: "Convert My Bank Statement",
+  primaryCta: "Check My Statements",
   secondaryCta: "See how it works",
+
+  /** Public name of the one-time paid bundle. */
+  productName: "Verified Conversion Pack",
 
   /** Commercial offer. */
   price: {
@@ -45,8 +48,8 @@ export const siteConfig = {
     currency: "USD",
     display: `$${PRICE_USD}`,
   },
-  offerLine: `$${PRICE_USD} once · One or more statements · Up to ${MAX_PAGES} total pages · No account`,
-  verifiedCta: `Download verified Excel + CSV + reports — $${PRICE_USD}`,
+  offerLine: `One or more statements · Up to ${MAX_PAGES} total pages · No account`,
+  verifiedCta: "Get My Verified Excel + CSV",
   ownedCategory: "Verified Bank Statement Conversion",
 
   /** Hard product limits, mirrored by server-side validation. */

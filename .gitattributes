@@ -1,0 +1,25 @@
+# Normalize line endings.
+#
+# Without this, a Windows clone with `core.autocrlf=true` checks the tree out as CRLF while the
+# committed blobs are LF. Prettier is configured for LF, so `pnpm format:check` then fails on
+# every file for a reason that has nothing to do with the code, and passes in CI on Linux. Pinning
+# the working tree to LF makes the local check agree with CI on every platform.
+* text=auto eol=lf
+
+# Binary assets git should never touch.
+*.ico binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.xlsx binary
+*.zip binary
+
+# Generated; keep out of diffs.
+pnpm-lock.yaml -diff linguist-generated

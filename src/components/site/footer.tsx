@@ -14,7 +14,7 @@ import { footerGroups, seoPage } from "@/content/seo";
  */
 
 const PRODUCT_LINKS = [
-  { href: routes.app, label: "Convert a statement" },
+  { href: routes.app, label: siteConfig.primaryCta },
   { href: routes.howItWorks, label: "How it works" },
   { href: routes.pricing, label: "Pricing" },
   { href: routes.faq, label: "FAQ" },
@@ -40,7 +40,9 @@ export function SiteFooter() {
             <p className="text-ink-600 mt-3 max-w-xs text-sm leading-relaxed">
               {siteConfig.primaryOutcome}. {siteConfig.differentiator}
             </p>
-            <p className="text-ink-700 mt-4 text-sm font-medium">{siteConfig.offerLine}</p>
+            <p className="text-ink-700 mt-4 text-sm font-medium">
+              {siteConfig.offerLine} · Verify before checkout
+            </p>
           </div>
 
           <FooterColumn heading="Product" links={PRODUCT_LINKS} />
