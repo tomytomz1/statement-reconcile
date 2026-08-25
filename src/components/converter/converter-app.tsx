@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { routes, siteConfig } from "@/config/site";
-import { durationBucket, pageBucket, rowBucket } from "@/lib/analytics/events";
+import { durationBucket, pageBucket, rowBucket, sizeBucket } from "@/lib/analytics/events";
 import { track } from "@/lib/analytics/client";
 import {
   requestAssemblePack,
@@ -30,6 +30,7 @@ import { Card, Heading } from "@/components/ui/primitives";
 import { Dropzone } from "./dropzone";
 import { EvidencePanel } from "./evidence-panel";
 import { Paywall } from "./paywall";
+import { usePendingFiles } from "./pending-files";
 import { PreviewTable } from "./preview-table";
 import { ReconciliationPanel } from "./reconciliation-panel";
 import { SourceInspector } from "./source-inspector";
@@ -79,6 +80,7 @@ type State =
 
 export function ConverterApp({ initialSession }: { initialSession?: string }) {
   const router = useRouter();
+  const { takeFiles } = usePendingFiles();
   const [state, setState] = useState<State>({ kind: "idle" });
   const abortRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
@@ -188,7 +190,7 @@ export function ConverterApp({ initialSession }: { initialSession?: string }) {
       bytesRef.current = local;
       track("file_selected", {
         pages: pageBucket(combinedPages),
-        sizeMb: Number((picked.reduce((sum, file) => sum + file.size, 0) / 1_048_576).toFixed(2)),
+        size: sizeBucket(picked.reduce((sum, file) => sum + file.size, 0)),
       });
       track("extraction_started", { pages: pageBucket(combinedPages) });
 
@@ -366,6 +368,13 @@ export function ConverterApp({ initialSession }: { initialSession?: string }) {
     },
     [initialSession, router],
   );
+
+  useEffect(() => {
+    const pending = takeFiles();
+    if (pending.length > 0) {
+      queueMicrotask(() => void convert(pending));
+    }
+  }, [convert, takeFiles]);
 
   const removeFile = useCallback(
     async (fileId: string) => {

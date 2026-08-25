@@ -1,6 +1,6 @@
 # SEO content map
 
-Canonical origin: `https://statementreconcile.com`. Titles and H1s below are from `src/content/seo/*.ts` and `src/app/(site)/page.tsx`. Primary CTA on every conversion page: **Convert My Bank Statement** → `/app` (`siteConfig.primaryCta`). Sitewide inbound: header, footer (all 26 landers grouped in `footerGroups`), sitemap.
+Canonical origin: `https://statementreconcile.com`. Titles and H1s below are from `src/content/seo/*.ts` and `src/app/(site)/page.tsx`. Primary CTA on every conversion page: **Check My Statements Free** → `/app` (`siteConfig.primaryCta`). Sitewide inbound: header, footer (all 26 landers grouped in `footerGroups`), sitemap.
 
 Shared differentiating angle (never the homepage H1): reconciliation before payment; PDF stays in the browser; $19 once; no account. Issuer pages add a non-affiliation notice and do not claim a bank-specific parser (`bankSpecificClaims` is off).
 
@@ -18,7 +18,7 @@ QBO/OFX export is not promised. QuickBooks/Xero pages are **CSV import** only. G
 | **Intent**       | Category / outcome: turn a PDF statement into a spreadsheet.                                                                                                        |
 | **Promise**      | Upload in the browser, see extracted rows and the arithmetic check, pay $19 only if it balances.                                                                    |
 | **Angle**        | Differentiator sits under the H1, not in it (ADR-008).                                                                                                              |
-| **CTA**          | Convert My Bank Statement → `/app`; secondary See how it works → `/how-it-works`                                                                                    |
+| **CTA**          | Check My Statements Free → `/app`; secondary See how it works → `/how-it-works`                                                                                     |
 | **Out**          | `/app`, `/how-it-works`, `/security`, `/pricing`, `/refund-policy`, `/faq`, `/bank-statement-to-excel`, `/bank-statement-to-csv`, `/credit-card-statement-to-excel` |
 | **In**           | Wordmark, every footer/header                                                                                                                                       |
 | **Expansion**    | Do not add bank-branded claims on the home H1. Worked examples belong on landers.                                                                                   |

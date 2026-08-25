@@ -14,7 +14,7 @@ import { footerGroups, seoPage } from "@/content/seo";
  */
 
 const PRODUCT_LINKS = [
-  { href: routes.app, label: "Convert a statement" },
+  { href: routes.app, label: siteConfig.primaryCta },
   { href: routes.howItWorks, label: "How it works" },
   { href: routes.pricing, label: "Pricing" },
   { href: routes.faq, label: "FAQ" },

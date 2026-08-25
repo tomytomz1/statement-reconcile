@@ -22,6 +22,7 @@ const FORBIDDEN = [
   /guaranteed authentic/i,
   /unique in (the )?market/i,
   /only (tool|converter) that/i,
+  /accounting[- ]ready/i,
 ];
 
 function collectPublicCopy(): string[] {

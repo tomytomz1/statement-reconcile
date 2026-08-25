@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { FaqList } from "@/components/site/faq-list";
+import { HeroUpload } from "@/components/site/hero-upload";
 import { JsonLd } from "@/components/site/json-ld";
 import { ButtonLink } from "@/components/ui/button";
 import {
@@ -79,6 +80,7 @@ export default function HomePage() {
       <Hero />
       <ConfidenceStrip />
       <VerificationProof />
+      <AiObjection />
       <HowItWorks />
       <TrustDetails />
       <Pricing />
@@ -94,84 +96,62 @@ function Hero() {
       <Container>
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_27rem] lg:gap-16">
           <div>
-            <Eyebrow>Verified statement conversion</Eyebrow>
+            <Eyebrow>Bank Statement Converter</Eyebrow>
             <Heading level={1} className="mt-4 max-w-3xl">
-              A bank statement converter that shows its work.
+              Convert Bank Statements to Excel &amp; CSV
             </Heading>
             <Lede className="mt-5 max-w-2xl">
-              Turn PDF bank and credit-card statements into clean Excel and CSV files. Every
-              transaction stays linked to its source, every balance is checked, and checkout stays
-              locked if the result is ambiguous.
+              A clean spreadsheet can still be wrong. See every accepted row traced to the PDF and
+              every applicable balance check pass before you pay {siteConfig.price.display}.
             </Lede>
+
+            <p className="text-ink-600 mt-5 max-w-2xl text-sm leading-relaxed">
+              Upload one or more statements—up to {siteConfig.limits.maxPages} total pages. Preview
+              the real conversion and verification report for free. If we cannot verify it safely,
+              checkout never appears.
+            </p>
+
+            <div className="mt-7 lg:hidden">
+              <HeroUpload />
+            </div>
 
             <CheckList
               className="mt-7 max-w-xl"
+              tone="neutral"
               items={[
-                "See the result and verification report before paying",
-                siteConfig.price.display +
-                  " once for up to " +
-                  siteConfig.limits.maxPages +
-                  " pages",
-                "Your raw PDF never leaves your browser",
+                "No retyping, prompt writing, or line-by-line checking",
+                "Excel, CSV, verification PDFs, and pack manifest included",
+                "Your original PDF never leaves your browser",
                 "No account, email address, or subscription",
               ]}
             />
 
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <ButtonLink href={routes.app} size="lg">
-                Start a conversion
-              </ButtonLink>
+            <div className="mt-7 flex flex-wrap items-center gap-4">
               <Link
-                href={routes.howItWorks}
+                href={routes.app}
                 className="text-accent-700 text-sm font-semibold underline-offset-4 hover:underline"
               >
-                See how verification works →
+                {siteConfig.primaryCta} →
+              </Link>
+              <Link
+                href="#verification-proof"
+                className="text-ink-600 text-sm font-semibold underline-offset-4 hover:underline"
+              >
+                See the proof first
               </Link>
             </div>
+            <p className="text-ink-800 mt-4 text-sm font-semibold">
+              Preview the conversion free. Pay {siteConfig.price.display} only after verification
+              passes.
+            </p>
           </div>
 
-          <UploadCard />
+          <div className="hidden lg:block">
+            <HeroUpload />
+          </div>
         </div>
       </Container>
     </Section>
-  );
-}
-
-function UploadCard() {
-  return (
-    <Card className="border-accent-200 bg-accent-50/50 p-5 sm:p-6">
-      <div className="rounded-card border-accent-200 border bg-white p-6 text-center">
-        <div className="bg-accent-100 text-accent-700 mx-auto flex size-12 items-center justify-center rounded-full text-xl font-bold">
-          ↑
-        </div>
-        <Heading level={3} className="mt-4">
-          Start with your PDF statements
-        </Heading>
-        <p className="text-ink-600 mt-2 text-sm leading-relaxed">
-          Choose one file or a batch. Nothing is uploaded until your browser has removed the PDF
-          itself.
-        </p>
-        <ButtonLink href={routes.app} size="lg" className="mt-6 w-full justify-center">
-          Choose PDF statements
-        </ButtonLink>
-        <p className="text-ink-500 mt-3 text-xs">
-          PDF only · up to {siteConfig.limits.maxPages} pages total
-        </p>
-      </div>
-
-      <div className="mt-5 grid grid-cols-3 gap-3 text-center">
-        {[
-          ["Local", "PDF reading"],
-          ["Exact", "money math"],
-          ["Private", "by design"],
-        ].map(([value, label]) => (
-          <div key={value}>
-            <p className="text-ink-950 text-sm font-bold">{value}</p>
-            <p className="text-ink-500 mt-0.5 text-[0.6875rem]">{label}</p>
-          </div>
-        ))}
-      </div>
-    </Card>
   );
 }
 
@@ -179,10 +159,11 @@ function ConfidenceStrip() {
   return (
     <div className="border-ink-200 border-y bg-white">
       <Container>
-        <dl className="divide-ink-200 grid divide-y sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <dl className="divide-ink-200 grid divide-y sm:grid-cols-4 sm:divide-x sm:divide-y-0">
           {[
-            [siteConfig.price.display, "one payment, not a subscription"],
             ["$0", "to extract, check, and preview"],
+            [siteConfig.price.display, "only after verification passes"],
+            ["No signup", "or subscription required"],
             ["0 files", "stored on our servers"],
           ].map(([value, label]) => (
             <div key={label} className="px-5 py-5 text-center">
@@ -204,7 +185,7 @@ function VerificationProof() {
           <div>
             <Eyebrow>Proof, not promises</Eyebrow>
             <Heading id="verification-proof" className="mt-3">
-              Not just converted. Verified.
+              A clean spreadsheet can still be wrong. This one shows its work.
             </Heading>
             <Lede className="mt-4">
               A spreadsheet can look tidy and still be wrong. Statement Reconcile gives you a
@@ -220,6 +201,67 @@ function VerificationProof() {
 
           <VerificationPanel />
         </div>
+        <p className="text-ink-500 mx-auto mt-8 max-w-4xl text-center text-xs leading-relaxed">
+          “Verified” means the extraction, provenance, completeness, and arithmetic checks shown in
+          the report passed. It does not authenticate the original statement or provide accounting,
+          audit, tax, or financial advice.
+        </p>
+      </Container>
+    </Section>
+  );
+}
+
+function AiObjection() {
+  const columns = [
+    {
+      title: "A general AI workflow",
+      items: [
+        "You write and refine the prompt",
+        "The output structure can vary between attempts",
+        "You check every page, row, sign, and total",
+        "You request corrections and reformat the result",
+      ],
+    },
+    {
+      title: "Statement Reconcile",
+      items: [
+        "One fixed statement-conversion workflow",
+        "Accepted rows stay linked to their source",
+        "Completeness and applicable arithmetic are checked deterministically",
+        "Unresolved ambiguity blocks checkout; exports stay consistent",
+      ],
+    },
+  ] as const;
+
+  return (
+    <Section labelledBy="ai-objection">
+      <Container>
+        <div className="max-w-3xl">
+          <Eyebrow>Why not general AI?</Eyebrow>
+          <Heading id="ai-objection" className="mt-3">
+            Why ask AI to convert it—then verify it yourself?
+          </Heading>
+          <Lede className="mt-4">
+            A general AI assistant may extract a statement. Statement Reconcile removes the prompt
+            writing, formatting decisions, correction loop, and manual verification from the job.
+          </Lede>
+        </div>
+
+        <div className="mt-9 grid gap-5 md:grid-cols-2">
+          {columns.map((column, columnIndex) => (
+            <Card
+              key={column.title}
+              className={columnIndex === 1 ? "border-accent-200 bg-accent-50/30" : undefined}
+            >
+              <Heading level={3}>{column.title}</Heading>
+              <CheckList className="mt-5" tone="neutral" items={column.items} />
+            </Card>
+          ))}
+        </div>
+        <p className="text-ink-600 mt-6 max-w-3xl text-sm leading-relaxed">
+          General AI can be useful. This purpose-built workflow is for the moment when you need a
+          finished, inspectable conversion—and evidence that it survived the stated checks.
+        </p>
       </Container>
     </Section>
   );
@@ -369,7 +411,7 @@ function Pricing() {
         <div className="text-center">
           <Eyebrow>Simple pricing</Eyebrow>
           <Heading id="pricing" className="mt-3">
-            One pack. Everything included.
+            The Verified Conversion Pack
           </Heading>
           <Lede className="mx-auto mt-4 max-w-xl">
             Check the conversion for free. Pay once only when it is verified and worth downloading.
@@ -387,19 +429,47 @@ function Pricing() {
               </p>
             </div>
             <ButtonLink href={routes.app} size="lg">
-              Check my statements
+              {siteConfig.primaryCta}
             </ButtonLink>
           </div>
           <Divider className="my-6" />
           <CheckList
+            tone="neutral"
             items={[
               "Multiple statements in one conversion pack",
-              "Excel workbook, CSV file, and verification report",
+              "Excel workbook and CSV file",
+              "Verification PDF for each statement and pack manifest",
               "Preview before payment and no charge for a failed check",
               "30-day download entitlement and 30-day refund policy",
               "No account, recurring fee, or stored card",
             ]}
           />
+          <div className="border-ink-200 mt-7 border-t pt-7">
+            <Heading level={4}>The Proof-Before-Payment Promise</Heading>
+            <ol className="mt-4 grid gap-4 sm:grid-cols-3">
+              {[
+                [
+                  "Free proof",
+                  "See actual rows, page coverage, source mapping, applicable balance checks, and ambiguities before payment.",
+                ],
+                [
+                  "Checkout lock",
+                  "An incomplete, ambiguous, or rejected pack cannot be purchased.",
+                ],
+                [
+                  "30-day protection",
+                  "If the paid files are incorrect or unusable, receive a full refund of the $19 payment.",
+                ],
+              ].map(([title, detail], index) => (
+                <li key={title} className="text-ink-600 text-sm leading-relaxed">
+                  <span className="text-accent-700 block font-bold">
+                    {index + 1}. {title}
+                  </span>
+                  <span className="mt-1 block">{detail}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
           <p className="text-ink-500 mt-6 text-xs">
             <Link href={routes.pricing} className="hover:text-ink-700 underline underline-offset-2">
               Full pricing details
@@ -461,7 +531,7 @@ function FinalCta() {
           your confidence.
         </Lede>
         <ButtonLink href={routes.app} size="lg" className="mt-8">
-          Start a conversion
+          {siteConfig.primaryCta}
         </ButtonLink>
 
         <div className="border-ink-200 mt-12 border-t pt-8">

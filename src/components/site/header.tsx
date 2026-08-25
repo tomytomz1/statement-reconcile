@@ -51,7 +51,7 @@ export function SiteHeader() {
             {siteConfig.price.display} once
           </span>
           <ButtonLink href={routes.app} size="sm">
-            Convert a statement
+            {siteConfig.primaryCta}
           </ButtonLink>
         </div>
       </Container>

@@ -70,7 +70,7 @@ export default function PricingPage() {
         <Container width="narrow">
           <Eyebrow>Pricing</Eyebrow>
           <Heading level={1} className="mt-3">
-            {siteConfig.price.display} per conversion pack. That is the whole price list.
+            The {siteConfig.productName} is {siteConfig.price.display} once.
           </Heading>
           <Lede className="mt-4">
             No subscription, no seats, no credits, no free tier that expires into one. You pay when
@@ -83,6 +83,7 @@ export default function PricingPage() {
         <Container width="narrow">
           <Card>
             <div className="text-center">
+              <p className="text-accent-700 mb-3 text-sm font-bold">{siteConfig.productName}</p>
               <p className="text-ink-950 text-6xl font-bold tracking-tight">
                 {siteConfig.price.display}
               </p>
@@ -99,6 +100,7 @@ export default function PricingPage() {
                 <Heading level={4}>Included</Heading>
                 <CheckList
                   className="mt-3"
+                  tone="neutral"
                   items={[
                     "Excel workbook with transactions, summary, verification, and source references",
                     "CSV file with a fixed column order",

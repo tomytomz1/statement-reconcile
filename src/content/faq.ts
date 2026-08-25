@@ -53,6 +53,14 @@ export const faqs: readonly FaqEntry[] = [
   },
   {
     category: "Before you convert",
+    question: "Why not upload my statement to a general AI assistant?",
+    answer: [
+      "You can. A general AI assistant may extract transactions from a statement.",
+      "Statement Reconcile is a fixed workflow: it uses a consistent schema, traces accepted rows to source text, checks page completeness and applicable balance transitions with deterministic arithmetic, and refuses to sell an ambiguous result. It removes the prompting, formatting decisions, and manual verification from the job.",
+    ],
+  },
+  {
+    category: "Before you convert",
     question: "What happens if my statement cannot be verified?",
     answer: [
       "The payment step never appears. You are told what we read and where the numbers stopped agreeing, and that is the end of it — there is nothing to refund because nothing was charged.",
@@ -170,6 +178,7 @@ export const faqs: readonly FaqEntry[] = [
 export const homepageFaqQuestions = [
   "What does “verified” mean here?",
   "How do I know the conversion is correct before I pay?",
+  "Why not upload my statement to a general AI assistant?",
   "Is my bank statement uploaded to your servers?",
   "What happens if my statement cannot be verified?",
   "Is $19 a subscription?",

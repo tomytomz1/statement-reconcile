@@ -35,8 +35,11 @@ export const siteConfig = {
   /** Trust differentiator. Never the homepage H1. */
   differentiator: "See whether the numbers balance before you pay.",
   /** Primary call to action label used across the funnel. */
-  primaryCta: "Convert My Bank Statement",
+  primaryCta: "Check My Statements Free",
   secondaryCta: "See how it works",
+
+  /** Public name of the one-time paid bundle. */
+  productName: "Verified Conversion Pack",
 
   /** Commercial offer. */
   price: {
