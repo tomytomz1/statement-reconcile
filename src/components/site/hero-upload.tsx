@@ -7,7 +7,7 @@ import { usePendingFiles } from "@/components/converter/pending-files";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/ui/cn";
 import { Card, Heading } from "@/components/ui/primitives";
-import { routes } from "@/config/site";
+import { routes, siteConfig } from "@/config/site";
 import { track } from "@/lib/analytics/client";
 
 export function HeroUpload() {
@@ -28,7 +28,7 @@ export function HeroUpload() {
       queueFiles(files);
       track("cta_clicked", {
         location: "home_hero_upload",
-        label: "Choose My PDF Statements",
+        label: "Choose PDF Statements",
       });
       router.push(routes.app);
     },
@@ -69,11 +69,11 @@ export function HeroUpload() {
           </svg>
         </div>
         <Heading level={3} className="mt-4">
-          Check your PDF statements
+          Choose your PDF statements
         </Heading>
         <p className="text-ink-600 mt-2 text-sm leading-relaxed">
-          Choose one file or a batch. Your browser reads each PDF locally. The original file never
-          leaves this device.
+          Select one statement or a supported batch. Your browser reads each PDF locally. The
+          original file is never uploaded.
         </p>
         <Button
           type="button"
@@ -82,9 +82,12 @@ export function HeroUpload() {
           className="mt-6"
           disabled={moving}
           aria-busy={moving}
-          onClick={() => inputRef.current?.click()}
+          onClick={() => {
+            track("file_picker_open", { location: "home_hero_upload" });
+            inputRef.current?.click();
+          }}
         >
-          {moving ? "Opening the converter…" : "Choose My PDF Statements"}
+          {moving ? "Opening the converter…" : "Choose PDF Statements"}
         </Button>
         <input
           ref={inputRef}
@@ -95,14 +98,18 @@ export function HeroUpload() {
           className="sr-only"
           disabled={moving}
           data-testid="home-pdf-input"
-          aria-label="Choose PDF statements to check"
+          aria-label="PDF statement files"
           onChange={(event) => {
             handOff(event.target.files);
             event.currentTarget.value = "";
           }}
         />
         <p className="text-ink-500 mt-3 text-xs">
-          PDF only · No signup · Original PDFs stay on this device
+          PDF · Up to {siteConfig.limits.maxPages} total pages · Text-based statements · Max{" "}
+          {siteConfig.limits.maxFileSizeMb} MB per file
+        </p>
+        <p className="text-ink-800 mt-3 text-sm font-semibold">
+          Verify free. Pay {siteConfig.price.display} only after the pack passes.
         </p>
       </div>
 
