@@ -13,7 +13,7 @@
  * PaymentIntent, a charge, or a refund, and it does not write anything to Stripe.
  *
  * Usage:
- *   STRIPE_SECRET_KEY=sk_live_... STRIPE_PRICE_ID=price_... pnpm run price:preflight
+ *   STRIPE_SECRET_KEY='<live secret key>' STRIPE_PRICE_ID=price_... pnpm run price:preflight
  *
  * Output is limited to non-secret contract fields. The secret key is never printed, and the
  * Price ID is truncated, because this output is likely to be pasted into a ticket.
