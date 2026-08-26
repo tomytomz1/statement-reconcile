@@ -284,6 +284,50 @@ test.describe("funnel and public pages", () => {
     expect(serious).toEqual([]);
   });
 
+  test("the pdf.js worker is served from our own origin as real JavaScript", async ({
+    request,
+  }) => {
+    /**
+     * A11 release guard.
+     *
+     * `src/lib/client/pdf.ts` pins `workerSrc` to this exact same-origin URL, and
+     * `public/pdf.worker.min.mjs` is gitignored — it exists only because the build wrote it.
+     * When the build did not, production served a 404 HTML error page at this path and every
+     * PDF failed as unreadable. Nothing in the suite noticed, because no test had ever asked
+     * for the file.
+     *
+     * The 404 came back as `text/html` with a 200-shaped body of 65 KB, so checking only the
+     * status code, or only that a body arrived, would both have passed. Each assertion below
+     * exists because some cheaper version of it would not have caught the real failure.
+     */
+    const response = await request.get("/pdf.worker.min.mjs");
+
+    expect(response.status(), "the worker must be served, not 404").toBe(200);
+
+    const contentType = response.headers()["content-type"] ?? "";
+    expect(contentType, `expected JavaScript, got "${contentType}"`).toMatch(
+      /(javascript|ecmascript)/i,
+    );
+    expect(
+      contentType,
+      "an HTML error page is what the production failure looked like",
+    ).not.toMatch(/text\/html/i);
+
+    const body = await response.body();
+
+    // Big enough to be the real worker. The minified bundle is over a megabyte; a stub, an
+    // empty file, or a truncated copy would all be far smaller.
+    expect(
+      body.byteLength,
+      "worker body is too small to be the real pdf.js worker",
+    ).toBeGreaterThan(100_000);
+
+    // And it must actually be script, not markup that happens to be large.
+    const head = body.subarray(0, 2048).toString("utf8").trimStart();
+    expect(head.startsWith("<"), "worker body begins like markup, not JavaScript").toBe(false);
+    expect(head).not.toMatch(/<!doctype html|<html[\s>]/i);
+  });
+
   test("robots.txt disallows app and checkout; sitemap covers marketing pages only", async ({
     request,
   }) => {

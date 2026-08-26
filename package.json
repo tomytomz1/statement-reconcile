@@ -9,7 +9,7 @@
   "packageManager": "pnpm@11.23.0",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "tsx scripts/copy-pdf-worker.ts --strict && next build",
     "start": "next start",
     "lint": "eslint --max-warnings=0",
     "lint:fix": "eslint --fix",
