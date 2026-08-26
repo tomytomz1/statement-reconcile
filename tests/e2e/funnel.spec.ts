@@ -296,9 +296,16 @@ test.describe("funnel and public pages", () => {
      * PDF failed as unreadable. Nothing in the suite noticed, because no test had ever asked
      * for the file.
      *
-     * The 404 came back as `text/html` with a 200-shaped body of 65 KB, so checking only the
-     * status code, or only that a body arrived, would both have passed. Each assertion below
-     * exists because some cheaper version of it would not have caught the real failure.
+     * The status assertion is what catches the outage that actually happened: the response
+     * was a 404, so `toBe(200)` alone is sufficient for that case.
+     *
+     * The content-type, HTML, and size assertions cover failures this one did not take, but
+     * a neighbouring misconfiguration would. A rewrite or catch-all route can return an HTML
+     * error page with a 200 status, and a partial copy or a stub can return a 200 of real
+     * JavaScript content type that is far too small to be the worker. Both would serve
+     * something at this URL while leaving pdf.js unable to start, which is indistinguishable
+     * from the original outage to a customer. The observed 404 body was 65 KB of `text/html`,
+     * so a size-only check is not sufficient either.
      */
     const response = await request.get("/pdf.worker.min.mjs");
 
