@@ -135,6 +135,30 @@ const RECEIPT_AS_RECOVERY = [
   /(receipt|payment reference)[^.]{0,40}\brestores?\b[^.]{0,40}\bdownload\b/i,
 ];
 
+/**
+ * Claims about purchase history that would need Stripe evidence to make.
+ *
+ * The pack manifest is now ordered by content digest. That changed the pack digest for any
+ * multi-file pack, so a purchase made before the change would fail recovery: the customer
+ * re-uploads the same PDFs, everything verifies, and the digest no longer matches what
+ * Stripe recorded.
+ *
+ * The closure audit previously asserted that no such purchase existed. Nothing supported
+ * that — the pack digest lives in Stripe session metadata, so answering the question means
+ * querying Stripe, which was never done. A6 forbids the claim without that evidence, and
+ * the reason is practical rather than pedantic: believing it means a customer who hits the
+ * mismatch is told their files are unrecoverable instead of being re-issued or refunded.
+ */
+const UNEVIDENCED_PURCHASE_HISTORY = [
+  /no purchases? (has |have )?(ever )?been made/i,
+  /no purchases? exists?\b/i,
+  /there (were|are|have been) no purchases/i,
+  /no (existing )?purchases? (were|was|are|is) affected/i,
+  /nothing existing is invalidated/i,
+  /nothing existing was invalidated/i,
+  /no (customer|customers) (were|was|are|is) affected/i,
+];
+
 /** The 20 MB original-PDF limit is browser-only; the bytes never reach the server. */
 const SERVER_SIDE_BYTES = [
   /enforced server-side as well as in the browser[^.]*20 ?MB/i,
@@ -233,6 +257,53 @@ describe("claims policy", () => {
         expect(text, `${path} implies a receipt reference is usable for recovery`).not.toMatch(
           pattern,
         );
+      }
+    }
+  });
+
+  /**
+   * Scoped to the closure audit specifically.
+   *
+   * `docs/v2-phase1-final-acceptance.md` is deliberately excluded: it is the contract that
+   * *instructs* this wording be removed, so it quotes the prohibited phrases as
+   * requirements. Scanning it would fail the guard on the document asking for the guard.
+   */
+  it("does not claim an absence of affected purchases without Stripe evidence", () => {
+    const auditPath = join(process.cwd(), "docs", "v2-phase1-closure-audit.md");
+    const audit = readFileSync(auditPath, "utf8");
+
+    for (const pattern of UNEVIDENCED_PURCHASE_HISTORY) {
+      expect(
+        audit,
+        "the closure audit asserts something about purchase history that needs Stripe evidence",
+      ).not.toMatch(pattern);
+    }
+
+    // The correction is not merely the absence of the old sentence: the document has to say
+    // the question is open, or a future edit could quietly drop both.
+    expect(audit).toMatch(/unknown/i);
+    expect(audit).toMatch(/no Stripe evidence was obtained/i);
+  });
+
+  it("the purchase-history guard matches the statement it is meant to catch", () => {
+    const knownBad =
+      "No purchase has been made against the old ordering, so nothing existing is invalidated.";
+    expect(
+      UNEVIDENCED_PURCHASE_HISTORY.some((pattern) => pattern.test(knownBad)),
+      `no guard matches the historical claim: ${knownBad}`,
+    ).toBe(true);
+  });
+
+  it("the purchase-history guard does not block honest uncertainty", () => {
+    // The corrected wording, and the support guidance that goes with it, must both survive.
+    const legitimate = [
+      "Whether any multi-file purchase used the earlier ordering is unknown.",
+      "No Stripe evidence was obtained, and none is claimed here.",
+      "Handle it as a support case: verify the payment in Stripe, then re-issue or refund.",
+    ];
+    for (const sample of legitimate) {
+      for (const pattern of UNEVIDENCED_PURCHASE_HISTORY) {
+        expect(pattern.test(sample), `guard is too broad, it blocks: ${sample}`).toBe(false);
       }
     }
   });

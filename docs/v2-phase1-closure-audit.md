@@ -130,23 +130,48 @@ The ten questions from the punch-out, answered:
 
 ## Release gate
 
-Every command run on the final tree:
+Two sets of numbers appear below and they are not interchangeable. The first is what the punch-out pass produced. The second is what the current local tree produces after the A1–A9 acceptance work and its correction passes, independently reproduced. Anything citing this document for "current" results wants the second table.
 
-| Command                    | Result                                                         |
-| -------------------------- | -------------------------------------------------------------- |
-| `pnpm format:check`        | **pass** — all matched files use Prettier code style           |
-| `pnpm lint`                | **pass** — eslint, `--max-warnings=0`                          |
-| `pnpm typecheck`           | **pass** — `tsc --noEmit`                                      |
-| `pnpm test`                | **pass** — 30 files, 365 tests                                 |
-| `pnpm test:coverage`       | **pass** — thresholds enforced; verified to fail when raised   |
-| `pnpm benchmark:synthetic` | **pass** — 99/99 dispositions, precision 1.0000, recall 1.0000 |
-| `pnpm audit:seo`           | **pass** — 21 landing pages                                    |
-| `pnpm build`               | **pass** — compiled successfully                               |
-| `pnpm test:e2e`            | **pass** — 24 tests (chromium + mobile)                        |
+### Current — local acceptance tree
 
-Test count went from 286 at the start of this pass to **365**.
+Reproduced under Node 22 and pnpm 11.23.0 via the single `pnpm verify:release` command.
 
-Coverage on the security-critical modules:
+| Command                    | Result                                                  |
+| -------------------------- | ------------------------------------------------------- |
+| `pnpm format:check`        | **pass**                                                |
+| `pnpm lint`                | **pass**                                                |
+| `pnpm typecheck`           | **pass**                                                |
+| `pnpm test:coverage`       | **pass** — 33 files, **422 tests**, thresholds enforced |
+| `pnpm benchmark:synthetic` | **pass** — 99/99, precision 1.0000, recall 1.0000       |
+| `pnpm audit:seo`           | **pass** — 21 landing pages                             |
+| `pnpm build`               | **pass**                                                |
+| `pnpm test:e2e`            | **pass** — **26/26**, two workers                       |
+
+Overall coverage: **70.07% statements, 63.02% branches**.
+
+The test count was independently reproduced at **419** on commit `cd15d32`; this correction pass added three claims-guard tests, giving 422. Coverage percentages are unchanged, because the additions assert over documentation rather than over `src/lib`.
+
+`payments` is now **82.31% statements / 77.39% branches**, raised by the A1 and A2 branch tests — deterministic Price-gate cases and route-level recovery authorization — rather than by excluding files.
+
+E2E runs at two workers deliberately. At the default four, independent verification saw 22/4 and 24/2 while the same tests passed in isolation and the full suite passed at two; the failures were timeouts on unrelated static pages, which is one Next dev server compiling routes for several workers at once, not a product defect. See `playwright.config.ts`.
+
+### Historical — punch-out pass only
+
+**Superseded. Do not cite these as current.** They describe the tree at the end of the punch-out pass, before the A1–A9 acceptance work existed.
+
+| Command                    | Result at that time                                      |
+| -------------------------- | -------------------------------------------------------- |
+| `pnpm format:check`        | pass                                                     |
+| `pnpm lint`                | pass                                                     |
+| `pnpm typecheck`           | pass                                                     |
+| `pnpm test`                | pass — 30 files, 365 tests                               |
+| `pnpm test:coverage`       | pass — thresholds enforced; verified to fail when raised |
+| `pnpm benchmark:synthetic` | pass — 99/99, precision 1.0000, recall 1.0000            |
+| `pnpm audit:seo`           | pass — 21 landing pages                                  |
+| `pnpm build`               | pass                                                     |
+| `pnpm test:e2e`            | pass — 24 tests (chromium + mobile)                      |
+
+Test count at that point had gone from 286 to 365. Module coverage then:
 
 | Module                                   | Statements | Branches |
 | ---------------------------------------- | ---------- | -------- |
@@ -157,7 +182,7 @@ Coverage on the security-critical modules:
 | export                                   | 77.62%     | 66.32%   |
 | payments (checkout, entitlement, unseal) | 57.05%     | 56.14%   |
 
-`payments` is the lowest and knowingly so: `stripe.ts` is largely client construction and one network retrieval. The decision logic inside it is `matchOfferAgainstPrice`, which is pure and fully covered.
+The `payments` figure in that table is the one the A1/A2 tests later moved to 82.31%.
 
 ### One correction worth recording
 
@@ -177,8 +202,18 @@ None of these can be completed from the repository.
 
 ## Risks
 
-**Pack digest change.** Sorting the manifest changes the pack digest for any multi-file pack. Single-file packs are unaffected. No purchase has been made against the old ordering, so nothing existing is invalidated — but had this shipped after a real multi-file sale, that customer's entitlement would have become unredeemable. It is order-stable from here on.
+**Pack digest change.** Sorting the manifest changes the pack digest for any multi-file pack. Single-file packs are unaffected, because a one-file manifest has only one possible ordering.
 
-**Coverage thresholds are a floor, not a target.** `payments` at 55% statements will pass while real gaps remain in `stripe.ts` and `entitlement.ts`. The threshold prevents regression; it does not assert sufficiency.
+**Whether any multi-file purchase used the earlier ordering is unknown.** No Stripe evidence was obtained, and none is claimed here. An earlier version of this document asserted that no purchase had been made against the old ordering; that assertion had nothing behind it and has been removed. Server-side logs cannot answer the question either — the pack digest is recorded in Stripe session metadata, so establishing this requires querying Stripe for sessions created before the ordering change and inspecting their `fileCount` metadata.
+
+If such a purchase exists, its symptom is specific and recognisable: the customer re-uploads the same PDFs, everything verifies, and the download is still refused because the recomputed pack digest no longer matches the one recorded at payment. Handle it as a support case rather than a bug report — verify the payment in Stripe, then re-issue the conversion against the current ordering or refund, whichever the customer prefers. Do not tell them their files are unrecoverable; the data is fine and the mismatch is ours.
+
+Ordering is stable from here on, so this is a bounded, one-time window rather than an ongoing risk.
+
+**Coverage thresholds are a floor, not a target.** `vitest.config.mts` requires `src/lib/payments/**` to hold 80% statements, 75% branches, 82% functions, and 83% lines. Measured coverage is 82.31% statements and 77.39% branches — above the floor, but only by about two points on each. The gate would still pass after a change that removed a meaningful amount of payment-path testing.
+
+Two things that number cannot tell you. The thresholds apply to the directory in aggregate, so an individual file may sit below them while the directory passes: `stripe.ts` is at 71.42% functions against a directory floor of 82%. And the lines that remain uncovered are not incidental — they include the inline `price_data` fallback in `lineItem()`, the branch that builds the charge from `COMMERCIAL_OFFER` when no dashboard Price is configured, and the digest-mismatch branch of `verifyEntitlement` on the real-Stripe path as opposed to the mocked one.
+
+The threshold prevents regression. It does not assert that payment behaviour is sufficiently tested, and nothing in this document should be read as claiming it does.
 
 **Provider determinism is assumed, not enforced.** Re-upload recovery depends on identical canonical output for identical PDFs. Nothing in the code prevents enabling a probabilistic provider, and nothing would fail loudly if one were enabled — the symptom would be paying customers unable to recover files. See the standing condition above.
