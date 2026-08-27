@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <JsonLd
           data={jsonLdGraph([organizationSchema(), websiteSchema(), softwareApplicationSchema()])}
         />
+        <Analytics />
         <span className="hidden" aria-hidden="true" data-version={siteConfig.productVersion} />
       </body>
     </html>
