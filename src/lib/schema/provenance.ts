@@ -26,11 +26,17 @@ export const extractionPathSchema = z.enum([
 ]);
 export type ExtractionPath = z.infer<typeof extractionPathSchema>;
 
+/**
+ * Whole PDF points. The integer constraint is load-bearing rather than cosmetic: these
+ * coordinates are digested, and `canonicalJson` rejects non-integer numbers. Validating it
+ * here turns a future regression into a clean rejection at the schema boundary instead of
+ * an unhandled throw during sealing.
+ */
 export const boundingBoxSchema = z.object({
-  x: z.number().finite(),
-  y: z.number().finite(),
-  width: z.number().finite().nonnegative(),
-  height: z.number().finite().nonnegative(),
+  x: z.number().int(),
+  y: z.number().int(),
+  width: z.number().int().nonnegative(),
+  height: z.number().int().nonnegative(),
 });
 export type BoundingBox = z.infer<typeof boundingBoxSchema>;
 

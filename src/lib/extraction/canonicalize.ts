@@ -41,8 +41,21 @@ function canonicalAmount(value: string | undefined, currency: string): string | 
   return formatMoney(value, currency);
 }
 
+/**
+ * Bounding boxes are canonicalized to whole PDF points.
+ *
+ * They are part of the digested statement, and `canonicalJson` refuses non-integer numbers
+ * outright — a deliberate rule, since a float has no single textual form to sign. Rounding
+ * to tenths here therefore produced a value the digest step could not serialize at all, so
+ * any statement whose text items did not land on whole points failed once it reached
+ * sealing. Real PDFs place text at fractional coordinates constantly; the synthetic
+ * fixtures happened to use whole numbers, which is why the contradiction stayed hidden.
+ *
+ * A point is 1/72 inch, so rounding moves a highlight by at most half a point — invisible,
+ * and this value only ever positions the source-link overlay.
+ */
 function roundBox(value: number): number {
-  return Math.round(value * 10) / 10;
+  return Math.round(value);
 }
 
 function canonicalizeRegion(region: SourceRegion): SourceRegion {

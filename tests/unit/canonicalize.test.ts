@@ -7,6 +7,9 @@ import {
   canonicalizeStatement,
   canonicalizeText,
 } from "@/lib/extraction/canonicalize";
+import { parseStatementDeterministically } from "@/lib/extraction/deterministic/parser";
+import type { ExtractedPdfText } from "@/lib/extraction/types";
+import { FIXTURE_FAMILIES, generateFixture } from "@/lib/fixtures/generator";
 import { withProvenance, withStatementDefaults } from "@/lib/schema/build";
 import type { NormalizedStatement } from "@/lib/schema/statement";
 
@@ -202,5 +205,78 @@ describe("digest helpers", () => {
     const ids = new Set(Array.from({ length: 200 }, () => randomId(16)));
     expect(ids.size).toBe(200);
     for (const id of ids) expect(id).toMatch(/^[0-9a-f]{32}$/);
+  });
+});
+
+describe("bounding boxes survive to a digest", () => {
+  /**
+   * Real PDFs place text at fractional coordinates, and the browser extractor rounds them to
+   * tenths. Every synthetic fixture happens to sit on whole points, so this whole class of
+   * document went untested until a real statement reached sealing and threw.
+   */
+  function shiftOffWholePoints(document: ExtractedPdfText): ExtractedPdfText {
+    return {
+      ...document,
+      pages: document.pages.map((page) => ({
+        ...page,
+        items: page.items.map((item) => ({
+          ...item,
+          x: Math.round((item.x + 0.3) * 10) / 10,
+          y: Math.round((item.y + 0.7) * 10) / 10,
+          w: item.w === undefined ? item.w : Math.round((item.w + 0.4) * 10) / 10,
+        })),
+      })),
+    };
+  }
+
+  it("canonicalizes a fractional box to whole points", () => {
+    const canonical = canonicalizeStatement({
+      ...statement,
+      transactions: statement.transactions.map((transaction, index) =>
+        index > 0
+          ? transaction
+          : {
+              ...transaction,
+              sourceRegions: [
+                {
+                  page: 1,
+                  bbox: { x: 12.34, y: 56.78, width: 90.12, height: 3.45 },
+                  textItemIds: ["p1i0"],
+                  rawText: "DEPOSIT 200.00",
+                  extractionPath: "local_text" as const,
+                },
+              ],
+            },
+      ),
+    });
+
+    expect(canonical.transactions[0]?.sourceRegions[0]?.bbox).toEqual({
+      x: 12,
+      y: 57,
+      width: 90,
+      height: 3,
+    });
+  });
+
+  it("digests a statement parsed from fractional coordinates", async () => {
+    const reconciling = FIXTURE_FAMILIES.filter((family) => family.expectation === "reconciles");
+
+    for (const family of reconciling) {
+      const fixture = generateFixture(family.family, 5);
+      const outcome = parseStatementDeterministically(shiftOffWholePoints(fixture.document));
+      if (!outcome.ok) throw new Error(`${fixture.id} did not parse: ${outcome.code}`);
+
+      const boxes = outcome.statement.transactions.flatMap((transaction) =>
+        transaction.sourceRegions.flatMap((region) =>
+          region.bbox ? [region.bbox.x, region.bbox.y, region.bbox.width, region.bbox.height] : [],
+        ),
+      );
+      expect(boxes.length).toBeGreaterThan(0);
+      for (const value of boxes) expect(Number.isInteger(value)).toBe(true);
+
+      // The step that actually failed in production: canonicalJson refuses a non-integer.
+      const { digest } = await canonicalizeAndDigest(outcome.statement);
+      expect(digest).toMatch(/^[0-9a-f]{64}$/);
+    }
   });
 });
