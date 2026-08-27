@@ -62,3 +62,70 @@ jobs:
       - name: Production dependency audit
         continue-on-error: true
         run: pnpm audit --prod --audit-level high
+
+  # Production deploys used to run from a developer's machine with `vercel --prod`, which
+  # uploads whatever is on that disk and never consults CI. The release gate was a convention
+  # rather than a gate. This job is the gate: it cannot start until `verify` passes, and it is
+  # the only path that should reach production.
+  #
+  # The project's Ignored Build Step is deliberately `exit 0`, so a push never builds on
+  # Vercel's side. That stays true: `vercel build` runs here, after the gate, and `--prebuilt`
+  # uploads the finished output.
+  deploy:
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Never cancel a deploy midway; queue instead. Deliberately unlike the workflow-level
+    # concurrency above, which cancels superseded verification runs.
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    env:
+      # Identifiers, not credentials: both appear in the project's dashboard URLs. Only
+      # VERCEL_TOKEN is secret, so setup is a single repository secret.
+      VERCEL_ORG_ID: team_27K8YMDt4aO9DlFJAezpop3T
+      VERCEL_PROJECT_ID: prj_bpzIh84KJOQAlx8iZ1l7gyLqPoCs
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require a deploy token
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "VERCEL_TOKEN is not set."
+            echo "Create a token at https://vercel.com/account/tokens, then add it under"
+            echo "Settings -> Secrets and variables -> Actions as VERCEL_TOKEN."
+            exit 1
+          fi
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@59.5.0
+
+      - name: Pull production environment
+        run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+
+      - name: Build
+        run: vercel build --prod --token "$VERCEL_TOKEN"
+
+      - name: Deploy
+        run: vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN"
+
+      - name: Confirm the live site serves this commit
+        # A green deploy step only means Vercel accepted the upload. This asserts the alias
+        # actually serves this SHA, which is the check that was previously done by hand.
+        run: |
+          expected="$(echo "${{ github.sha }}" | cut -c1-12)"
+          for attempt in 1 2 3 4 5 6; do
+            body="$(curl -fsS https://statementreconcile.com/api/health || true)"
+            actual="$(printf '%s' "$body" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("commit") or "")' 2>/dev/null || true)"
+            if [ "$actual" = "$expected" ]; then
+              echo "Live commit matches: $actual"
+              exit 0
+            fi
+            echo "attempt $attempt: live commit is '${actual:-unknown}', expected '$expected'"
+            sleep 10
+          done
+          echo "The production alias is not serving $expected."
+          exit 1

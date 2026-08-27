@@ -87,3 +87,17 @@ Consolidating on day one was deliberate. §45 asks for Search Console data befor
 Retired slugs redirect in a single hop via `RETIRED_SLUG_REDIRECTS` in `next.config.ts`. Next emits 308 for `permanent: true`, which Google treats as equivalent to 301. `tests/unit/redirects.test.ts` enforces that every destination is live and never itself a source, because `dynamicParams = false` means a missing entry is a dead URL rather than a warning.
 
 Full inventory and classification in `docs/seo-url-migration-v2.md`.
+
+## ADR-016 — Digested numbers are integers, and canonicalization must agree
+
+`canonicalJson` refuses any non-integer number. That is deliberate: a float has no single textual form, so two runs could serialize the same value differently and produce different digests for identical data. Money is therefore carried as decimal strings, and every other number in a digested statement must be a whole number.
+
+Canonicalization did not agree. `roundBox` rounded source-link bounding boxes to tenths, which is a value the digest step could not serialize at all. A statement carrying a fractional box could be built and schema-validated, then threw `CanonicalizationError` on the way to being sealed. `/api/parse` caught it as `parse_unhandled` and reported an internal error for a conversion that had already succeeded.
+
+Real PDFs place text at fractional coordinates constantly and the browser extractor rounds to tenths, so this affected ordinary documents rather than edge cases. It survived because every synthetic fixture in `src/lib/fixtures/` happens to sit on whole points, and because a statement has to pass full verification before anything tries to digest it — so no test ever reached the failing step with a realistic coordinate.
+
+Boxes are now canonicalized to whole points. A point is 1/72 inch and the value only positions the source-link overlay, so no visible precision is lost. `boundingBoxSchema` requires integers, which turns any future divergence into a rejection at the schema boundary rather than an unhandled throw during sealing.
+
+The rule to preserve: **anything that reaches `canonicalJson` must already be integral or a string.** Rounding "for tidiness" to a fractional precision anywhere upstream of a digest reintroduces this defect.
+
+`tests/unit/canonicalize.test.ts` generates each reconciling fixture with coordinates shifted off whole points and digests the result, so the synthetic-fixture blind spot is covered directly.
