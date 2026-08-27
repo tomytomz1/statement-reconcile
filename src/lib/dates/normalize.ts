@@ -238,8 +238,26 @@ export function inferDateOrder(rawDates: readonly string[]): DateOrder {
   return "unknown";
 }
 
-/** Extract a statement period such as "March 1, 2024 - March 31, 2024" from free text. */
-export function findPeriod(text: string): { start: string; end: string } | null {
+/**
+ * Extract a statement period such as "March 1, 2024 - March 31, 2024" from free text.
+ *
+ * `orderHint` is the day/month order inferred from the document as a whole. It is needed
+ * because a period can be internally ambiguous: `07/09/26 - 08/08/26` has no component above
+ * 12, so nothing in those two dates says which number is the month. Evidence usually exists
+ * elsewhere — a transaction dated `07-15` settles it — and without a way to pass that in,
+ * the period is unreadable.
+ *
+ * That is not a cosmetic loss. Statements commonly print transaction dates without a year,
+ * so the period is the only source of one; an unread period means no date resolves and the
+ * whole document is rejected.
+ *
+ * Evidence inside the period always wins over the hint, and when neither settles the order
+ * this still returns null rather than guessing.
+ */
+export function findPeriod(
+  text: string,
+  orderHint?: DateOrder,
+): { start: string; end: string } | null {
   const separators = ["through", "thru", "to", "–", "—", "-"];
   const cleaned = text.replace(/\s+/g, " ").trim();
 
@@ -252,7 +270,8 @@ export function findPeriod(text: string): { start: string; end: string } | null 
     );
     const match = pattern.exec(cleaned);
     if (!match?.[1] || !match[2]) continue;
-    const order = inferDateOrder([match[1], match[2]]);
+    const selfEvident = inferDateOrder([match[1], match[2]]);
+    const order = selfEvident !== "unknown" ? selfEvident : (orderHint ?? "unknown");
     const start = normalizeDate(match[1], { order });
     const end = normalizeDate(match[2], { order });
     if (start && end && start <= end) return { start, end };

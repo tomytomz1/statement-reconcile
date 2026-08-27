@@ -197,3 +197,106 @@ describe("empty and malformed input", () => {
     expect(outcome.code).toBe("no_transactions_found");
   });
 });
+
+/**
+ * A register whose transactions wrap across two printed lines, with an all-ambiguous period.
+ *
+ * Both shapes are taken from a real statement that failed end to end, and are reproduced
+ * here synthetically — no customer document is ever committed.
+ *
+ *   1. The statement period reads `07/09/26 - 08/08/26`. Every component is <= 12, so the
+ *      period cannot disambiguate itself; the order has to come from the rows, where `07-15`
+ *      settles it as MDY. Transaction dates carry no year, so a period that goes unread
+ *      means no date resolves and every row is discarded.
+ *
+ *   2. A long description wraps: the date sits on the first printed line and the amount and
+ *      balance on the second. Both halves used to be dropped — the dated line for having no
+ *      money, the money line for having no date — so the transaction vanished silently and
+ *      took the running-balance chain with it.
+ */
+function wrappedRegister() {
+  const money = (t: string, x: number, y: number, w: number) => ({ t, x, y, w, h: 9 });
+  return {
+    pageCount: 1,
+    pages: [
+      {
+        page: 1,
+        width: 648,
+        height: 828,
+        items: [
+          { t: "Statement Period 07/09/26 - 08/08/26", x: 400, y: 40, w: 150, h: 9 },
+          { t: "EveryDay Checking", x: 14, y: 60, w: 90, h: 9 },
+          { t: "Date", x: 14, y: 80, w: 22, h: 9 },
+          { t: "Transaction Detail", x: 43, y: 80, w: 88, h: 9 },
+          { t: "Amount($)", x: 431, y: 80, w: 44, h: 9 },
+          { t: "Balance($)", x: 557, y: 80, w: 37, h: 9 },
+
+          // Balance-forward anchor: dated, balance only.
+          { t: "07-09", x: 14, y: 95, w: 26, h: 9 },
+          { t: "Beginning Balance", x: 43, y: 95, w: 86, h: 9 },
+          money("1,000.00", 560, 95, 34),
+
+          // Ordinary single-line row.
+          { t: "07-10", x: 14, y: 110, w: 26, h: 9 },
+          { t: "COFFEE SHOP", x: 43, y: 110, w: 70, h: 9 },
+          money("-12.50", 445, 110, 30),
+          money("987.50", 560, 110, 34),
+
+          // Wrapped row: date and description here, amounts on the next line.
+          { t: "07-15", x: 14, y: 125, w: 26, h: 9 },
+          { t: "GROCERY STORE", x: 43, y: 125, w: 82, h: 9 },
+          { t: "SPRINGFIELD IL", x: 43, y: 137, w: 78, h: 9 },
+          money("-37.25", 445, 137, 30),
+          money("950.25", 560, 137, 34),
+
+          // Ordinary row again, a credit this time.
+          { t: "07-20", x: 14, y: 152, w: 26, h: 9 },
+          { t: "PAYCHECK", x: 43, y: 152, w: 56, h: 9 },
+          money("500.00", 445, 152, 30),
+          money("1,450.25", 560, 152, 34),
+
+          { t: "Beginning Balance 1,000.00", x: 43, y: 180, w: 130, h: 9 },
+          { t: "Ending Balance 1,450.25", x: 43, y: 192, w: 120, h: 9 },
+        ],
+      },
+    ],
+  };
+}
+
+describe("wrapped rows and self-ambiguous periods", () => {
+  it("reads a period whose own dates are ambiguous, using the order the rows prove", () => {
+    const outcome = parseStatementDeterministically(wrappedRegister());
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) return;
+    expect(outcome.statement.periodStart).toBe("2026-07-09");
+    expect(outcome.statement.periodEnd).toBe("2026-08-08");
+    // Transaction dates carry no year; they can only resolve via the period.
+    expect(outcome.statement.transactions.every((t) => t.date.startsWith("2026-07-"))).toBe(true);
+  });
+
+  it("keeps a transaction whose amount is printed on the line below its date", () => {
+    const outcome = parseStatementDeterministically(wrappedRegister());
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) return;
+
+    // Three transactions; the balance-forward row is an anchor, not activity.
+    expect(outcome.statement.transactions).toHaveLength(3);
+
+    const wrapped = outcome.statement.transactions.find((t) => t.date === "2026-07-15");
+    expect(wrapped, "the wrapped transaction must survive").toBeDefined();
+    expect(wrapped!.amount).toBe("-37.25");
+    // The continuation line's text belongs to the same transaction.
+    expect(wrapped!.description).toMatch(/GROCERY STORE/);
+    expect(wrapped!.description).toMatch(/SPRINGFIELD IL/);
+  });
+
+  it("reconciles, because no row went missing from the balance chain", () => {
+    const outcome = parseStatementDeterministically(wrappedRegister());
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) return;
+    expect(outcome.reconciliation.passed).toBe(true);
+    expect(outcome.statement.runningBalanceSummary.transitionsPassed).toBe(
+      outcome.statement.runningBalanceSummary.transitionsChecked,
+    );
+  });
+});

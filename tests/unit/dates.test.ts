@@ -117,6 +117,50 @@ describe("findPeriod", () => {
   it("returns null when there is no period", () => {
     expect(findPeriod("Account Number XXXX1234")).toBeNull();
   });
+
+  /**
+   * A period whose own two dates are internally ambiguous.
+   *
+   * `07/09/26 - 08/08/26` has every component <= 12, so month-versus-day cannot be settled
+   * from those two dates alone. Without a hint the only honest answer is null. But the rest
+   * of the statement usually settles it — a transaction dated `07-15` proves MDY — and the
+   * parser computes exactly that. Passing it in is the difference between reading the period
+   * and giving up on the document.
+   *
+   * This mattered: a real statement failed entirely because the period went unread, so no
+   * year could be attached to its `MM-DD` transaction dates and every row was discarded.
+   */
+  it("uses a supplied date order when the period's own dates are ambiguous", () => {
+    expect(findPeriod("Statement Period 07/09/26 - 08/08/26")).toBeNull();
+
+    expect(findPeriod("Statement Period 07/09/26 - 08/08/26", "MDY")).toEqual({
+      start: "2026-07-09",
+      end: "2026-08-08",
+    });
+    // Read as DMY the same text would start on 7 September and end on 8 August, so the
+    // start-before-end check rejects it. A hint widens what can be read; it does not switch
+    // off the sanity checks.
+    expect(findPeriod("Statement Period 07/09/26 - 08/08/26", "DMY")).toBeNull();
+
+    // A period that is coherent under DMY is read under DMY.
+    expect(findPeriod("Statement Period 09/07/26 - 08/08/26", "DMY")).toEqual({
+      start: "2026-07-09",
+      end: "2026-08-08",
+    });
+  });
+
+  it("prefers evidence in the period itself over the supplied order", () => {
+    // 15 and 20 exceed 12, so the period is self-disambiguating. A wrong hint must not
+    // override what the document plainly says.
+    expect(findPeriod("Statement Period 07/15/26 - 08/20/26", "DMY")).toEqual({
+      start: "2026-07-15",
+      end: "2026-08-20",
+    });
+  });
+
+  it("still refuses when neither the period nor the hint can settle the order", () => {
+    expect(findPeriod("Statement Period 07/09/26 - 08/08/26", "unknown")).toBeNull();
+  });
 });
 
 describe("isWithinPeriod", () => {

@@ -79,6 +79,15 @@ export type ParseHint = {
 
 const CLUSTER_TOLERANCE = 8;
 const MAX_HYPOTHESES = 24;
+/**
+ * How far below its date a wrapped row's amounts may appear.
+ *
+ * Two lines covers the observed shape — description continues, amounts land on the next
+ * line. Kept deliberately short: a larger window would let a date-only line in a summary
+ * block adopt an unrelated figure printed further down, which would invent a transaction
+ * rather than lose one.
+ */
+const MAX_WRAP_DISTANCE = 2;
 
 // ---------------------------------------------------------------------------
 // Document-level detection
@@ -260,6 +269,29 @@ function collectRawRows(
   let section: "credit" | "debit" | null = null;
   let continuationCount = 0;
 
+  /**
+   * A dated line whose amounts have not appeared yet.
+   *
+   * Some statements wrap a long description across two printed lines and put the date on the
+   * first and the amount and balance on the second. Handled line by line, both halves look
+   * like rubbish — the first has a date but no money, the second money but no date — and both
+   * used to be discarded, so the transaction vanished without a warning and took its step out
+   * of the running-balance chain with it. A silently missing row is the worst outcome
+   * available here: the arithmetic then fails for a reason that points nowhere near the cause.
+   *
+   * Held only briefly. It must be claimed by a dateless line carrying money on the same page
+   * within `MAX_WRAP_DISTANCE` lines, or it is abandoned. That keeps a date-only line in a
+   * summary block from adopting the first unrelated figure printed after it.
+   */
+  let pending: {
+    lineIndex: number;
+    page: number;
+    dateTokens: string[];
+    description: string;
+    line: StatementLine;
+    section: "credit" | "debit" | null;
+  } | null = null;
+
   for (const [lineIndex, line] of lines.entries()) {
     const sectionChange = detectSection(line, currency);
     if (sectionChange) {
@@ -275,6 +307,34 @@ function collectRawRows(
     const money = moneyCellsOf(line, currency);
 
     if (!dateMatch) {
+      // The second half of a wrapped row: no date of its own, but carrying the amounts that
+      // belong to the dated line just above it.
+      if (
+        pending &&
+        money.length > 0 &&
+        pending.page === line.page &&
+        lineIndex - pending.lineIndex <= MAX_WRAP_DISTANCE
+      ) {
+        const firstMoneyX = money[0]?.x ?? Number.POSITIVE_INFINITY;
+        const tail = line.cells
+          .filter((cell) => cell.x < firstMoneyX)
+          .map((cell) => cell.text)
+          .join(" ");
+        rows.push({
+          lineIndex: pending.lineIndex,
+          page: pending.page,
+          dateTokens: pending.dateTokens,
+          description: `${pending.description} ${tail}`.replace(/\s+/g, " ").trim(),
+          money,
+          section: pending.section,
+          line: pending.line,
+          continuationLines: [line],
+        });
+        continuationCount += 1;
+        pending = null;
+        continue;
+      }
+
       // A line with no date and no amount continues the previous row's description.
       const previous = rows[rows.length - 1];
       if (
@@ -289,8 +349,6 @@ function collectRawRows(
       }
       continue;
     }
-
-    if (money.length === 0) continue;
 
     // A leading date cell may also carry the start of the description when the PDF places
     // them close together. Only a cell that is *nothing but* a date can be a second date
@@ -326,6 +384,24 @@ function collectRawRows(
       .filter((part) => part !== "")
       .join(" ")
       .trim();
+
+    if (money.length === 0) {
+      // Dated, but nothing monetary on this line. On a wrapped row the amounts are printed
+      // on the line below, so hold this one rather than discarding it.
+      pending = {
+        lineIndex,
+        page: line.page,
+        dateTokens,
+        description: description.replace(/\s+/g, " ").trim(),
+        line,
+        section,
+      };
+      continue;
+    }
+
+    // Reaching a complete row means anything still held never found its amounts. Drop it:
+    // it was a date-only line that is not a transaction.
+    pending = null;
 
     rows.push({
       lineIndex,
@@ -702,7 +778,6 @@ export function parseStatementDeterministically(
   }
 
   const labelled = extractLabelledAmounts(lines, currency);
-  const period = findPeriod(text.slice(0, 8000));
 
   const { rows, continuationCount } = collectRawRows(lines, currency);
   if (rows.length === 0) {
@@ -711,6 +786,13 @@ export function parseStatementDeterministically(
 
   const rawDateTokens = rows.flatMap((row) => row.dateTokens);
   const dateOrder: DateOrder = inferDateOrder(rawDateTokens);
+
+  // The period is read after the rows, not before, because the rows are what proves the
+  // day/month order. A period like `07/09/26 - 08/08/26` has no component above 12 and
+  // cannot disambiguate itself, while a single transaction dated `07-15` settles it. Reading
+  // the period first meant discarding that evidence and, on statements whose transaction
+  // dates carry no year, losing the only available source of one.
+  const period = findPeriod(text.slice(0, 8000), dateOrder);
   const hasAmbiguousNumericDate = rawDateTokens.some((token) => {
     const match = /^(\d{1,2})[-/.](\d{1,2})(?:[-/.](?:\d{2}|\d{4}))?$/.exec(token.trim());
     return Boolean(match && Number(match[1]) <= 12 && Number(match[2]) <= 12);
