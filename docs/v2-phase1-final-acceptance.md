@@ -45,19 +45,19 @@ Claude may change `OPEN` to `IMPLEMENTED` and populate its evidence column. Only
 
 ## Acceptance matrix
 
-| ID  | Requirement                                                       | Initial status | Claude evidence                                                                                                                                                            | Codex result |
-| --- | ----------------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| A1  | Live Stripe Price contract and real-branch tests                  | IMPLEMENTED    | `src/config/commerce.ts`, `src/lib/payments/stripe.ts` (injectable `PriceCheckDeps`), `scripts/price-preflight.ts`; `tests/unit/price-contract.test.ts` (15)               | **VERIFIED** |
-| A2  | Recovery authorization is correct before reprocessing             | IMPLEMENTED    | `authorizeSession()` in `src/lib/payments/entitlement.ts` shared by verify and export; `tests/integration/recovery-authorization.test.ts` (20)                             | **VERIFIED** |
-| A3  | Recovery promise and customer path are accurate                   | IMPLEMENTED    | Recovery-link control in `download-panel.tsx`; copy fixed in `faq.ts`, `terms.ts`, `refund-policy.ts`; guard in `claims.test.ts`; E2E recovery-link test                   | **VERIFIED** |
-| A4  | Exact 20 MB contract and truthful enforcement copy                | IMPLEMENTED    | `maxFileSizeMb` moved into `COMMERCIAL_OFFER`; `security.ts` server-side claim corrected; exact-value assertions in `tests/unit/limits.test.ts` (19)                       | **VERIFIED** |
-| A5  | Obsolete environment overrides are removed or rejected            | IMPLEMENTED    | Removed from `.env.example` and `docs/ENVIRONMENT.md`; `scripts/doctor.ts` reports stale vars by name; no source-text regex used as the invariant                          | **VERIFIED** |
-| A6  | Pack ordering and opening logic use one unambiguous identity rule | IMPLEMENTED    | Single sorted `entries` collection in `assemble-pack.ts`; positional fallback removed from `openPack`; `tests/unit/pack-recovery.test.ts`                                  | **VERIFIED** |
-| A7  | Payment, seal-mode, and recovery tests close known gaps           | IMPLEMENTED    | Duplicate integration test removed; casts removed from `tests/helpers/statements.ts`; `tests/unit/seal-mode.test.ts` (13); production sealing fails closed                 | **VERIFIED** |
-| A8  | Documentation and public policy match actual behavior             | IMPLEMENTED    | `security.ts`, `faq.ts`, `terms.ts`, `refund-policy.ts`, `.env.example`, `ENVIRONMENT.md`, `REFUNDS.md`, `ARCHITECTURE.md`, `DATA_FLOW.md`, `DEPLOYMENT.md`, closure audit | **VERIFIED** |
-| A9  | One complete local release command is authoritative               | IMPLEMENTED    | `pnpm verify:release` in `package.json`; CI calls exactly that command; `DEPLOYMENT.md` and `VALIDATION_PLAN.md` state `pnpm verify` is not complete                       | **VERIFIED** |
-| A10 | Production deployment is gated on successful verification         | BLOCKED        | Platform decision was required after repository implementation                                                                                                             | **VERIFIED** |
-| A11 | Post-deploy live purchase, export, recovery, and refund           | BLOCKED        | Owner authorization was required after deployment                                                                                                                          | **VERIFIED** |
+| ID  | Requirement                                                       | Initial status | Claude evidence                                                                                                                                                             | Codex result |
+| --- | ----------------------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| A1  | Live Stripe Price contract and real-branch tests                  | IMPLEMENTED    | `src/config/commerce.ts`, `src/lib/payments/stripe.ts` (injectable `PriceCheckDeps`), `scripts/price-preflight.ts`; `tests/unit/price-contract.test.ts` (15)                | **VERIFIED** |
+| A2  | Recovery authorization is correct before reprocessing             | IMPLEMENTED    | `authorizeSession()` in `src/lib/payments/entitlement.ts` shared by verify and export; `tests/integration/recovery-authorization.test.ts` (20)                              | **VERIFIED** |
+| A3  | Recovery promise and customer path are accurate                   | IMPLEMENTED    | Recovery-link control in `download-panel.tsx`; copy fixed in `faq.ts`, `terms.ts`, `refund-policy.ts`; guard in `claims.test.ts`; E2E recovery-link test                    | **VERIFIED** |
+| A4  | Exact 20 MB contract and truthful enforcement copy                | IMPLEMENTED    | `maxFileSizeMb` moved into `COMMERCIAL_OFFER`; `security.ts` server-side claim corrected; exact-value assertions in `tests/unit/limits.test.ts` (19)                        | **VERIFIED** |
+| A5  | Obsolete environment overrides are removed or rejected            | IMPLEMENTED    | Removed from `.env.example` and `docs/ENVIRONMENT.md`; `scripts/doctor.ts` reports stale vars by name; no source-text regex used as the invariant                           | **VERIFIED** |
+| A6  | Pack ordering and opening logic use one unambiguous identity rule | IMPLEMENTED    | Single sorted `entries` collection in `assemble-pack.ts`; positional fallback removed from `openPack`; `tests/unit/pack-recovery.test.ts`                                   | **VERIFIED** |
+| A7  | Payment, seal-mode, and recovery tests close known gaps           | IMPLEMENTED    | Duplicate integration test removed; casts removed from `tests/helpers/statements.ts`; `tests/unit/seal-mode.test.ts` (13); production sealing fails closed                  | **VERIFIED** |
+| A8  | Documentation and public policy match actual behavior             | IMPLEMENTED    | `security.ts`, `faq.ts`, `terms.ts`, `refund-policy.ts`, `.env.example`, `ENVIRONMENT.md`, `REFUNDS.md`, `ARCHITECTURE.md`, `DATA_FLOW.md`, `DEPLOYMENT.md`, closure audit  | **VERIFIED** |
+| A9  | One complete local release command is authoritative               | IMPLEMENTED    | `pnpm verify:release` in `package.json`; CI calls exactly that command; `DEPLOYMENT.md` and `VALIDATION_PLAN.md` state `pnpm verify` is not complete                        | **VERIFIED** |
+| A10 | Production deployment is gated on successful verification         | IMPLEMENTED    | `deploy` job in `.github/workflows/ci.yml` `needs: verify`; builds with `vercel build`, ships `--prebuilt`, then asserts `/api/health` serves the pushed SHA. See amendment | RE-VERIFY    |
+| A11 | Post-deploy live purchase, export, recovery, and refund           | BLOCKED        | Owner authorization was required after deployment                                                                                                                           | **VERIFIED** |
 
 ## Final Codex verification record
 
@@ -83,6 +83,34 @@ audit. The production deployment `4WRAHmcotfDfRPib7j8eQsbYRHoe` served that exac
   and restored all four downloads without a second checkout or charge.
 - Stripe recorded a full $19 refund after the recovery check. No statement contents, filenames,
   card data, Stripe session/payment identifiers, or secrets are recorded in this repository.
+
+## Amendment — A10 reopened and reimplemented (2026-08-27)
+
+Codex closed A10 on 2026-08-26 under the manual-promotion option recorded above: Vercel's Ignored
+Build Step skips automatic builds, so promotion was deliberate, opened by hand after verification
+and restored afterwards.
+
+That satisfied the letter of A10 but left the gate resting on a person following a procedure.
+Production shipped by running `vercel --prod` from a developer's machine, which uploads whatever is
+on that disk and consults neither CI nor the release gate. Nothing prevented a deploy of code that
+`pnpm verify:release` was about to fail.
+
+A10 is now implemented as an actual gate. The `deploy` job in `.github/workflows/ci.yml` declares
+`needs: verify`, so it cannot start unless the authoritative release gate passed on that commit. It
+builds in the runner with `vercel build`, uploads with `--prebuilt`, and then asserts that
+`/api/health` reports the pushed SHA — a green deploy step alone only means the upload was accepted.
+
+The Ignored Build Step remains `exit 0` and must stay that way. Vercel still never builds on push;
+a git-triggered deployment continues to appear as `Canceled` with no logs, which is expected rather
+than a fault. The build happens in the runner, after the gate.
+
+Evidence: workflow run `33049736038` ran the gate, deployed, and confirmed the live commit at
+`7e98a3dcacf2`. The preceding run `33049417441` is the more useful evidence — `verify` passed,
+`deploy` failed on a missing toolchain, and **nothing shipped**, which is the property A10 asks for.
+
+`VERIFIED` was not carried over. Codex's 2026-08-26 result verified the manual-promotion mechanism,
+which no longer exists; the replacement has not been independently reviewed, so the Codex column
+reads `RE-VERIFY`. Only Codex may set `VERIFIED`. A11 is untouched.
 
 ## Correction pass (post-A1–A9)
 
