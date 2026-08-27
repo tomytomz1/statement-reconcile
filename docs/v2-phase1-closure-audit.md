@@ -2,44 +2,41 @@
 
 Closes the repository audit punch-out. Starting commit `a6e8ed9`; the working tree was clean before any change.
 
-> **Superseded in part.** A later independent review (`docs/v2-phase1-final-acceptance.md`) found
-> several items below overstated. Where the two disagree, the acceptance contract wins. In
-> particular the platform and live-purchase items were marked PASS here and are correctly
-> **BLOCKED**; see the corrected statuses in that document.
+> **Historical audit, now fully closed.** A later independent review
+> (`docs/v2-phase1-final-acceptance.md`) corrected several overstatements and governed the final
+> acceptance pass. Codex subsequently verified A1–A11, including the production gate and live
+> purchase/export/recovery/refund test. The acceptance contract is the final source of truth.
 
 ## Which commit is where
 
 These are different things and the distinction matters when reading anything below.
 
-|                                     | Commit                                     | State                                                                                            |
-| ----------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------ |
-| **Production**                      | `dd06bb55ace421b642dcf51bd8437936bb40eab4` | Live at `https://statementreconcile.com`. This is the commit the punch-out work was deployed at. |
-| **Local acceptance implementation** | after `dd06bb5`, unpushed                  | The A1–A9 acceptance work and this correction pass. **Not deployed and not pushed.**             |
+|                                        | Commit                                     | State                                                                                                |
+| -------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| **Production**                         | `93b55404155dafbf8ccd727723854fe0ac16497f` | Verified live at `https://statementreconcile.com`; Vercel deployment `4WRAHmcotfDfRPib7j8eQsbYRHoe`. |
+| **Repository (`main`, `origin/main`)** | `93b55404155dafbf8ccd727723854fe0ac16497f` | Final verified implementation; clean and synchronized before this documentation closeout.            |
 
-So every A1–A9 change — the Price gate, unified session authorization, the recovery link, the
-exact 20 MB contract, the single pack-ordering rule, production seal fail-closed, and
-`pnpm verify:release` — exists **only locally**. Production is still running `dd06bb5` and does
-not have them. Anything below describing current behaviour describes the local tree unless it
-explicitly says production.
-
-Nothing in this pass was deployed, pushed, or merged, and no live Stripe configuration was modified.
+The Price gate, unified session authorization, recovery link, exact 20 MB contract, single
+pack-ordering rule, production seal fail-closed behavior, release gate, and pdf.js worker build fix
+are all deployed. The final acceptance contract records the independent code, CI, production, and
+live-payment evidence.
 
 ---
 
 ## Closure matrix
 
-| #    | Item                                             | Status      | Evidence                                                                                                                                       |
-| ---- | ------------------------------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| P0-1 | One authoritative $19 configuration              | **PASS**    | `src/config/commerce.ts`; Price validated before checkout and session terms validated before export; 20 tests in `tests/unit/commerce.test.ts` |
-| P0-2 | Remove stale delayed-price copy                  | **PASS**    | 6 stale strings replaced; repo-wide guard in `tests/unit/claims.test.ts`                                                                       |
-| P0-3 | Price beside the `/app` uploader                 | **PASS**    | `UploaderOffer` in `converter-app.tsx`; scoped E2E assertions replace body-level ones                                                          |
-| P0-4 | Separate processing chrome from marketing footer | **PASS**    | `src/components/site/processing-footer.tsx`; three layout E2E tests                                                                            |
-| P0-5 | Correct the 30-day download claim                | **PASS**    | Copy corrected; pack digest made order-stable; 10 tests in `tests/unit/pack-recovery.test.ts`                                                  |
-| P0-6 | Complete limit enforcement and boundary tests    | **PASS**    | 18 tests in `tests/unit/limits.test.ts` exercising `validateFile` and the request schema directly                                              |
-| P0-7 | Adversarial checkout/export tests                | **PASS**    | 18 tests in `tests/unit/payment-boundary.test.ts`; unit suite now seals for real                                                               |
-| P1   | Test quality and coverage gates                  | **PASS**    | Per-module thresholds in `vitest.config.mts`, enforced in CI; `security/headers.ts` taken from 0% to covered                                   |
-| P0   | Restore a genuinely green release gate           | **PARTIAL** | Green locally and behind one `pnpm verify:release`, but CI is not a required check and production still deploys on push — see A10              |
-| —    | Documentation updates                            | **PASS**    | Node version, test counts, retention semantics, and price-divergence claims corrected                                                          |
+| #    | Item                                             | Status   | Evidence                                                                                                                                       |
+| ---- | ------------------------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| P0-1 | One authoritative $19 configuration              | **PASS** | `src/config/commerce.ts`; Price validated before checkout and session terms validated before export; 20 tests in `tests/unit/commerce.test.ts` |
+| P0-2 | Remove stale delayed-price copy                  | **PASS** | 6 stale strings replaced; repo-wide guard in `tests/unit/claims.test.ts`                                                                       |
+| P0-3 | Price beside the `/app` uploader                 | **PASS** | `UploaderOffer` in `converter-app.tsx`; scoped E2E assertions replace body-level ones                                                          |
+| P0-4 | Separate processing chrome from marketing footer | **PASS** | `src/components/site/processing-footer.tsx`; three layout E2E tests                                                                            |
+| P0-5 | Correct the 30-day download claim                | **PASS** | Copy corrected; pack digest made order-stable; 10 tests in `tests/unit/pack-recovery.test.ts`                                                  |
+| P0-6 | Complete limit enforcement and boundary tests    | **PASS** | 18 tests in `tests/unit/limits.test.ts` exercising `validateFile` and the request schema directly                                              |
+| P0-7 | Adversarial checkout/export tests                | **PASS** | 18 tests in `tests/unit/payment-boundary.test.ts`; unit suite now seals for real                                                               |
+| P1   | Test quality and coverage gates                  | **PASS** | Per-module thresholds in `vitest.config.mts`, enforced in CI; `security/headers.ts` taken from 0% to covered                                   |
+| P0   | Restore a genuinely green release gate           | **PASS** | `pnpm verify:release` passed locally and in CI; Vercel automatic builds are skipped and production promotion is deliberate — see A10           |
+| —    | Documentation updates                            | **PASS** | Node version, test counts, retention semantics, and price-divergence claims corrected                                                          |
 
 ---
 
@@ -132,7 +129,7 @@ The ten questions from the punch-out, answered:
 
 Two sets of numbers appear below and they are not interchangeable. The first is what the punch-out pass produced. The second is what the current local tree produces after the A1–A9 acceptance work and its correction passes, independently reproduced. Anything citing this document for "current" results wants the second table.
 
-### Current — local acceptance tree
+### Current — verified production tree
 
 Reproduced under Node 22 and pnpm 11.23.0 via the single `pnpm verify:release` command.
 
@@ -145,7 +142,7 @@ Reproduced under Node 22 and pnpm 11.23.0 via the single `pnpm verify:release` c
 | `pnpm benchmark:synthetic` | **pass** — 99/99, precision 1.0000, recall 1.0000       |
 | `pnpm audit:seo`           | **pass** — 21 landing pages                             |
 | `pnpm build`               | **pass**                                                |
-| `pnpm test:e2e`            | **pass** — **26/26**, two workers                       |
+| `pnpm test:e2e`            | **pass** — **28/28**, two workers                       |
 
 Overall coverage: **70.07% statements, 63.02% branches**.
 
@@ -190,13 +187,18 @@ The audit found `pnpm format:check` failing on 14 tracked files. A note in the w
 
 ---
 
-## Remaining manual actions
+## Final manual actions — completed
 
-None of these can be completed from the repository.
+1. **Stripe Price:** the read-only production preflight verified the configured live Price is active,
+   one-time, 1900 cents, and USD.
+2. **Deployment gate:** Vercel now skips automatic builds. The verified production deployment was
+   promoted deliberately after CI passed, then the skip gate was restored.
+3. **Live acceptance:** a real $19 payment completed for a synthetic statement; all four export
+   requests succeeded; re-upload recovery restored the paid result without another checkout; and
+   Stripe confirmed the full refund.
 
-1. **Stripe dashboard.** `assertStripePriceMatchesOffer` fails checkout closed unless the configured Price is active, one-time, 1900, and USD. Still **not verified against live Stripe**. `pnpm run price:preflight` now performs that check read-only, with no session and no charge — run it with production credentials before relying on checkout.
-2. **GitHub branch protection.** The punch-out asks that CI be required before production deployment. This cannot be set from the repository. Production currently deploys on push to `main` via the Vercel Git integration, which does not wait for the GitHub check. To close it: enable a branch protection rule on `main` requiring the `verify` check, and either set the Vercel project to "only deploy when checks pass" or move production deploys behind a manual promote.
-3. **Live purchase test.** Still outstanding from the earlier checklist: one real $19 purchase of your own statement, export XLSX and CSV, then refund. The E2E funnel uses `E2E_MOCK_PAYMENTS`, so nothing in the automated suite proves a real card works end to end.
+Phase 1 has no remaining acceptance blocker. See `docs/v2-phase1-final-acceptance.md` for the
+privacy-safe evidence record.
 
 ---
 
