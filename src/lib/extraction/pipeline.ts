@@ -7,7 +7,7 @@ import type {
   StatementSummary,
   Transaction,
 } from "@/lib/schema/statement";
-import { logEvent } from "@/lib/security/logging";
+import { logEvent, logFailure } from "@/lib/security/logging";
 
 import { canonicalizeAndDigest } from "./canonicalize";
 import { parseStatementDeterministically } from "./deterministic/parser";
@@ -102,11 +102,29 @@ async function finalize(
   reconciliation: ReconciliationResult,
   extra: { layout?: string },
 ): Promise<PipelineSuccess> {
-  const { statement: canonical, digest } = await canonicalizeAndDigest(statement);
-  if (canonical.verificationState !== "verification_passed" || !reconciliation.passed) {
-    throw new Error("finalize called on an unverified statement");
+  // Everything from here on runs *after* the statement has passed verification, so a
+  // failure here is not a failure to read the document — the conversion worked and then
+  // could not be packaged. Both are reported to the caller as an internal error, which is
+  // right (there is nothing actionable to disclose), but they are not the same defect and
+  // must not look the same in the logs. Sealing failures had previously been indistinguish-
+  // able from a parser crash, which cost real time to track down.
+  let canonical: NormalizedStatement;
+  let digest: string;
+  let sealed: string;
+  try {
+    ({ statement: canonical, digest } = await canonicalizeAndDigest(statement));
+    if (canonical.verificationState !== "verification_passed" || !reconciliation.passed) {
+      throw new Error("finalize called on an unverified statement");
+    }
+    sealed = await seal(JSON.stringify(canonical), digest);
+  } catch (error) {
+    // Counts only, consistent with `extraction_succeeded` above. No statement content.
+    logFailure("finalize_failed", error, {
+      source,
+      rows: statement.transactions.length,
+    });
+    throw error;
   }
-  const sealed = await seal(JSON.stringify(canonical), digest);
   const result: PipelineSuccess = {
     status: "reconciled",
     source,
