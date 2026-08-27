@@ -300,3 +300,120 @@ describe("wrapped rows and self-ambiguous periods", () => {
     );
   });
 });
+
+/**
+ * A statement that prints a second, differently shaped table after its register.
+ *
+ * Taken from a real document: after four pages of transactions came an "Items Paid" index
+ * printed two-up — two `Date | Item | Amount` groups side by side on every line, at column
+ * positions the register never uses and with no balance column at all.
+ *
+ * Clustering money columns across the whole document merged both tables into one geometry.
+ * Header matching then gave up (more columns than headers), the fallback assigned roles to
+ * the wrong columns, and a document whose register was perfectly readable was rejected.
+ */
+function registerThenIndex() {
+  const money = (t: string, x: number, y: number, w: number) => ({ t, x, y, w, h: 9 });
+  return {
+    pageCount: 2,
+    pages: [
+      {
+        page: 1,
+        width: 648,
+        height: 828,
+        items: [
+          { t: "Statement Period 07/09/26 - 08/20/26", x: 400, y: 40, w: 150, h: 9 },
+          { t: "EveryDay Checking", x: 14, y: 60, w: 90, h: 9 },
+          { t: "Date", x: 14, y: 80, w: 22, h: 9 },
+          { t: "Transaction Detail", x: 43, y: 80, w: 88, h: 9 },
+          { t: "Amount($)", x: 431, y: 80, w: 44, h: 9 },
+          { t: "Balance($)", x: 557, y: 80, w: 37, h: 9 },
+
+          { t: "07-09", x: 14, y: 95, w: 26, h: 9 },
+          { t: "Beginning Balance", x: 43, y: 95, w: 86, h: 9 },
+          money("1,000.00", 560, 95, 34),
+
+          { t: "07-10", x: 14, y: 110, w: 26, h: 9 },
+          { t: "COFFEE SHOP", x: 43, y: 110, w: 70, h: 9 },
+          money("-12.50", 445, 110, 30),
+          money("987.50", 560, 110, 34),
+
+          { t: "07-15", x: 14, y: 125, w: 26, h: 9 },
+          { t: "PAYCHECK", x: 43, y: 125, w: 56, h: 9 },
+          money("500.00", 445, 125, 30),
+          money("1,487.50", 560, 125, 34),
+
+          { t: "Beginning Balance 1,000.00", x: 43, y: 160, w: 130, h: 9 },
+          { t: "Ending Balance 1,487.50", x: 43, y: 172, w: 120, h: 9 },
+        ],
+      },
+      {
+        // Two-up index: two Date/Item/Amount groups per line, no balance column, and money
+        // in columns the register never uses.
+        page: 2,
+        width: 648,
+        height: 828,
+        items: [
+          { t: "Items Paid", x: 14, y: 40, w: 52, h: 9 },
+          { t: "Date", x: 18, y: 60, w: 22, h: 9 },
+          { t: "Item", x: 140, y: 60, w: 20, h: 9 },
+          { t: "Amount($)", x: 226, y: 60, w: 44, h: 9 },
+          { t: "Date", x: 316, y: 60, w: 22, h: 9 },
+          { t: "Item", x: 439, y: 60, w: 20, h: 9 },
+          { t: "Amount($)", x: 525, y: 60, w: 44, h: 9 },
+
+          { t: "07-10", x: 18, y: 75, w: 26, h: 9 },
+          { t: "POS", x: 155, y: 75, w: 22, h: 9 },
+          money("12.50", 236, 75, 30),
+          { t: "07-15", x: 316, y: 75, w: 26, h: 9 },
+          { t: "ACH", x: 454, y: 75, w: 22, h: 9 },
+          money("500.00", 535, 75, 30),
+
+          { t: "07-11", x: 18, y: 90, w: 26, h: 9 },
+          { t: "POS", x: 155, y: 90, w: 22, h: 9 },
+          money("9.99", 241, 90, 25),
+          { t: "07-16", x: 316, y: 90, w: 26, h: 9 },
+          { t: "ACH", x: 454, y: 90, w: 22, h: 9 },
+          money("40.00", 540, 90, 25),
+        ],
+      },
+    ],
+  };
+}
+
+describe("a second table with a different column layout", () => {
+  it("parses the register and does not let the index page break it", () => {
+    const outcome = parseStatementDeterministically(registerThenIndex());
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) return;
+    expect(outcome.reconciliation.passed).toBe(true);
+  });
+
+  it("takes its transactions from the register only", () => {
+    const outcome = parseStatementDeterministically(registerThenIndex());
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) return;
+
+    // Two real transactions; the index page repeats them and must not double them up.
+    expect(outcome.statement.transactions).toHaveLength(2);
+    expect(outcome.statement.transactions.map((t) => t.amount).sort()).toEqual([
+      "-12.50",
+      "500.00",
+    ]);
+  });
+
+  it("says plainly that a section was set aside rather than dropping it silently", () => {
+    const outcome = parseStatementDeterministically(registerThenIndex());
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) return;
+    expect(outcome.statement.extractionWarnings.join(" ")).toMatch(/different column layout/i);
+  });
+
+  it("still accounts for every page, so completeness is not quietly bypassed", () => {
+    const outcome = parseStatementDeterministically(registerThenIndex());
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) return;
+    expect(outcome.statement.completeness.passed).toBe(true);
+    expect(outcome.statement.completeness.pagesDeclared).toBe(2);
+  });
+});

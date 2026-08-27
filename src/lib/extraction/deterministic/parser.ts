@@ -88,6 +88,8 @@ const MAX_HYPOTHESES = 24;
  * rather than lose one.
  */
 const MAX_WRAP_DISTANCE = 2;
+/** Share of a page's rows that must use a column before it counts toward that page's shape. */
+const SIGNATURE_SHARE = 0.4;
 
 // ---------------------------------------------------------------------------
 // Document-level detection
@@ -437,6 +439,91 @@ export function clusterColumns(rows: readonly RawRow[]): Cluster[] {
     }
   }
   return clusters;
+}
+
+/**
+ * Split rows into the transaction register and any other table printed alongside it.
+ *
+ * A statement is not always one table. A register can be followed by an index — "Items Paid"
+ * printed two-up, two `Date | Item | Amount` groups per line — whose money sits in columns
+ * the register never uses and which has no balance column at all. Clustering across the whole
+ * document merges both geometries, header matching then gives up because there are more
+ * columns than headers, and a perfectly readable register is rejected.
+ *
+ * Pages are grouped by which money columns their rows actually occupy. When every page agrees,
+ * nothing happens and this is a no-op — the ordinary single-table statement is untouched.
+ * When they disagree, the largest group by row count is the register and the rest is set
+ * aside.
+ *
+ * Two deliberate limits. A tie changes nothing, because with no clear majority there is no
+ * evidence about which table is the register, and guessing risks discarding real
+ * transactions. And a set-aside page is reported, both as a warning on the statement and as
+ * an informational page for completeness, so a dropped section is visible in the verification
+ * record rather than silently absent.
+ */
+function partitionRegisterRows(
+  rows: readonly RawRow[],
+  clusters: readonly Cluster[],
+): { register: RawRow[]; setAsidePages: Set<number> } {
+  const none = { register: [...rows], setAsidePages: new Set<number>() };
+  if (clusters.length < 2) return none;
+
+  // The columns a page's rows genuinely occupy. The threshold keeps a stray figure — a page
+  // total, a carried-forward line — from changing a page's shape.
+  const columnsOf = (page: number): Set<number> => {
+    const pageRows = rows.filter((row) => row.page === page);
+    const counts = new Map<number, number>();
+    for (const row of pageRows) {
+      for (const cell of row.money) {
+        const index = assignColumn(cell, clusters);
+        if (index >= 0) counts.set(index, (counts.get(index) ?? 0) + 1);
+      }
+    }
+    return new Set(
+      [...counts.entries()]
+        .filter(([, n]) => n >= pageRows.length * SIGNATURE_SHARE)
+        .map(([index]) => index),
+    );
+  };
+
+  const pages = [...new Set(rows.map((row) => row.page))];
+  const shapes = new Map<number, Set<number>>();
+  for (const page of pages) {
+    const columns = columnsOf(page);
+    if (columns.size > 0) shapes.set(page, columns);
+  }
+  if (shapes.size < 2) return none;
+
+  // The register is the shape carrying the most rows.
+  const byKey = new Map<string, { columns: Set<number>; rowCount: number }>();
+  for (const [page, columns] of shapes) {
+    const key = [...columns].sort((a, b) => a - b).join(",");
+    const group = byKey.get(key) ?? { columns, rowCount: 0 };
+    group.rowCount += rows.filter((row) => row.page === page).length;
+    byKey.set(key, group);
+  }
+  const ranked = [...byKey.values()].sort((a, b) => b.rowCount - a.rowCount);
+  const dominant = ranked[0];
+  if (!dominant) return none;
+
+  // Only a page sharing *no* column with the register is treated as another table.
+  //
+  // Overlap is kept deliberately generous. Pages of one register legitimately differ — a page
+  // with no credits never uses the credit column — and treating that as a separate table
+  // would discard real transactions, which is far worse than failing to split. Disjointness
+  // is the signal that carries actual evidence: a two-up index sits in columns the register
+  // never touches.
+  const setAsidePages = new Set<number>();
+  for (const [page, columns] of shapes) {
+    const overlaps = [...columns].some((column) => dominant.columns.has(column));
+    if (!overlaps) setAsidePages.add(page);
+  }
+  if (setAsidePages.size === 0) return none;
+
+  return {
+    register: rows.filter((row) => !setAsidePages.has(row.page)),
+    setAsidePages,
+  };
 }
 
 type ColumnRole = "amount" | "debit" | "credit" | "balance" | "ignore";
@@ -810,14 +897,24 @@ export function parseStatementDeterministically(
     order: dateOrder,
   };
 
-  const clusters = clusterColumns(rows);
-  if (clusters.length === 0) {
+  const initialClusters = clusterColumns(rows);
+  if (initialClusters.length === 0) {
     return { ok: false, code: "layout_not_recognized", warnings: [] };
   }
 
-  const firstRow = rows[0];
+  // A register followed by a differently shaped table — an index printed two-up, say — would
+  // otherwise have both geometries clustered together, leaving more columns than headers and
+  // no workable layout. Splitting them first costs nothing on an ordinary single-table
+  // statement, where every page shares one shape and this is a no-op.
+  const { register: registerRows, setAsidePages } = partitionRegisterRows(rows, initialClusters);
+  const clusters = setAsidePages.size > 0 ? clusterColumns(registerRows) : initialClusters;
+  if (clusters.length === 0 || registerRows.length === 0) {
+    return { ok: false, code: "layout_not_recognized", warnings: [] };
+  }
+
+  const firstRow = registerRows[0];
   const derivedHeaderRoles = firstRow ? headerRoles(lines, clusters, firstRow.lineIndex) : null;
-  const hasSections = rows.some((row) => row.section !== null);
+  const hasSections = registerRows.some((row) => row.section !== null);
   const hypotheses = layoutHypotheses(
     clusters.length,
     derivedHeaderRoles,
@@ -829,6 +926,13 @@ export function parseStatementDeterministically(
   if (continuationCount > 0) {
     baseWarnings.push(`${continuationCount} wrapped description lines were joined to their rows.`);
   }
+  if (setAsidePages.size > 0) {
+    const pageList = [...setAsidePages].sort((a, b) => a - b).join(", ");
+    baseWarnings.push(
+      `Page ${pageList} uses a different column layout from the transaction register and was ` +
+        `read as a summary section, not as transactions.`,
+    );
+  }
 
   let best: {
     statement: NormalizedStatement;
@@ -838,7 +942,7 @@ export function parseStatementDeterministically(
 
   for (const hypothesis of hypotheses) {
     const built = buildTransactions(
-      rows,
+      registerRows,
       clusters,
       hypothesis,
       context,
@@ -855,23 +959,29 @@ export function parseStatementDeterministically(
       unresolvedCandidateRows: 0,
       transactionSectionCount: Math.max(
         1,
-        new Set(rows.map((row) => row.section).filter(Boolean)).size,
+        new Set(registerRows.map((row) => row.section).filter(Boolean)).size,
       ),
       mixedAccount: false,
       truncated: false,
       timedOut: false,
-      pagesWithCandidateRows: new Set(rows.map((row) => row.page)),
-      informationalPages: new Set(
-        document.pages
+      pagesWithCandidateRows: new Set(registerRows.map((row) => row.page)),
+      informationalPages: new Set([
+        // A page set aside for using another layout is still accounted for. Without this it
+        // would classify as `unprocessed` and fail completeness — the right default, since a
+        // page nobody looked at must never pass silently, but this one was looked at and
+        // positively identified as a different table.
+        ...setAsidePages,
+        ...document.pages
           .filter(
             (page) =>
-              !rows.some((row) => row.page === page.page) &&
+              !registerRows.some((row) => row.page === page.page) &&
+              !setAsidePages.has(page.page) &&
               /\b(summary|account information|customer service|fees?|interest|disclosures?|continued)\b/i.test(
                 page.items.map((item) => item.t).join(" "),
               ),
           )
           .map((page) => page.page),
-      ),
+      ]),
     });
 
     const draft: NormalizedStatement = {
