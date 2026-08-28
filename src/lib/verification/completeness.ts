@@ -25,6 +25,7 @@ export type CompletenessInput = {
   unresolvedCandidateRows: number;
   transactionSectionCount: number;
   mixedAccount: boolean;
+  additionalZeroActivityAccounts?: number;
   truncated: boolean;
   timedOut: boolean;
   pagesWithCandidateRows: ReadonlySet<number>;
@@ -79,6 +80,7 @@ export function evaluateCompleteness(input: CompletenessInput): CompletenessRepo
     truncated: input.truncated,
     timedOut: input.timedOut,
     mixedAccount: input.mixedAccount,
+    additionalZeroActivityAccounts: input.additionalZeroActivityAccounts ?? 0,
     pages,
     passed,
     rejectionCodes,
@@ -104,7 +106,7 @@ function classifyPage(
     declared: true,
     opened: true,
     textExtracted: true,
-    includedInParse: true,
+    includedInParse: classification !== "unprocessed",
     classification,
     fingerprint: pageFingerprint(page),
     itemCount,

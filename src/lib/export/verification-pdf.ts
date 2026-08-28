@@ -29,9 +29,9 @@ export function buildVerificationPdf(
   const digest = options.resultDigest;
 
   const lines = wrapReportLines([
-    `${siteConfig.brandName} — extraction verification report`,
-    `Report version ${REPORT_VERSION}  ·  Schema ${SCHEMA_VERSION}  ·  Product ${siteConfig.productVersion}`,
-    `Verification engine ${VERIFICATION_ENGINE_VERSION}  ·  Extractor ${statement.extractorVersion}`,
+    `${siteConfig.brandName} - extraction verification report`,
+    `Report version ${REPORT_VERSION}  |  Schema ${SCHEMA_VERSION}  |  Product ${siteConfig.productVersion}`,
+    `Verification engine ${VERIFICATION_ENGINE_VERSION}  |  Extractor ${statement.extractorVersion}`,
     `Generated ${generatedAt}`,
     options.jobId ? `Job reference ${options.jobId}` : "Job reference not supplied",
     `Canonical result digest ${digest}`,
@@ -50,7 +50,12 @@ export function buildVerificationPdf(
     `Unresolved candidate rows: ${completeness.unresolvedCandidateRows}`,
     `Blank informational pages: ${completeness.blankPages}`,
     `Duplicate-page warnings: ${completeness.duplicatePageWarnings}`,
-    `Truncated: ${completeness.truncated ? "yes" : "no"}  ·  Timed out: ${completeness.timedOut ? "yes" : "no"}  ·  Mixed account: ${completeness.mixedAccount ? "yes" : "no"}`,
+    `Truncated: ${completeness.truncated ? "yes" : "no"}  |  Timed out: ${completeness.timedOut ? "yes" : "no"}`,
+    completeness.mixedAccount
+      ? "Account scope: unresolved multiple active accounts"
+      : (completeness.additionalZeroActivityAccounts ?? 0) > 0
+        ? `Account scope: one active account exported; ${completeness.additionalZeroActivityAccounts} zero-activity account section excluded`
+        : "Account scope: one account section",
     `Completeness result: ${completeness.passed ? "passed" : `failed (${completeness.rejectionCodes.join(", ") || "unknown"})`}`,
     "",
     "Arithmetic",

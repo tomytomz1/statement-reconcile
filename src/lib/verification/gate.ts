@@ -1,4 +1,5 @@
 import { reconcile } from "@/lib/reconciliation/reconcile";
+import { toMoney } from "@/lib/money/decimal";
 import type {
   AmbiguityFinding,
   CompletenessReport,
@@ -55,6 +56,17 @@ export function evaluateVerificationGate(input: GateInput): GateOutput {
   if (sourceMapped !== input.statement.transactions.length) {
     reasons.push(
       `${sourceMapped} of ${input.statement.transactions.length} rows could be traced to source. Every accepted row must map to evidence.`,
+    );
+  }
+  const missingDirectionColumns = input.statement.transactions.filter((transaction) => {
+    if (toMoney(transaction.amount).isZero()) return false;
+    const hasDebit = transaction.debit !== undefined && !toMoney(transaction.debit).isZero();
+    const hasCredit = transaction.credit !== undefined && !toMoney(transaction.credit).isZero();
+    return hasDebit === hasCredit;
+  }).length;
+  if (missingDirectionColumns > 0) {
+    reasons.push(
+      `${missingDirectionColumns} transaction rows do not have exactly one Debit or Credit value.`,
     );
   }
 

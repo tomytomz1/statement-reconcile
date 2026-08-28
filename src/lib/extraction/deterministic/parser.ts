@@ -25,6 +25,7 @@ import { evaluateCompleteness } from "@/lib/verification/completeness";
 import { evaluateVerificationGate } from "@/lib/verification/gate";
 
 import { canonicalizeStatement } from "../canonicalize";
+import { directionColumns } from "../direction";
 import type { ExtractedPdfText, ExtractionErrorCode, StatementLine } from "../types";
 import { buildDocumentLines, cellRight, documentText } from "./lines";
 import {
@@ -107,6 +108,11 @@ export function detectStatementType(text: string, hint?: StatementType): Stateme
   if (savings >= 2 && savings >= checking) return "savings";
   if (checking >= 1) return "checking";
   if (credit >= 1) return "credit_card";
+  // A register heading often contains only the product name (for example "EveryDay
+  // Checking") while the stronger document-level signals live on summary/disclosure pages.
+  // This fallback is safe when detection is scoped to the selected register pages.
+  if (/\bchecking\b/i.test(text)) return "checking";
+  if (/\b(savings|money\s+market)\b/i.test(text)) return "savings";
   return hint ?? "unknown";
 }
 
@@ -135,7 +141,88 @@ export function countDistinctAccounts(text: string): number {
   return found.size;
 }
 
+type AccountSection = {
+  key: string;
+  statementType: Exclude<StatementType, "unknown">;
+  pages: Set<number>;
+  explicitlyInactive: boolean;
+};
+
+const ACCOUNT_SECTION_HEADING =
+  /^(?:[^\n]{0,60}\s)?\b(checking|savings|money\s+market(?:\s+savings)?|credit\s+card)\b\s*[-:]\s*((?:\d[\s-]*){4,})(?:\s*\(continued[^)]*\))?\s*$/i;
+
+function sectionType(value: string): Exclude<StatementType, "unknown"> {
+  if (/credit\s+card/i.test(value)) return "credit_card";
+  if (/savings|money\s+market/i.test(value)) return "savings";
+  return "checking";
+}
+
+function sectionFromLine(
+  line: StatementLine,
+): { key: string; statementType: Exclude<StatementType, "unknown"> } | null {
+  const match = ACCOUNT_SECTION_HEADING.exec(line.text);
+  if (!match?.[1] || !match[2]) return null;
+  const digits = match[2].replace(/\D/g, "");
+  if (digits.length < 4) return null;
+  return { key: digits.slice(-8), statementType: sectionType(match[1]) };
+}
+
+function detectAccountSections(lines: readonly StatementLine[]): AccountSection[] {
+  const sections = new Map<string, AccountSection>();
+  for (const [index, line] of lines.entries()) {
+    const heading = sectionFromLine(line);
+    if (!heading) continue;
+    const existing = sections.get(heading.key) ?? {
+      ...heading,
+      pages: new Set<number>(),
+      explicitlyInactive: false,
+    };
+    existing.pages.add(line.page);
+    const samePageTail = lines
+      .slice(index + 1)
+      .filter((candidate) => candidate.page === line.page)
+      .slice(0, 20);
+    if (
+      samePageTail.some((candidate) =>
+        /\bno\s+transactions\s+this\s+period\b/i.test(candidate.text),
+      )
+    ) {
+      existing.explicitlyInactive = true;
+    }
+    sections.set(heading.key, existing);
+  }
+  return [...sections.values()];
+}
+
+function selectAccountSection(
+  sections: readonly AccountSection[],
+  registerPages: ReadonlySet<number>,
+): {
+  selected?: AccountSection;
+  additionalZeroActivityAccounts: number;
+  unresolvedMultipleAccounts: boolean;
+} {
+  const active = sections.filter((section) =>
+    [...section.pages].some((page) => registerPages.has(page)),
+  );
+  if (active.length > 1) {
+    return { additionalZeroActivityAccounts: 0, unresolvedMultipleAccounts: true };
+  }
+  const selected = active[0] ?? (sections.length === 1 ? sections[0] : undefined);
+  if (!selected && sections.length > 1) {
+    return { additionalZeroActivityAccounts: 0, unresolvedMultipleAccounts: true };
+  }
+  const additional = sections.filter((section) => section.key !== selected?.key);
+  const unresolvedMultipleAccounts = additional.some((section) => !section.explicitlyInactive);
+  const additionalZeroActivityAccounts = additional.filter(
+    (section) => section.explicitlyInactive,
+  ).length;
+  return { selected, additionalZeroActivityAccounts, unresolvedMultipleAccounts };
+}
+
 type LabelledAmounts = Partial<Record<LabelledField, string>>;
+
+const LABEL_DATE_PREFIX = /^\d{1,4}[-/.]\d{1,2}(?:[-/.]\d{2,4})?\s+/;
 
 /**
  * Read labelled summary amounts such as "Beginning balance 1,204.55".
@@ -157,9 +244,10 @@ export function extractLabelledAmounts(
     if (moneyCells.length === 0) continue;
 
     for (const rule of LABEL_RULES) {
-      const labelCell = line.cells.find(
-        (cell) => rule.pattern.test(cell.text) && parseMoneyToken(cell.text, { currency }) === null,
-      );
+      const labelCell = line.cells.find((cell) => {
+        const labelText = cell.text.replace(LABEL_DATE_PREFIX, "");
+        return rule.pattern.test(labelText) && parseMoneyToken(cell.text, { currency }) === null;
+      });
       if (!labelCell) continue;
 
       const candidate =
@@ -179,6 +267,79 @@ export function extractLabelledAmounts(
     result[field] = entry.value;
   }
   return result;
+}
+
+function extractAccountSummary(
+  lines: readonly StatementLine[],
+  currency: string,
+  selected: AccountSection | undefined,
+  statementType: StatementType,
+): LabelledAmounts {
+  for (const [index, line] of lines.entries()) {
+    const typeMatch = /\b(checking|savings|money\s+market(?:\s+savings)?|credit\s+card)\b/i.exec(
+      line.text,
+    );
+    if (!typeMatch?.[1]) continue;
+    const candidateType = sectionType(typeMatch[1]);
+    if (candidateType !== statementType) continue;
+
+    const prior = lines.slice(Math.max(0, index - 8), index);
+    if (
+      !prior.some(
+        (candidate) =>
+          candidate.page === line.page &&
+          /\bsummary\s+of\b.*\baccounts?\b|\bprevious\b.*\bdeposits?\b.*\bwithdrawals?\b.*\bending\b/i.test(
+            candidate.text,
+          ),
+      )
+    ) {
+      continue;
+    }
+
+    const valueLine = lines
+      .slice(index, index + 3)
+      .find(
+        (candidate) =>
+          candidate.page === line.page && moneyCellsOf(candidate, currency).length >= 4,
+      );
+    if (!valueLine) continue;
+
+    const digits = `${line.text} ${valueLine.text}`.replace(/\D/g, "");
+    if (selected && !digits.includes(selected.key)) continue;
+
+    const values = moneyCellsOf(valueLine, currency)
+      .sort((left, right) => left.x - right.x)
+      .slice(0, 4);
+    const [opening, credits, debits, closing] = values;
+    if (!opening || !credits || !debits || !closing) continue;
+    return {
+      openingBalance: opening.canonical,
+      statedTotalCredits: formatMoney(credits.value.abs(), currency),
+      statedTotalDebits: formatMoney(debits.value.abs(), currency),
+      closingBalance: closing.canonical,
+    };
+  }
+  return {};
+}
+
+function mergeAccountEvidence(
+  register: LabelledAmounts,
+  summary: LabelledAmounts,
+  currency: string,
+): { values: LabelledAmounts; conflicts: LabelledField[] } {
+  const conflicts: LabelledField[] = [];
+  for (const field of Object.keys(summary) as LabelledField[]) {
+    const left = register[field];
+    const right = summary[field];
+    if (
+      left !== undefined &&
+      right !== undefined &&
+      !toMoney(left).minus(toMoney(right)).abs().lessThanOrEqualTo(currencyTolerance(currency))
+    ) {
+      conflicts.push(field);
+    }
+  }
+  return { values: { ...register, ...summary }, conflicts };
 }
 
 // ---------------------------------------------------------------------------
@@ -678,6 +839,35 @@ function categoryFor(
   return amount.isNegative() ? "debit" : "credit";
 }
 
+const EMBEDDED_TRANSACTION_DATE = /\b(\d{2}[-/]\d{2}[-/]\d{2,4})\b/g;
+const NON_TRANSACTION_DATE_CONTEXT =
+  /\b(?:account|acct|confirmation|invoice|phone|ref(?:erence)?)\s*$/i;
+
+function embeddedTransactionDate(
+  description: string,
+  context: DateContext,
+  leadingDate: string,
+): string | null {
+  const candidates = [...description.matchAll(EMBEDDED_TRANSACTION_DATE)]
+    .filter((match) => {
+      const prefix = description.slice(Math.max(0, (match.index ?? 0) - 24), match.index);
+      return !NON_TRANSACTION_DATE_CONTEXT.test(prefix);
+    })
+    .map((match) => normalizeDate(match[1] ?? "", context))
+    .filter((date): date is string => date !== null)
+    .filter((date) => isPlausibleTransactionDate(date, leadingDate));
+
+  return candidates.length === 1 ? candidates[0]! : null;
+}
+
+function isPlausibleTransactionDate(transactionDate: string, postedDate: string): boolean {
+  const transaction = Date.parse(`${transactionDate}T00:00:00Z`);
+  const posted = Date.parse(`${postedDate}T00:00:00Z`);
+  if (!Number.isFinite(transaction) || !Number.isFinite(posted)) return false;
+  const lagDays = (posted - transaction) / 86_400_000;
+  return lagDays >= 0 && lagDays <= 14;
+}
+
 type BuildResult = { transactions: Transaction[]; warnings: string[] } | null;
 
 function buildTransactions(
@@ -715,9 +905,17 @@ function buildTransactions(
       continue;
     }
 
-    const date = normalizeDate(row.dateTokens[0] ?? "", context);
-    if (!date) return null;
-    const postedDate = row.dateTokens[1] ? normalizeDate(row.dateTokens[1], context) : null;
+    const leadingDate = normalizeDate(row.dateTokens[0] ?? "", context);
+    if (!leadingDate) return null;
+    let date = leadingDate;
+    let postedDate = row.dateTokens[1] ? normalizeDate(row.dateTokens[1], context) : null;
+    if (!postedDate) {
+      const embeddedDate = embeddedTransactionDate(row.description, context, leadingDate);
+      if (embeddedDate) {
+        date = embeddedDate;
+        postedDate = leadingDate;
+      }
+    }
 
     let amount: MoneyValue;
     let debit: string | undefined;
@@ -782,6 +980,12 @@ function buildTransactions(
       }
     } else {
       return null;
+    }
+
+    if (!debit && !credit) {
+      const derived = directionColumns(amount, statementType, currency);
+      debit = derived.debit;
+      credit = derived.credit;
     }
 
     if (amount.isZero()) {
@@ -857,14 +1061,7 @@ export function parseStatementDeterministically(
   }
 
   const text = documentText(lines);
-  const statementType = detectStatementType(text, hint.statementType);
   const currency = detectCurrency(text, hint.currency);
-
-  if (countDistinctAccounts(text) > 1) {
-    return { ok: false, code: "multiple_accounts", warnings: [] };
-  }
-
-  const labelled = extractLabelledAmounts(lines, currency);
 
   const { rows, continuationCount } = collectRawRows(lines, currency);
   if (rows.length === 0) {
@@ -912,6 +1109,41 @@ export function parseStatementDeterministically(
     return { ok: false, code: "layout_not_recognized", warnings: [] };
   }
 
+  const registerPages = new Set(registerRows.map((row) => row.page));
+  const accountSections = detectAccountSections(lines);
+  const accountSelection = selectAccountSection(accountSections, registerPages);
+  const labelledAccountCount = countDistinctAccounts(text);
+  if (
+    accountSelection.unresolvedMultipleAccounts ||
+    labelledAccountCount > Math.max(1, accountSections.length)
+  ) {
+    return { ok: false, code: "multiple_accounts", warnings: [] };
+  }
+
+  const registerLines = lines.filter((line) => registerPages.has(line.page));
+  const registerText = documentText(registerLines);
+  const statementType =
+    accountSelection.selected?.statementType ??
+    detectStatementType(registerText, hint.statementType);
+  const registerEvidence = extractLabelledAmounts(registerLines, currency);
+  // Per-account summary association is only meaningful once a register section supplied
+  // an account key. Skipping the document-wide scan for ordinary single-register layouts
+  // keeps the common parser path unchanged and avoids repeated work under coverage.
+  const summaryEvidence = accountSelection.selected
+    ? extractAccountSummary(lines, currency, accountSelection.selected, statementType)
+    : {};
+  const evidence = mergeAccountEvidence(registerEvidence, summaryEvidence, currency);
+  if (evidence.conflicts.length > 0) {
+    return {
+      ok: false,
+      code: "layout_not_recognized",
+      warnings: [
+        `Conflicting active-account evidence was found for: ${evidence.conflicts.join(", ")}.`,
+      ],
+    };
+  }
+  const labelled = evidence.values;
+
   const firstRow = registerRows[0];
   const derivedHeaderRoles = firstRow ? headerRoles(lines, clusters, firstRow.lineIndex) : null;
   const hasSections = registerRows.some((row) => row.section !== null);
@@ -931,6 +1163,12 @@ export function parseStatementDeterministically(
     baseWarnings.push(
       `Page ${pageList} uses a different column layout from the transaction register and was ` +
         `read as a summary section, not as transactions.`,
+    );
+  }
+  if (accountSelection.additionalZeroActivityAccounts > 0) {
+    const count = accountSelection.additionalZeroActivityAccounts;
+    baseWarnings.push(
+      `${count} additional zero-activity account ${count === 1 ? "section was" : "sections were"} found and excluded from this ${statementType.replace("_", " ")} export.`,
     );
   }
 
@@ -962,6 +1200,7 @@ export function parseStatementDeterministically(
         new Set(registerRows.map((row) => row.section).filter(Boolean)).size,
       ),
       mixedAccount: false,
+      additionalZeroActivityAccounts: accountSelection.additionalZeroActivityAccounts,
       truncated: false,
       timedOut: false,
       pagesWithCandidateRows: new Set(registerRows.map((row) => row.page)),

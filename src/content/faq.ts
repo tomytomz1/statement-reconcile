@@ -127,6 +127,7 @@ export const faqs: readonly FaqEntry[] = [
     question: "Both file formats for one payment?",
     answer: [
       "Yes. The Excel workbook, the CSV, the verification report PDF, and the pack manifest are the same conversion in the formats you take home, so one payment includes them and you can download each as often as you need.",
+      "Download them from the paid result page and save the recovery link shown there. We do not email or store the converted files or recovery link. A Stripe payment receipt, when enabled and sent, is separate from file delivery.",
     ],
   },
   {

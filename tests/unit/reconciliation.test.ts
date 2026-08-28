@@ -227,6 +227,19 @@ describe("checking reconciliation", () => {
     expect(result.passed).toBe(false);
   });
 
+  it("reports missing Debit and Credit fields instead of vacuously passing the check", () => {
+    const result = reconcile(checking());
+    const check = result.checks.find((item) => item.name === "column_amount_agreement");
+
+    expect(check).toMatchObject({
+      passed: false,
+      actual: "not available on 3 rows",
+      advisory: true,
+    });
+    // A signed-amount layout may still reconcile, but the absent-column comparison is not proof.
+    expect(result.passed).toBe(true);
+  });
+
   it("rejects duplicated rows that share a running balance", () => {
     const row = {
       date: "2024-03-02",

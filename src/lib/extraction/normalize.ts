@@ -23,6 +23,7 @@ import {
 import { canonicalizeStatement, canonicalizeText } from "./canonicalize";
 import { CATEGORY_PATTERNS } from "./deterministic/patterns";
 import type { ExtractionErrorCode } from "./types";
+import { directionColumns } from "./direction";
 
 /**
  * Local normalization of a parsing provider's candidate output.
@@ -198,6 +199,12 @@ function normalizeTransaction(
     return { ok: false, code: "provider_invalid_output", detail: "no usable amount" };
   }
 
+  const derivedDirection = directionColumns(amount, context.statementType, context.currency);
+  const normalizedDebit =
+    debit && !debit.isZero() ? formatMoney(debit, context.currency) : derivedDirection.debit;
+  const normalizedCredit =
+    credit && !credit.isZero() ? formatMoney(credit, context.currency) : derivedDirection.credit;
+
   // When both a signed amount and a column value are present they must agree, otherwise
   // the direction of the row is ambiguous.
   if (rawAmount && (debit ?? credit)) {
@@ -232,8 +239,8 @@ function normalizeTransaction(
     amount: formatMoney(amount, context.currency),
     categoryHint: resolveCategory(row.categoryHint, description, amount, context.statementType),
     ...(postedDate ? { postedDate } : {}),
-    ...(debit && !debit.isZero() ? { debit: formatMoney(debit, context.currency) } : {}),
-    ...(credit && !credit.isZero() ? { credit: formatMoney(credit, context.currency) } : {}),
+    ...(normalizedDebit ? { debit: normalizedDebit } : {}),
+    ...(normalizedCredit ? { credit: normalizedCredit } : {}),
   };
 
   const runningBalance = parseOptional(row.runningBalance, context.currency);

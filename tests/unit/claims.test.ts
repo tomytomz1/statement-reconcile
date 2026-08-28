@@ -167,6 +167,12 @@ const SERVER_SIDE_BYTES = [
   /server (enforces|checks|validates)[^.]{0,40}20 ?MB/i,
 ];
 
+/** Converted files and the recovery link are shown locally; neither is sent by email. */
+const FILE_DELIVERY_BY_EMAIL = [
+  /\b(?:we|stripe)\s+(?:will\s+)?(?:email|send)[^.]{0,60}\b(?:converted files?|downloads?|recovery link)\b/i,
+  /\b(?:converted files?|recovery link)\s+(?:will\s+be|are|is)\s+(?:emailed|sent by email)\b/i,
+];
+
 describe("claims policy", () => {
   it("does not use prohibited accuracy or authenticity claims in public copy", () => {
     const blobs = collectPublicCopy();
@@ -370,6 +376,29 @@ describe("claims policy", () => {
           pattern,
         );
       }
+    }
+  });
+
+  it("does not claim converted files or the recovery link are delivered by email", () => {
+    for (const [path, text] of collectAllClaimSurfaces()) {
+      for (const pattern of FILE_DELIVERY_BY_EMAIL) {
+        expect(
+          text,
+          `${path} promises email delivery that the product does not provide`,
+        ).not.toMatch(pattern);
+      }
+    }
+  });
+
+  it("the email-delivery guard catches the promises it is meant to forbid", () => {
+    for (const sample of [
+      "We will email your converted files after payment.",
+      "Your recovery link will be emailed after checkout.",
+    ]) {
+      expect(
+        FILE_DELIVERY_BY_EMAIL.some((pattern) => pattern.test(sample)),
+        `no email-delivery guard matches: ${sample}`,
+      ).toBe(true);
     }
   });
 

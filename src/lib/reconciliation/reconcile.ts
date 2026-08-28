@@ -192,6 +192,7 @@ function runStructuralChecks(statement: NormalizedStatement, builder: Builder): 
   // direction would be ambiguous and we would be guessing at the sign.
   const ambiguousRows: number[] = [];
   const inconsistentRows: number[] = [];
+  const missingColumnRows: number[] = [];
   for (const [index, transaction] of transactions.entries()) {
     const debit = transaction.debit ? toMoney(transaction.debit) : null;
     const credit = transaction.credit ? toMoney(transaction.credit) : null;
@@ -199,6 +200,11 @@ function runStructuralChecks(statement: NormalizedStatement, builder: Builder): 
 
     if (debit && credit && !debit.isZero() && !credit.isZero()) {
       ambiguousRows.push(index + 1);
+      continue;
+    }
+
+    if (!amount.isZero() && (!debit || debit.isZero()) && (!credit || credit.isZero())) {
+      missingColumnRows.push(index + 1);
       continue;
     }
 
@@ -226,10 +232,17 @@ function runStructuralChecks(statement: NormalizedStatement, builder: Builder): 
   addCheck(builder, {
     name: "column_amount_agreement",
     label: "Debit and credit columns agree with the signed amount",
-    passed: inconsistentRows.length === 0,
+    passed: missingColumnRows.length === 0 && inconsistentRows.length === 0,
     actual:
-      inconsistentRows.length === 0 ? "all rows" : `${inconsistentRows.length} inconsistent rows`,
-    advisory: false,
+      missingColumnRows.length > 0
+        ? `not available on ${missingColumnRows.length} rows`
+        : inconsistentRows.length === 0
+          ? "all rows"
+          : `${inconsistentRows.length} inconsistent rows`,
+    // A source layout may genuinely expose only a signed amount. The parser/export layer
+    // derives the fixed columns before the verification gate; reconciliation itself still
+    // reports their absence honestly rather than turning an empty comparison into a pass.
+    advisory: missingColumnRows.length === transactions.length,
   });
 
   // Zero-amount rows are usually informational text captured as a transaction.

@@ -12,7 +12,10 @@ const LEFT = 54;
 const TOP = 54;
 const LINE_HEIGHT = 13;
 const BODY_SIZE = 10;
-const MAX_LINES = 48;
+// At 13 pt leading, 52 lines leave a 75 pt bottom margin on letter paper. Keeping the
+// standard successful report on one page also avoids a single wrapped disclaimer line
+// being orphaned on an otherwise blank second page.
+const MAX_LINES = 52;
 
 export function writeTextPdf(pages: readonly string[][]): Uint8Array {
   if (pages.length === 0) throw new Error("a PDF needs at least one page");
@@ -90,7 +93,7 @@ export function writeTextPdf(pages: readonly string[][]): Uint8Array {
 export function wrapReportLines(lines: readonly string[], width = 92): string[] {
   const wrapped: string[] = [];
   for (const line of lines) {
-    const text = line.replace(/\s+/g, " ").trimEnd();
+    const text = asciiReportText(line).replace(/\s+/g, " ").trimEnd();
     if (text === "") {
       wrapped.push("");
       continue;
@@ -105,6 +108,18 @@ export function wrapReportLines(lines: readonly string[], width = 92): string[] 
     wrapped.push(remaining);
   }
   return wrapped;
+}
+
+/** Helvetica/WinAnsi reports must not silently turn unsupported punctuation into `?`. */
+export function asciiReportText(value: string): string {
+  return value
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u00B7\u2022]/g, "|")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\x20-\x7E]/g, "[unsupported]");
 }
 
 export function paginateLines(lines: readonly string[], max = MAX_LINES): string[][] {

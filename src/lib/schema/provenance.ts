@@ -163,6 +163,8 @@ export const completenessReportSchema = z.object({
   truncated: z.boolean(),
   timedOut: z.boolean(),
   mixedAccount: z.boolean(),
+  /** Extra account sections proven to contain no activity and excluded from this export. */
+  additionalZeroActivityAccounts: z.number().int().min(0).optional(),
   pages: z.array(pageCompletenessSchema).max(MAX_PAGES),
   passed: z.boolean(),
   rejectionCodes: z.array(z.string().max(64)).max(20),

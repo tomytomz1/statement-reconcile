@@ -149,6 +149,10 @@ export function DownloadPanel({
           matched to your payment, and you are not charged twice. The order you pick them in does
           not matter. Keep both the link and the original statements; we hold no copy of either.
         </p>
+        <p className="text-caution-800 mt-2 text-sm leading-relaxed font-semibold">
+          We do not email the converted files or this recovery link. A Stripe payment receipt, if
+          enabled and sent, is separate and cannot restore the files by itself.
+        </p>
 
         {recoveryUrl ? (
           <div className="border-ink-200 mt-4 rounded-lg border bg-white p-4">

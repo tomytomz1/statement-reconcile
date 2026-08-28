@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { buildVerificationPdf, VERIFICATION_DISCLAIMER } from "@/lib/export/verification-pdf";
 import { deliverExport } from "@/lib/export/deliver";
+import { asciiReportText } from "@/lib/export/text-pdf";
 import { reconcile } from "@/lib/reconciliation";
 import { withStatementDefaults } from "@/lib/schema/build";
 import { assemblePack } from "@/lib/schema/assemble-pack";
@@ -35,6 +36,33 @@ describe("verification PDF and pack deliverables", () => {
     expect(text).toContain("authentic");
     expect(text).toContain(digest.slice(0, 16));
     expect(VERIFICATION_DISCLAIMER.toLowerCase()).toContain("audit opinion");
+  });
+
+  it("normalizes unsupported report punctuation instead of rendering replacement question marks", () => {
+    expect(asciiReportText("Report — café · ‘quoted’ − total")).toBe(
+      "Report - cafe | 'quoted' - total",
+    );
+    expect(asciiReportText("unexpected ☃ glyph")).toBe("unexpected [unsupported] glyph");
+  });
+
+  it("reports an excluded zero-activity account without calling the result single-account", async () => {
+    const source = {
+      ...statement(),
+      completeness: {
+        ...statement().completeness,
+        additionalZeroActivityAccounts: 1,
+      },
+    };
+    const { digest } = await canonicalizeAndDigest(source);
+    const bytes = buildVerificationPdf(source, {
+      reconciliation: reconcile(source),
+      resultDigest: digest,
+      generatedAt: new Date("2026-03-31T00:00:00Z"),
+    });
+    const text = new TextDecoder("latin1").decode(bytes);
+
+    expect(text).toContain("one active account exported; 1 zero-activity account section excluded");
+    expect(text).not.toContain("Mixed account: no");
   });
 
   it("delivers csv, xlsx, report, and pack-manifest for a verified pack", async () => {

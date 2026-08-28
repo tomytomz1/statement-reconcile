@@ -417,3 +417,215 @@ describe("a second table with a different column layout", () => {
     expect(outcome.statement.completeness.pagesDeclared).toBe(2);
   });
 });
+
+/**
+ * Synthetic reproduction of a combined deposit-account statement:
+ * one active checking register, one explicitly inactive savings section, a per-account
+ * summary, a two-up Items Paid index, and a disclosure page. No real institution or
+ * customer data is used.
+ */
+function combinedDepositDocument(secondAccountActive = false) {
+  const item = (t: string, x: number, y: number, w: number) => ({ t, x, y, w, h: 9 });
+  const money = (t: string, x: number, y: number, w = 42) => item(t, x, y, w);
+  const summarySavings = secondAccountActive
+    ? [
+        money("$5.00", 150, 117),
+        money("$8.00", 250, 117),
+        money("$3.00", 350, 117),
+        money("$10.00", 460, 117),
+      ]
+    : [
+        money("$5.00", 150, 117),
+        money("$0.00", 250, 117),
+        money("$0.00", 350, 117),
+        money("$5.00", 460, 117),
+      ];
+  const savingsTail = secondAccountActive
+    ? [
+        item("07-20", 14, 260, 26),
+        item("TRANSFER CREDIT", 55, 260, 90),
+        money("8.00", 435, 260, 30),
+        money("13.00", 560, 260, 34),
+        item("07-21", 14, 275, 26),
+        item("CASH WITHDRAWAL", 55, 275, 90),
+        money("3.00-", 435, 275, 30),
+        money("10.00", 560, 275, 34),
+      ]
+    : [item("No Transactions This Period", 240, 260, 140)];
+
+  return {
+    pageCount: 4,
+    pages: [
+      {
+        page: 1,
+        width: 648,
+        height: 828,
+        items: [
+          item("Statement Period 07/09/26 - 08/08/26", 400, 25, 160),
+          item("Summary of deposit accounts", 14, 45, 150),
+          item("Previous Balance", 140, 65, 80),
+          item("Deposits/Credits", 240, 65, 85),
+          item("Withdrawals/Debits", 340, 65, 100),
+          item("Ending Balance", 455, 65, 75),
+          item("Beacon Checking", 14, 82, 85),
+          item("11112222", 14, 92, 45),
+          money("$1,000.00", 140, 92),
+          money("$540.00", 240, 92),
+          money("$326.00", 340, 92),
+          money("$1,214.00", 455, 92),
+          item("Reserve Savings", 14, 107, 85),
+          item("33334444", 14, 117, 45),
+          ...summarySavings,
+          item("Totals", 14, 140, 35),
+        ],
+      },
+      {
+        page: 2,
+        width: 648,
+        height: 828,
+        items: [
+          item("Beacon Checking - 11112222", 14, 40, 150),
+          item("Date", 14, 60, 22),
+          item("Transaction Detail", 55, 60, 95),
+          item("Amount($)", 431, 60, 44),
+          item("Balance($)", 557, 60, 37),
+          item("07-09", 14, 75, 26),
+          item("Beginning Balance", 55, 75, 90),
+          money("1,000.00", 560, 75, 34),
+          item("07-11", 14, 90, 26),
+          item("POS Debit- Debit Card 4321 07-10-26 NORTHLIGHT MARKET", 55, 90, 260),
+          money("25.00-", 445, 90, 30),
+          money("975.00", 560, 90, 34),
+          item("07-13", 14, 105, 26),
+          item("POS Credit Adjustment 4321 Transaction 07-12-26 MERCHANT RETURN", 55, 105, 285),
+          money("40.00", 445, 105, 30),
+          money("1,015.00", 560, 105, 34),
+          item("07-15", 14, 120, 26),
+          item("REFERENCE 12-34-56 AND 01-02-26 PAYROLL", 55, 120, 200),
+          money("500.00", 445, 120, 30),
+          money("1,515.00", 560, 120, 34),
+          item("07-20", 14, 135, 26),
+          item("MONTHLY RENT", 55, 135, 90),
+          money("300.00-", 445, 135, 30),
+          money("1,215.00", 560, 135, 34),
+          item("07-25", 14, 150, 26),
+          item("SERVICE FEE", 55, 150, 75),
+          money("1.00-", 445, 150, 30),
+          money("1,214.00", 560, 150, 34),
+          item("08-08", 14, 170, 26),
+          item("Ending Balance", 55, 170, 82),
+          money("1,214.00", 560, 170, 34),
+        ],
+      },
+      {
+        page: 3,
+        width: 648,
+        height: 828,
+        items: [
+          item("Items Paid", 14, 35, 52),
+          item("Date", 18, 55, 22),
+          item("Item", 140, 55, 20),
+          item("Amount($)", 226, 55, 44),
+          item("Date", 316, 55, 22),
+          item("Item", 439, 55, 20),
+          item("Amount($)", 525, 55, 44),
+          ...[0, 1, 2, 3].flatMap((index) => {
+            const y = 70 + index * 15;
+            return [
+              item(`07-${10 + index}`, 18, y, 26),
+              item("POS", 155, y, 22),
+              money(`${10 + index}.00`, 236, y, 30),
+              item(`07-${20 + index}`, 316, y, 26),
+              item("ACH", 454, y, 22),
+              money(`${20 + index}.00`, 535, y, 30),
+            ];
+          }),
+          item("Savings", 14, 210, 45),
+          item("Reserve Savings - 33334444", 14, 225, 160),
+          item("Date", 14, 240, 22),
+          item("Transaction Detail", 55, 240, 95),
+          item("Amount($)", 431, 240, 44),
+          item("Balance($)", 557, 240, 37),
+          ...savingsTail,
+        ],
+      },
+      {
+        page: 4,
+        width: 648,
+        height: 828,
+        items: [
+          item("Disclosure Information", 14, 40, 110),
+          item("Please retain this notice.", 14, 58, 130),
+        ],
+      },
+    ],
+  };
+}
+
+describe("combined statements with one active account", () => {
+  it("selects the active checking register and its own printed evidence", () => {
+    const outcome = parseStatementDeterministically(combinedDepositDocument());
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) return;
+
+    expect(outcome.statement.statementType).toBe("checking");
+    expect(outcome.statement.transactions).toHaveLength(5);
+    expect(outcome.statement.openingBalance).toBe("1000.00");
+    expect(outcome.statement.statedTotalCredits).toBe("540.00");
+    expect(outcome.statement.statedTotalDebits).toBe("326.00");
+    expect(outcome.statement.closingBalance).toBe("1214.00");
+    expect(outcome.statement.completeness.additionalZeroActivityAccounts).toBe(1);
+    expect(outcome.statement.extractionWarnings.join(" ")).toMatch(/zero-activity account/i);
+  });
+
+  it("derives fixed Debit/Credit columns and maps embedded transaction dates safely", () => {
+    const outcome = parseStatementDeterministically(combinedDepositDocument());
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) return;
+
+    expect(
+      outcome.statement.transactions.every((row) => Boolean(row.debit) !== Boolean(row.credit)),
+    ).toBe(true);
+    expect(outcome.statement.transactions[0]).toMatchObject({
+      date: "2026-07-10",
+      postedDate: "2026-07-11",
+      debit: "25.00",
+      amount: "-25.00",
+    });
+    const falseDate = outcome.statement.transactions.find((row) =>
+      row.description.includes("12-34-56"),
+    );
+    expect(falseDate).toMatchObject({ date: "2026-07-15", credit: "500.00" });
+    expect(falseDate?.postedDate).toBeUndefined();
+  });
+
+  it("accounts for every page and runs every available arithmetic proof", () => {
+    const outcome = parseStatementDeterministically(combinedDepositDocument());
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) return;
+
+    expect(outcome.statement.completeness.pagesIncludedInParse).toBe(4);
+    expect(outcome.statement.completeness.pages.map((page) => page.classification)).toEqual([
+      "summary",
+      "transactions",
+      "summary",
+      "summary",
+    ]);
+    for (const name of [
+      "opening_plus_transactions_equals_closing",
+      "running_balance_chain",
+      "stated_total_debits",
+      "stated_total_credits",
+      "column_amount_agreement",
+    ]) {
+      expect(outcome.reconciliation.checks.find((check) => check.name === name)?.passed).toBe(true);
+    }
+  });
+
+  it("fails closed when the second account is not explicitly inactive", () => {
+    const outcome = parseStatementDeterministically(combinedDepositDocument(true));
+    expect(outcome.ok).toBe(false);
+    if (outcome.ok) return;
+    expect(outcome.code).toBe("multiple_accounts");
+  });
+});

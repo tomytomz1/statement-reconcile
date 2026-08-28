@@ -209,6 +209,10 @@ describe("digest helpers", () => {
 });
 
 describe("bounding boxes survive to a digest", () => {
+  const reconcilingFamilies = FIXTURE_FAMILIES.filter(
+    (family) => family.expectation === "reconciles",
+  );
+
   /**
    * Real PDFs place text at fractional coordinates, and the browser extractor rounds them to
    * tenths. Every synthetic fixture happens to sit on whole points, so this whole class of
@@ -258,10 +262,9 @@ describe("bounding boxes survive to a digest", () => {
     });
   });
 
-  it("digests a statement parsed from fractional coordinates", async () => {
-    const reconciling = FIXTURE_FAMILIES.filter((family) => family.expectation === "reconciles");
-
-    for (const family of reconciling) {
+  it.each(reconcilingFamilies)(
+    "digests a $family statement parsed from fractional coordinates",
+    async (family) => {
       const fixture = generateFixture(family.family, 5);
       const outcome = parseStatementDeterministically(shiftOffWholePoints(fixture.document));
       if (!outcome.ok) throw new Error(`${fixture.id} did not parse: ${outcome.code}`);
@@ -277,6 +280,6 @@ describe("bounding boxes survive to a digest", () => {
       // The step that actually failed in production: canonicalJson refuses a non-integer.
       const { digest } = await canonicalizeAndDigest(outcome.statement);
       expect(digest).toMatch(/^[0-9a-f]{64}$/);
-    }
-  });
+    },
+  );
 });

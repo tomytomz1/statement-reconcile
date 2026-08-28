@@ -78,6 +78,9 @@ export function Paywall({
           <p className="text-ink-500 mt-2 max-w-[15rem] text-xs leading-relaxed sm:ml-auto">
             Card details are entered on Stripe&rsquo;s own page. They never reach our servers.
           </p>
+          <p className="text-ink-500 mt-2 max-w-[15rem] text-xs leading-relaxed sm:ml-auto">
+            Your files and recovery link appear here after payment. We do not email or store them.
+          </p>
         </div>
       </div>
 

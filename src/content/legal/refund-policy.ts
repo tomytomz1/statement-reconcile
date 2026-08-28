@@ -82,7 +82,7 @@ export const refundPolicy: LegalDocument = {
         {
           kind: "bullets",
           items: [
-            "The Stripe receipt number, from the receipt Stripe emailed you at the address you gave during checkout. This is the fastest route.",
+            "The Stripe receipt number, if Stripe sent a payment receipt to the address used at checkout. This is the fastest route when available.",
             "Or the payment reference from your card or bank statement — the descriptor line for the charge, together with the date and the exact amount.",
           ],
         },

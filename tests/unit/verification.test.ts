@@ -160,6 +160,19 @@ describe("completeness", () => {
 });
 
 describe("verification gate", () => {
+  it("cannot mark a non-zero row verified without exactly one Debit or Credit value", () => {
+    const statement = checkingWithRunningBalances();
+    const gated = evaluateVerificationGate({
+      statement,
+      completeness: statement.completeness,
+      ambiguities: [],
+    });
+
+    expect(gated.result.passed).toBe(false);
+    expect(gated.result.rejectionReasons.join(" ")).toMatch(/exactly one Debit or Credit/i);
+    expect(gated.statement.verificationState).toBe("verification_rejected");
+  });
+
   it("blocks payment when a row has no source regions", async () => {
     const statement = checkingWithRunningBalances();
     const unmapped = {
