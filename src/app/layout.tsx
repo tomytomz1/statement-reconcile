@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/next";
 
 import { PendingFilesProvider } from "@/components/converter/pending-files";
 import { siteConfig } from "@/config/site";
@@ -59,6 +60,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           data={jsonLdGraph([organizationSchema(), websiteSchema(), softwareApplicationSchema()])}
         />
         <span className="hidden" aria-hidden="true" data-version={siteConfig.productVersion} />
+        <Analytics />
       </body>
     </html>
   );
