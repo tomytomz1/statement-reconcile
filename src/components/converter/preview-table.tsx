@@ -7,10 +7,10 @@ import { cn } from "@/components/ui/cn";
 /**
  * The preview table.
  *
- * Shows the first rows exactly as they will appear in the export — same columns, same order,
- * same values — so the preview is a genuine sample rather than a stylised teaser. Amounts use
- * tabular figures and are right-aligned, because a column of misaligned digits is unreadable
- * and this table is the thing the customer is being asked to check.
+ * Shows the first transaction values as they will appear in the export, while the downloaded
+ * files add Posted Date and reference columns. Amounts use tabular figures and are right-aligned,
+ * because a column of misaligned digits is unreadable and this table is the thing the customer
+ * is being asked to check.
  */
 export function PreviewTable({
   rows,
@@ -38,7 +38,9 @@ export function PreviewTable({
             showing {rows.length} of {totalCount}
           </span>
         </h3>
-        <p className="text-ink-500 text-xs">Same columns as the CSV and the Excel sheet</p>
+        <p className="text-ink-500 text-xs">
+          Same transaction data; exports add Posted Date and reference columns
+        </p>
       </div>
 
       <div className="overflow-x-auto">

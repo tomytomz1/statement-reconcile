@@ -402,6 +402,15 @@ describe("claims policy", () => {
     }
   });
 
+  it("does not claim the compact preview has every export column", () => {
+    const preview = readFileSync(
+      join(process.cwd(), "src", "components", "converter", "preview-table.tsx"),
+      "utf8",
+    );
+    expect(preview).not.toMatch(/same columns as the CSV and the Excel sheet/i);
+    expect(preview).toMatch(/exports add Posted Date and reference columns/i);
+  });
+
   /**
    * The price is public now, so the rule is no longer "never say it" — it is "never say it
    * twice". A literal amount typed into a component is a number that can drift away from the
