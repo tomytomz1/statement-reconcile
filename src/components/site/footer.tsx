@@ -99,6 +99,7 @@ export function SiteFooter() {
             advice.
           </p>
         </div>
+        <p className="text-ink-600 mt-4 text-xs">Built by <a href="https://beltran.digital/" target="_blank" rel="noopener" className="underline underline-offset-4 hover:text-accent-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">Beltrán Digital</a></p>
       </Container>
     </footer>
   );
