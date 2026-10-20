@@ -139,7 +139,7 @@ export const siteConfig = {
   productVersion: process.env.NEXT_PUBLIC_PRODUCT_VERSION?.trim() || "1.0.0",
 } as const;
 
-export type AnalyticsProvider = "none" | "plausible" | "vercel";
+export type AnalyticsProvider = "none" | "plausible" | "vercel" | "ga4";
 
 export const routes = {
   home: "/",
