@@ -151,7 +151,7 @@ function sendFirstPartyGa4(event: string): void {
   if (event !== "page_view" && event !== "pricing_viewed") return;
   if (typeof window === "undefined") return;
   if (window.location.origin !== siteConfig.url) return;
-  if (!/^\\/(?:[a-z0-9-]{1,100})?$/.test(window.location.pathname)) return;
+  if (!/^\/(?:[a-z0-9-]{1,100})?$/.test(window.location.pathname)) return;
   try {
     if (localStorage.getItem("sr_ga4_marketing_consent") !== "granted") return;
     if (!ephemeralGa4Session) {
