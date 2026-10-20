@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { siteConfig } from "@/config/site";
 import { flags } from "@/config/flags";
+import { isPublicMarketingPath } from "@/lib/analytics/marketing-paths";
 import { checkRateLimit, clientIdentity, rateLimitMisconfigured } from "@/lib/security/rate-limit";
 
 /**
@@ -12,7 +13,6 @@ import { checkRateLimit, clientIdentity, rateLimitMisconfigured } from "@/lib/se
  * Strict allowlist: never forward free-form event props, search params,
  * filenames, statement content, account identifiers or checkout information.
  */
-const MARKETING_PATH = /^\/(?:[a-z0-9-]{1,100})?$/;
 const CLIENT_ID = /^\d{1,10}\.\d{13}$/;
 const SESSION_ID = /^\d{10,13}$/;
 const ALLOWED_EVENTS = new Set(["page_view", "pricing_viewed"]);
@@ -74,7 +74,7 @@ export async function POST(request: Request): Promise<Response> {
     typeof eventName !== "string" ||
     !ALLOWED_EVENTS.has(eventName) ||
     typeof path !== "string" ||
-    !MARKETING_PATH.test(path) ||
+    !isPublicMarketingPath(path) ||
     typeof clientId !== "string" ||
     !CLIENT_ID.test(clientId) ||
     typeof sessionId !== "string" ||
