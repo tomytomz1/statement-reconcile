@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 import { captureAttribution } from "@/lib/analytics/attribution";
+import { siteConfig } from "@/config/site";
 import { track } from "@/lib/analytics/client";
 
 /**
@@ -21,6 +22,12 @@ export function PageAnalytics() {
   const attributed = useRef(false);
 
   useEffect(() => {
+    // GA4's private first-party relay deliberately does not capture UTM details
+    // or write attribution to storage before the visitor explicitly consents.
+    if (siteConfig.analytics.provider === "ga4") {
+      track("page_view", { path: pathname });
+      return;
+    }
     if (!attributed.current) {
       attributed.current = true;
       const attribution = captureAttribution();
