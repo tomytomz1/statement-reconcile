@@ -2,11 +2,7 @@ import { NextResponse } from "next/server";
 
 import { siteConfig } from "@/config/site";
 import { flags } from "@/config/flags";
-import {
-  checkRateLimit,
-  clientIdentity,
-  rateLimitMisconfigured,
-} from "@/lib/security/rate-limit";
+import { checkRateLimit, clientIdentity, rateLimitMisconfigured } from "@/lib/security/rate-limit";
 
 /**
  * First-party, marketing-only GA4 Measurement Protocol relay.
@@ -22,8 +18,11 @@ const SESSION_ID = /^\d{10,13}$/;
 const ALLOWED_EVENTS = new Set(["page_view", "pricing_viewed"]);
 
 export async function POST(request: Request): Promise<Response> {
-  if (process.env.VERCEL_ENV !== "production" ||
-      !flags.analytics || siteConfig.analytics.provider !== "ga4") {
+  if (
+    process.env.VERCEL_ENV !== "production" ||
+    !flags.analytics ||
+    siteConfig.analytics.provider !== "ga4"
+  ) {
     return new Response(null, { status: 204 });
   }
 
@@ -46,7 +45,10 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const identity = await clientIdentity(request);
-  const limit = await checkRateLimit({ name: "ga4-marketing", limit: 80, windowSeconds: 60 }, identity);
+  const limit = await checkRateLimit(
+    { name: "ga4-marketing", limit: 80, windowSeconds: 60 },
+    identity,
+  );
   if (!limit.allowed) return new Response(null, { status: 429 });
 
   // Limit the actual body size, including requests with no Content-Length header.
@@ -68,10 +70,16 @@ export async function POST(request: Request): Promise<Response> {
   const clientId = body.clientId;
   const sessionId = body.sessionId;
 
-  if (typeof eventName !== "string" || !ALLOWED_EVENTS.has(eventName) ||
-      typeof path !== "string" || !MARKETING_PATH.test(path) ||
-      typeof clientId !== "string" || !CLIENT_ID.test(clientId) ||
-      typeof sessionId !== "string" || !SESSION_ID.test(sessionId)) {
+  if (
+    typeof eventName !== "string" ||
+    !ALLOWED_EVENTS.has(eventName) ||
+    typeof path !== "string" ||
+    !MARKETING_PATH.test(path) ||
+    typeof clientId !== "string" ||
+    !CLIENT_ID.test(clientId) ||
+    typeof sessionId !== "string" ||
+    !SESSION_ID.test(sessionId)
+  ) {
     return new Response(null, { status: 400 });
   }
 
