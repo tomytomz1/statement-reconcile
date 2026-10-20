@@ -5,7 +5,7 @@ import {
   serverEnv,
 } from "@/config/env";
 
-import { logEvent } from "./logging";
+import { logEvent, logFailure } from "./logging";
 
 /**
  * Rate limiting.
@@ -75,8 +75,9 @@ export async function checkRateLimit(
   if (rateLimitDurable()) {
     try {
       return await upstashFixedWindow(key, rule);
-    } catch {
-      logEvent("rate_limit_backend_unavailable", { rule: rule.name });
+    } catch (error) {
+      // Log only the safe error class, never credentials, URLs or Redis keys.
+      logFailure("rate_limit_backend_unavailable", error, { rule: rule.name });
       // Fail closed: if the limiter cannot be reached we do not know how much traffic has
       // already been served, so we decline rather than open the door.
       return { allowed: false, limit: rule.limit, remaining: 0, resetSeconds: rule.windowSeconds };
@@ -126,7 +127,10 @@ async function upstashFixedWindow(key: string, rule: RateLimitRule): Promise<Rat
     signal: AbortSignal.timeout(3000),
   });
 
-  if (!response.ok) throw new Error(`limiter responded ${response.status}`);
+  if (!response.ok) {
+    logEvent("rate_limit_backend_http_error", { rule: rule.name, httpStatus: response.status });
+    throw new Error("Redis REST rejected the rate-limit request");
+  }
 
   const results = (await response.json()) as Array<{ result?: number | string }>;
   const count = Number(results[0]?.result ?? 0);
