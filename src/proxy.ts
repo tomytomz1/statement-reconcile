@@ -33,7 +33,12 @@ export default function proxy(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
   const processing = isProcessingPath(pathname);
 
-  const analyticsOrigin = process.env.NEXT_PUBLIC_ANALYTICS_HOST?.trim();
+  // The first-party GA4 relay does not need an external browser connection.
+  // Ignore stale Plausible hosts after switching the provider.
+  const analyticsOrigin =
+    process.env.NEXT_PUBLIC_ANALYTICS_PROVIDER === "plausible"
+      ? process.env.NEXT_PUBLIC_ANALYTICS_HOST?.trim()
+      : undefined;
   const csp = contentSecurityPolicy({
     ...(processing ? { nonce } : {}),
     processing,
