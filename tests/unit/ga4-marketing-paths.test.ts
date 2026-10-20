@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import { isPublicMarketingPath } from "@/lib/analytics/marketing-paths";
+import { seoSlugs } from "@/content/seo";
 
 describe("GA4 public marketing path allowlist", () => {
+  it("keeps all SEO landing pages on the explicit allowlist", () => {
+    for (const slug of seoSlugs()) {
+      expect(isPublicMarketingPath(`/${slug}`)).toBe(true);
+    }
+  });
+
   it.each(["/", "/pricing", "/faq", "/privacy", "/how-it-works", "/bank-statement-to-excel"])(
     "allows a public marketing page: %s",
     (path) => expect(isPublicMarketingPath(path)).toBe(true),
@@ -17,6 +24,7 @@ describe("GA4 public marketing path allowlist", () => {
     "/api/analytics/collect",
     "/admin",
     "/admin/metrics",
+    "/future-private-page",
     "/pricing?token=private",
     "/UPPERCASE",
     "/" + "a".repeat(101),
