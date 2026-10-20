@@ -1,0 +1,36 @@
+name: Format GA4 draft files for review
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/format-ga4-draft.yml
+      - src/app/api/analytics/collect/route.ts
+      - src/components/site/ga4-marketing-consent.tsx
+      - src/components/site/footer.tsx
+
+permissions:
+  contents: read
+
+jobs:
+  preview-formatted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.23.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Format draft sources and print patches for review
+        run: |
+          pnpm exec prettier --write src/app/api/analytics/collect/route.ts src/components/site/ga4-marketing-consent.tsx src/components/site/footer.tsx
+          for file in src/app/api/analytics/collect/route.ts src/components/site/ga4-marketing-consent.tsx src/components/site/footer.tsx; do
+            echo "FORMATTED_FILE_START:$file"
+            base64 -w0 "$file"
+            echo
+            echo "FORMATTED_FILE_END:$file"
+          done
