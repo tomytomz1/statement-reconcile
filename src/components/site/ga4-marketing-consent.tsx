@@ -11,8 +11,11 @@ type Choice = "loading" | "unset" | "granted" | "denied" | "browser_denied";
 
 function browserPrivacyDenies(): boolean {
   const privacy = navigator as Navigator & { doNotTrack?: string; globalPrivacyControl?: boolean };
-  return privacy.globalPrivacyControl === true ||
-    privacy.doNotTrack === "1" || privacy.doNotTrack === "yes";
+  return (
+    privacy.globalPrivacyControl === true ||
+    privacy.doNotTrack === "1" ||
+    privacy.doNotTrack === "yes"
+  );
 }
 
 /**
@@ -69,22 +72,33 @@ export function Ga4MarketingConsent() {
         >
           <p className="font-semibold">Optional website analytics</p>
           <p className="mt-2 text-slate-700">
-            Allow Google Analytics to count visits to our public marketing pages?
-            No Google scripts run in your browser. We never report bank statements,
-            transactions, filenames, or anything entered into the converter.
-            Your choice is optional and can be changed later.
+            Allow Google Analytics to count visits to our public marketing pages? No Google scripts
+            run in your browser. We never report bank statements, transactions, filenames, or
+            anything entered into the converter. Your choice is optional and can be changed later.
           </p>
           <div className="mt-3 flex gap-2">
-            <button className="rounded border px-3 py-2" type="button" onClick={() => choose(false)}>
+            <button
+              className="rounded border px-3 py-2"
+              type="button"
+              onClick={() => choose(false)}
+            >
               Decline
             </button>
-            <button className="rounded bg-blue-700 px-3 py-2 text-white" type="button" onClick={() => choose(true)}>
+            <button
+              className="rounded bg-blue-700 px-3 py-2 text-white"
+              type="button"
+              onClick={() => choose(true)}
+            >
               Allow analytics
             </button>
           </div>
         </section>
       ) : (
-        <button className="rounded bg-white/95 px-2 py-1 text-xs text-slate-600 shadow-sm underline" type="button" onClick={() => setEditing(true)}>
+        <button
+          className="rounded bg-white/95 px-2 py-1 text-xs text-slate-600 underline shadow-sm"
+          type="button"
+          onClick={() => setEditing(true)}
+        >
           Analytics preferences
         </button>
       )}
