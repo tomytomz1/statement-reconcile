@@ -76,8 +76,22 @@ export async function checkRateLimit(
     try {
       return await upstashFixedWindow(key, rule);
     } catch (error) {
-      // Log only the safe error class, never credentials, URLs or Redis keys.
-      logFailure("rate_limit_backend_unavailable", error, { rule: rule.name });
+      // Only a known-safe network code is logged. Never log the exception
+      // message, cause text, Redis endpoint, token or client identity.
+      const cause = error instanceof Error ? (error as Error & { cause?: unknown }).cause : undefined;
+      const code =
+        cause && typeof cause === "object" && "code" in cause
+          ? String((cause as { code?: unknown }).code)
+          : "unknown";
+      const safeCode = new Set([
+        "ENOTFOUND", "EAI_AGAIN", "ECONNREFUSED", "ECONNRESET",
+        "ETIMEDOUT", "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_SOCKET",
+        "CERT_HAS_EXPIRED", "UNABLE_TO_VERIFY_LEAF_SIGNATURE",
+      ]).has(code) ? code : "other";
+      logFailure("rate_limit_backend_unavailable", error, {
+        rule: rule.name,
+        networkCode: safeCode,
+      });
       // Fail closed: if the limiter cannot be reached we do not know how much traffic has
       // already been served, so we decline rather than open the door.
       return { allowed: false, limit: rule.limit, remaining: 0, resetSeconds: rule.windowSeconds };
