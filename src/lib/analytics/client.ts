@@ -54,6 +54,9 @@ export function track<E extends AnalyticsEventName>(
       case "vercel":
         sendVercel(event, enriched);
         break;
+      case "ga4":
+        sendFirstPartyGa4(event);
+        break;
       default:
         break;
     }
@@ -135,4 +138,43 @@ function stringifyProps(properties: Record<string, unknown>): Record<string, str
     output[key] = String(value).slice(0, 64);
   }
   return output;
+}
+
+/**
+ * GA4 requires an explicit opt-in, and only public marketing events are relayed.
+ * Unlike gtag.js, no third-party JavaScript executes on this financial site's
+ * origin, which also stores sealed statement data in IndexedDB.
+ */
+let ephemeralGa4Session: { clientId: string; sessionId: string } | null = null;
+
+function sendFirstPartyGa4(event: string): void {
+  if (event !== "page_view" && event !== "pricing_viewed") return;
+  if (typeof window === "undefined") return;
+  if (window.location.origin !== siteConfig.url) return;
+  if (!/^\\/(?:[a-z0-9-]{1,100})?$/.test(window.location.pathname)) return;
+  try {
+    if (localStorage.getItem("sr_ga4_marketing_consent") !== "granted") return;
+    if (!ephemeralGa4Session) {
+      const bits = new Uint32Array(1);
+      crypto.getRandomValues(bits);
+      ephemeralGa4Session = {
+        clientId: `${bits[0]}.${Date.now()}`,
+        sessionId: String(Math.floor(Date.now() / 1000)),
+      };
+    }
+    void fetch("/api/analytics/collect", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      credentials: "same-origin",
+      keepalive: true,
+      body: JSON.stringify({
+        event,
+        path: window.location.pathname,
+        clientId: ephemeralGa4Session.clientId,
+        sessionId: ephemeralGa4Session.sessionId,
+      }),
+    }).catch(() => undefined);
+  } catch {
+    // Analytics must not interfere with the site.
+  }
 }
