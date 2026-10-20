@@ -278,6 +278,11 @@ export const privacyPolicy: LegalDocument = {
                 "Payment processing. Receives your card details, entered directly on Stripe's hosted page, and the limited session metadata listed above: a one-way digest, an opaque job id, a page count, a transaction count, and version numbers.",
             },
             {
+              term: "Plausible Analytics (when enabled on public pages)",
+              definition:
+                "Cookieless website analytics for public marketing pages. Receives the page URL without its query string or fragment, the referring site's origin, and limited interaction-event names and parameters. Processing pages do not permit third-party analytics connections. No statement text, transaction details, payment session identifiers, or customer-submitted form data are intentionally included.",
+            },
+            {
               term: "An LLM API provider (optional, only if configured on a deployment)",
               definition:
                 "An OpenAI-compatible or Anthropic API used only as a fallback when the deterministic parser cannot read a layout. When it is used, it receives the extracted statement text, sent with instructions never to retain it. The deterministic parser is always tried first, so most conversions never reach the fallback.",
@@ -323,9 +328,9 @@ export const privacyPolicy: LegalDocument = {
                 "Stripe's retention of payment records to meet financial, tax, and anti-fraud requirements.",
             },
             {
-              term: "Consent",
+              term: "Optional website analytics (legal basis to review)",
               definition:
-                "Optional analytics, where it is enabled at all. It is off by default and it is never a condition of using the converter.",
+                "When enabled, cookieless analytics measure limited public-site activity and are never required to use the converter. Do Not Track and Global Privacy Control preferences disable them. The applicable legal basis and consent requirements must be reviewed before publishing this draft.",
             },
           ],
         },
@@ -366,9 +371,9 @@ export const privacyPolicy: LegalDocument = {
           kind: "bullets",
           items: [
             "Strictly necessary storage only: the IndexedDB entry holding your encrypted result, and the small amount of state needed to carry a checkout session from the payment page back to the download.",
-            "Analytics are off by default. Where a deployment enables a privacy-preserving analytics provider, it is cookieless and records page-level events only, never statement content.",
+            "The production public marketing pages can send cookieless events to Plausible when analytics are enabled by deployment configuration. Analytics are not required to convert statements and are not intended to include statement content.",
             "We honour the Do Not Track header and the Global Privacy Control signal. If either is present, analytics do not run.",
-            "No cookie banner is used, because there is nothing to consent to beyond storage that is strictly necessary to deliver what you asked for.",
+            "The website does not currently show an analytics consent banner. Analytics use no cookies, and browser Do Not Track and Global Privacy Control signals disable analytics. Whether additional consent controls are required depends on applicable law.",
           ],
         },
       ],
