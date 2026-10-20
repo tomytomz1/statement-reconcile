@@ -38,7 +38,19 @@ function consent(): Consent {
 export function analyticsEnabled(): boolean {
   if (!flags.analytics) return false;
   if (siteConfig.analytics.provider === "none") return false;
-  return consent() === "allowed";
+  if (consent() !== "allowed") return false;
+  if (siteConfig.analytics.provider === "ga4") {
+    try {
+      // No event enrichment, attribution reads, or telemetry before opt-in.
+      return (
+        typeof window !== "undefined" &&
+        window.localStorage.getItem("sr_ga4_marketing_consent") === "granted"
+      );
+    } catch {
+      return false;
+    }
+  }
+  return true;
 }
 
 export function track<E extends AnalyticsEventName>(
