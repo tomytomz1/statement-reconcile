@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { flags } from "@/config/flags";
 import { siteConfig } from "@/config/site";
 import { track } from "@/lib/analytics/client";
@@ -18,29 +18,30 @@ function browserPrivacyDenies(): boolean {
   );
 }
 
+function watchConsent(onChange: () => void): () => void {
+  window.addEventListener("storage", onChange);
+  return () => window.removeEventListener("storage", onChange);
+}
+
+function currentConsent(): Choice {
+  if (browserPrivacyDenies()) return "browser_denied";
+  try {
+    const stored = localStorage.getItem(CONSENT_KEY);
+    return stored === "granted" || stored === "denied" ? stored : "unset";
+  } catch {
+    return "denied";
+  }
+}
+
 /**
  * Consent for OPTIONAL marketing analytics only. Never loads a Google script:
  * the opt-in page-view is sent to a first-party endpoint.
  * This component is mounted solely in the public (site) route group.
  */
 export function Ga4MarketingConsent() {
-  const [choice, setChoice] = useState<Choice>("loading");
+  const choice = useSyncExternalStore(watchConsent, currentConsent, () => "loading");
   const [editing, setEditing] = useState(false);
   const configured = flags.analytics && siteConfig.analytics.provider === "ga4";
-
-  useEffect(() => {
-    if (!configured) return;
-    if (browserPrivacyDenies()) {
-      setChoice("browser_denied");
-      return;
-    }
-    try {
-      const stored = localStorage.getItem(CONSENT_KEY);
-      setChoice(stored === "granted" || stored === "denied" ? stored : "unset");
-    } catch {
-      setChoice("denied");
-    }
-  }, [configured]);
 
   if (!configured || choice === "loading") return null;
 
@@ -48,11 +49,11 @@ export function Ga4MarketingConsent() {
     try {
       localStorage.setItem(CONSENT_KEY, granted ? "granted" : "denied");
     } catch {
-      setChoice("denied");
       setEditing(false);
       return;
     }
-    setChoice(granted ? "granted" : "denied");
+    // localStorage does not notify the tab that made the change.
+    window.dispatchEvent(new Event("storage"));
     setEditing(false);
     // This call occurs only on a real user opt-in. Never send a view on opt-out.
     if (granted && !browserPrivacyDenies()) {
