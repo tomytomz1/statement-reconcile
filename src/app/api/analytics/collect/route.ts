@@ -49,8 +49,13 @@ export async function POST(request: Request): Promise<Response> {
   const limit = await checkRateLimit({ name: "ga4-marketing", limit: 80, windowSeconds: 60 }, identity);
   if (!limit.allowed) return new Response(null, { status: 429 });
 
+  // Limit the actual body size, including requests with no Content-Length header.
   let input: unknown;
-  try { input = await request.json(); } catch {
+  try {
+    const raw = await request.text();
+    if (raw.length > 512) return new Response(null, { status: 413 });
+    input = JSON.parse(raw);
+  } catch {
     return new Response(null, { status: 400 });
   }
   if (!input || typeof input !== "object" || Array.isArray(input)) {
