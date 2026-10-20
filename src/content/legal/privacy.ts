@@ -7,7 +7,7 @@ export const privacyPolicy: LegalDocument = {
   metaDescription:
     "Your PDF is read in your browser and never uploaded. We keep no account, no database, and no copy of your statement. Here is exactly what happens to your data.",
   h1: "Privacy Policy",
-  lastUpdated: "2026-08-24",
+  lastUpdated: "2026-10-20",
   summary: [
     "This policy explains what happens to a bank or credit-card statement when you convert it, what we hold, and what we never hold.",
     "It describes the product as it is built today, not an intention. Where we say we store nothing, we mean there is no database, no file storage, and no account to store anything against.",
@@ -17,6 +17,7 @@ export const privacyPolicy: LegalDocument = {
     "We use that text to build your transaction table, then the response is sent and the text is gone. We do not write it anywhere.",
     "The finished result is held in your own browser, encrypted, and deletes itself after 60 minutes. You can delete it sooner with one click.",
     "There is no sign-up, so we have no name, no email, and no password for you. Stripe handles the payment and we never see your card.",
+    "If you choose optional analytics on public marketing pages, our server sends limited page events to Google Analytics. No Google tracking script runs in your browser, and financial-statement data is never sent to analytics.",
   ],
   sections: [
     {
@@ -278,6 +279,11 @@ export const privacyPolicy: LegalDocument = {
                 "Payment processing. Receives your card details, entered directly on Stripe's hosted page, and the limited session metadata listed above: a one-way digest, an opaque job id, a page count, a transaction count, and version numbers.",
             },
             {
+              term: "Google Analytics 4 (optional, only after marketing-page opt-in)",
+              definition:
+                "The website sends limited public-page events through our own server, without loading Google scripts in your browser. Google receives a sanitized page URL, event name, and temporary random client and session identifiers generated for the visit. No financial statement, bank name, filename, transaction, upload, conversion result, query parameter, or checkout identifier is intentionally sent. Analytics consent also explicitly disallows advertising use.",
+            },
+            {
               term: "An LLM API provider (optional, only if configured on a deployment)",
               definition:
                 "An OpenAI-compatible or Anthropic API used only as a fallback when the deterministic parser cannot read a layout. When it is used, it receives the extracted statement text, sent with instructions never to retain it. The deterministic parser is always tried first, so most conversions never reach the fallback.",
@@ -325,7 +331,7 @@ export const privacyPolicy: LegalDocument = {
             {
               term: "Consent",
               definition:
-                "Optional analytics, where it is enabled at all. It is off by default and it is never a condition of using the converter.",
+                "Optional Google Analytics is used only if you actively select Allow analytics on a public marketing page. Without that choice, no optional analytics events are sent. It is never a condition of using the converter, and you can withdraw permission through Analytics preferences.",
             },
           ],
         },
@@ -365,10 +371,10 @@ export const privacyPolicy: LegalDocument = {
         {
           kind: "bullets",
           items: [
-            "Strictly necessary storage only: the IndexedDB entry holding your encrypted result, and the small amount of state needed to carry a checkout session from the payment page back to the download.",
-            "Analytics are off by default. Where a deployment enables a privacy-preserving analytics provider, it is cookieless and records page-level events only, never statement content.",
+            "Essential browser storage: an IndexedDB entry holding your encrypted result, and the small amount of state needed to carry a checkout session from the payment page back to the download. When you choose an analytics preference, that preference is stored locally in your browser.",
+            "Optional Google Analytics is disabled until you affirmatively allow it on a public marketing page. Our own server relays restricted page-view and pricing events with temporary random identifiers. No Google scripts, advertising cookies, or bank-statement information are sent from your browser to Google.",
             "We honour the Do Not Track header and the Global Privacy Control signal. If either is present, analytics do not run.",
-            "No cookie banner is used, because there is nothing to consent to beyond storage that is strictly necessary to deliver what you asked for.",
+            "An Analytics preferences control on public marketing pages lets you decline, allow, or later withdraw this optional measurement. The converter still works if you decline. No analytics cookie is used.",
           ],
         },
       ],
@@ -379,7 +385,7 @@ export const privacyPolicy: LegalDocument = {
       blocks: [
         {
           kind: "paragraph",
-          text: "The service runs on infrastructure that may process requests in countries other than your own. Vercel and Stripe both operate globally and both offer standard contractual clauses and equivalent transfer mechanisms for personal data leaving the UK or the EEA; we rely on those mechanisms where they apply.",
+          text: "The service runs on infrastructure that may process requests in countries other than your own. Vercel and Stripe operate globally, and optional Google Analytics events may also be processed internationally. Applicable safeguards for international data transfers depend on the provider and jurisdiction.",
         },
         {
           kind: "paragraph",
