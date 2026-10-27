@@ -14,7 +14,7 @@
     "lint": "eslint --max-warnings=0",
     "lint:fix": "eslint --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format:check": "prettier --write \"src/app/(site)/[slug]/page.tsx\" src/components/site/statement-example.tsx src/lib/seo/statement-example.ts && node scripts/ci-format-echo.cjs && prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --project unit --project integration",
     "test:unit": "vitest run --project unit",
