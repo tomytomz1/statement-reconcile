@@ -4,10 +4,10 @@
 
 Property: `sc-domain:statementreconcile.com`, Web Search, page-level aggregation. Comparable 18-day windows:
 
-| Metric | Aug 25–Sep 11 | Sep 12–Sep 29 |
-| --- | ---: | ---: |
-| Impressions | 696 | 10 |
-| Landing pages with impressions | 32 | 3 |
+| Metric                         | Aug 25–Sep 11 | Sep 12–Sep 29 |
+| ------------------------------ | ------------: | ------------: |
+| Impressions                    |           696 |            10 |
+| Landing pages with impressions |            32 |             3 |
 | Clicks | 3 | 0 |
 
 October 1–23: 13 page-level impressions across 4 URLs, 0 clicks. Search Console query-level sums can be much lower than page-level totals because Google anonymizes low-volume queries.
