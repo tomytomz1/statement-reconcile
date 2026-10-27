@@ -69,8 +69,5 @@ export function exampleCsv(kind: ExampleKind): string {
     ].join(",");
   });
 
-  return [
-    "Date,Posted Date,Description,Debit,Credit,Amount,Balance",
-    ...lines,
-  ].join("\r\n");
+  return ["Date,Posted Date,Description,Debit,Credit,Amount,Balance", ...lines].join("\r\n");
 }
