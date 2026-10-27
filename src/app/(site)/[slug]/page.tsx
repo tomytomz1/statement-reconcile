@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { routes, siteConfig } from "@/config/site";
 import { JsonLd } from "@/components/site/json-ld";
+import { StatementExample } from "@/components/site/statement-example";
 import { ButtonLink } from "@/components/ui/button";
 import {
   Badge,
@@ -150,6 +151,11 @@ export default async function ConversionLandingPage({
           </div>
         </Container>
       </Section>
+
+      {page.slug === "bank-statement-to-excel" ||
+      page.slug === "credit-card-statement-to-excel" ? (
+        <StatementExample kind={page.slug === "credit-card-statement-to-excel" ? "card" : "bank"} />
+      ) : null}
 
       <Section tone="raised" labelledBy="reconciliation">
         <Container>
