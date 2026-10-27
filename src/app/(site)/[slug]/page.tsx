@@ -152,8 +152,7 @@ export default async function ConversionLandingPage({
         </Container>
       </Section>
 
-      {page.slug === "bank-statement-to-excel" ||
-      page.slug === "credit-card-statement-to-excel" ? (
+      {page.slug === "bank-statement-to-excel" || page.slug === "credit-card-statement-to-excel" ? (
         <StatementExample kind={page.slug === "credit-card-statement-to-excel" ? "card" : "bank"} />
       ) : null}
 
